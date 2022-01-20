@@ -1,15 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Main Page</title>
+
+    <title>Nodify</title>
 </head>
 
 <body>
-    This is man page
+    <div id='application-container'>
+        <div id='subview-1'>
+            <ul data-tabs-left>
+                <li><a data-tabby-default href="#canvas-container-tab">Canvas</a></li>
+            </ul>
+
+            <div id='canvas-container-tab'>
+                <canvas id='canvas'></canvas>
+            </div>
+
+        </div>
+        <div id='subview-2'>
+            <ul data-tabs-right>
+                <li><a data-tabby-default href="#terminal-container-tab">Terminal</a></li>
+                <li><a href="#error-container-tab">Error</a></li>
+            </ul>
+
+            <div id="error-container-tab">
+
+            </div>
+
+            <div id="terminal-container-tab">
+                <div id="command-line-base"></div>
+
+                <div class="terminal-highlights">
+                    <div id='terminal-container-tab-input-area' class="terminal-highligths-editable" spellcheck="false"
+                        contenteditable='true'></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

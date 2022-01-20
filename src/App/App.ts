@@ -1,16 +1,22 @@
 import GraphModel from "./GraphModel/GraphModel"
 import { Logger, LoggerLevel } from "../Logger/Logger"
-import CircleNode from "./GraphModel/CircleNode"
 import Configuration from "./Configuration/Configuration"
 import os from 'os'
 import path from 'path'
-
+import TerminalTab from "./Tabs/TerminalTab"
+import Parser from "./Commands/Parser/Parser"
+import Executor from "./Commands/Executor/Executor"
+import CommandStore from "./Commands/Storage/CommandStore"
 
 /** Main application entry class*/
 export default class App {
     private logger = new Logger('App')
 
+    private commandStore: CommandStore
     private graphModel: GraphModel
+    private terminalTab: TerminalTab
+    private parser: Parser
+    private executor: Executor
 
     constructor() {
         this.initialize()
@@ -26,25 +32,25 @@ export default class App {
         }
 
         this.initializeAndSubscribeComponents()
-
-        // const graphModel = new GraphModel()
-        // const node1 = new CircleNode()
-        // const node2 = new CircleNode()
-        // graphModel.addNode(node1)
-        // graphModel.addNode(node2)
-        // graphModel.addConnection(node1.getUniqueId(), node2.getUniqueId())
-        // graphModel.addConnection(node1.getUniqueId(), node1.getUniqueId())
-        // graphModel.rmNode(node1.getUniqueId())
-        // graphModel.rmNode(node1.getUniqueId())
-
-        // console.log(graphModel.getModel())
-        // console.log(graphModel.getConnections())
-
     }
 
     private initializeAndSubscribeComponents() {
+        /* Init modules */
+        this.commandStore = new CommandStore()
         this.graphModel = new GraphModel()
+        this.terminalTab = new TerminalTab()
+        this.parser = new Parser()
+        this.executor = new Executor()
 
+        /* Subscribe for input events from terminal tab */
+        this.terminalTab.subscribeOnKeyPress('Enter', this.parser)
+
+        /* Subscribe for when something gets parsed */
+        this.parser.subscribeOnParsed(this.executor)
+
+        /* Subscribe modules that are affected by conf reload */
         Configuration.get().subscribeReloadable(this.graphModel)
+
+        this.logger.log('Components initialized & subscribbed!')
     }
 }
