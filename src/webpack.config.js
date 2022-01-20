@@ -36,9 +36,9 @@ module.exports = {
             chunks: ['gifLogic']
         }),
     ],
-    optimization: {
-        minimize: false
-    },
+    // optimization: {
+    //     minimize: false
+    // },
     module: {
         rules: [
             {

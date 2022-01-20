@@ -1,13 +1,10 @@
 root = {
     "schema": {
-        "name": 'delnode',
+        "name": 'delnode22',
         "mandatory": ["id"],
         "id": "Numberv",
+        "ceva": "Numberv2"
     },
     async logic(parsedData, api) {
-
-        parsedData.id.forEach(async (id) => {
-            await api.deleteNode(id)
-        })
     }
 }
