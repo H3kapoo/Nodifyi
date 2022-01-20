@@ -1,0 +1,46 @@
+{
+  "name": "Nodify",
+  "version": "1.0.0",
+  "productName": "Nodify",
+  "main": "src/backend/index.js",
+  "scripts": {
+    "electron": "electron .",
+    "webpack-hot": "webpack --watch --config src/webpack.config.js",
+    "test": "nyc ./node_modules/.bin/_mocha 'tests/**/*.test.ts' ",
+    "package-linux": "electron-packager . Nodify --overwrite --asar=true --platform=linux --arch=x64 --prune=true --out=release-builds",
+    "pack-deb": "electron-installer-debian --src release-builds/Nodify-linux-x64 --arch amd64 --config debian.json",
+    "release": "yarn run package-linux && yarn run pack-deb"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@types/chai": "^4.3.0",
+    "@types/node": "^17.0.9",
+    "@types/typescript": "^2.0.0",
+    "@types/webpack": "^5.28.0",
+    "css-loader": "^6.5.1",
+    "html-webpack-plugin": "^5.5.0",
+    "style-loader": "^3.3.1",
+    "ts-loader": "^9.2.6",
+    "typescript": "^4.5.4",
+    "webpack": "^5.66.0",
+    "webpack-cli": "^4.9.1"
+  },
+  "devDependencies": {
+    "@electron/remote": "^2.0.1",
+    "@testdeck/mocha": "^0.2.0",
+    "@types/electron": "^1.6.10",
+    "@types/mocha": "^9.0.0",
+    "@types/sinon": "^10.0.6",
+    "chai": "^4.3.4",
+    "electron": "^16.0.7",
+    "electron-installer-debian": "^3.1.0",
+    "electron-packager": "^15.4.0",
+    "electron-reloader": "^1.2.1",
+    "mocha": "^9.1.4",
+    "nyc": "^15.1.0",
+    "sinon": "^12.0.1",
+    "ts-mockito": "^2.6.1",
+    "ts-node": "^10.4.0",
+    "webpack-electron-reload": "^1.0.1"
+  }
+}
