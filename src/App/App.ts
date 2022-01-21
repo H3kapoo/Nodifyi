@@ -8,6 +8,8 @@ import Parser from "./Commands/Parser/Parser"
 import Executor from "./Commands/Executor/Executor"
 import CommandStore from "./Commands/Storage/CommandStore"
 
+const { ipcRenderer } = require('electron')
+
 /** Main application entry class*/
 export default class App {
     private logger = new Logger('App')
@@ -36,9 +38,9 @@ export default class App {
 
     private initializeAndSubscribeComponents() {
         /* Init modules */
+        this.terminalTab = new TerminalTab()
         this.commandStore = new CommandStore()
         this.graphModel = new GraphModel()
-        this.terminalTab = new TerminalTab()
         this.parser = new Parser()
         this.executor = new Executor()
 
@@ -49,7 +51,15 @@ export default class App {
         this.parser.subscribeOnParsed(this.executor)
 
         /* Subscribe modules that are affected by conf reload */
+        Configuration.get().subscribeReloadable(this.commandStore)
         Configuration.get().subscribeReloadable(this.graphModel)
+
+        /** DBG ONLY - TBR */
+        ipcRenderer.on('RELOAD_CONFIG', () => {
+            Configuration.get().updateCurrentConf({
+                "udPath": "/home/hekapoo/Documents/_Licence/nodify2/src/App/Commands/UserDefinedDummy"
+            })
+        })
 
         this.logger.log('Components initialized & subscribbed!')
     }

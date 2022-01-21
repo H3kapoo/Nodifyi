@@ -1,10 +1,14 @@
 root = {
     "schema": {
-        "name": 'delnode22',
+        "name": 'delnode2',
         "mandatory": ["id"],
         "id": "Numberv",
         "ceva": "Numberv2"
     },
-    async logic(parsedData, api) {
+    async logic(laba) {
+        console.log('testing')
+        for (let x of laba) {
+
+        }
     }
 }

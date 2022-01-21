@@ -117,7 +117,8 @@ export default class GraphModel implements IReloadable {
         return true
     }
 
-    onConfReload(): void {
+    public onConfReload() {
+        this.logger.log('needs reload')
     }
 
 

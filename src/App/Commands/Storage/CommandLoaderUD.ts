@@ -11,17 +11,16 @@ export default class CommandLoaderUD {
 
     private commands: CommandsStruct
 
-    constructor() {
-        if (this.initialize())
-            this.logger.log('Probably Initialized')
+    constructor(directoryPath: string) {
+        if (this.initialize(directoryPath))
+            this.logger.log('Initialized')
         else
             this.logger.log('NOT Initialized', LoggerLevel.ERR)
     }
 
-    private initialize() {
+    private initialize(directoryPath: string) {
         const commandsFaker = {}
 
-        const directoryPath = path.join(__dirname, '../App/Commands/UserDefinedDummy');
         let cmdPaths: string[]
 
         try {
@@ -31,105 +30,90 @@ export default class CommandLoaderUD {
             return false
         }
 
-        try {
-            for (const cmdPath of cmdPaths) {
-                const rawResult = fs.readFileSync(cmdPath).toString()
-                const prefixEnd = rawResult.indexOf('{')
-                const rawJSON = rawResult.split('{').splice(1).join('')
-                console.log(rawJSON)
+        for (const cmdPath of cmdPaths) {
+            let rawObject = ''
 
-                // this.conf = JSON.parse(rawResult)
+            try {
+                rawObject = rawObject = fs.readFileSync(cmdPath).toString()
+            } catch (err) {
+                this.logger.log(`Command defined at ${cmdPath} could not be read!`, LoggerLevel.ERR)
+                return false
             }
-        } catch (error) {
-            return false
+
+            if (!rawObject.indexOf('{')) {
+                this.logger.log(`Command defined at ${cmdPath} has wrong format, missing opening '{' !`, LoggerLevel.ERR)
+                return false
+            }
+
+            rawObject = rawObject.substring(rawObject.indexOf('{'))
+
+            if (!rawObject.lastIndexOf('}')) {
+                this.logger.log(`Command defined at ${cmdPath} has wrong format, missing closing '}' !`, LoggerLevel.ERR)
+                return false
+            }
+
+            rawObject = rawObject.substring(0, rawObject.lastIndexOf('}') + 1)
+
+            let object = {}
+
+            try {
+                object = eval(`new Object( ${rawObject})`)
+            } catch (err) {
+                this.logger.log(`Command defined at ${cmdPath} object could not be parsed!`, LoggerLevel.ERR)
+                return false
+            }
+
+            //@ts-ignore
+            if (!object.schema) {
+                this.logger.log(`Command defined at ${cmdPath} has no schema set!`, LoggerLevel.ERR)
+                return false
+            }
+
+            //@ts-ignore
+            if (!object.schema.name) {
+                this.logger.log(`Command defined at ${cmdPath} has no name set!`, LoggerLevel.ERR)
+                return false
+            }
+
+            //@ts-ignore
+            if (!object.schema.mandatory) {
+                this.logger.log(`Command defined at ${cmdPath} has no 'mandatory' field set!`, LoggerLevel.ERR)
+                return false
+            }
+
+            //@ts-ignore
+            for (const mandatoryOpt of object.schema.mandatory) {
+                //@ts-ignore
+                if (!object.schema[mandatoryOpt]) {
+                    this.logger.log(`Missing mandatory option '${mandatoryOpt}' from schema`, LoggerLevel.ERR)
+                    return false
+                }
+            }
+
+            //@ts-ignore
+            for (const [opt, argType] of Object.entries(object.schema)) {
+                if (opt === 'name' || opt === 'mandatory') continue
+
+                //@ts-ignore
+                if (!Object.values(ValidTypes).includes(argType)) {
+                    this.logger.log(`Argument type for option '${opt}' is not valid (current: ${argType})!`, LoggerLevel.ERR)
+                    return false
+                }
+            }
+
+            //@ts-ignore
+            if (commandsFaker[object.schema.name]) {
+                //@ts-ignore
+                this.logger.log(`User defined command '${object.schema.name}' already exists!`, LoggerLevel.ERR)
+                return false
+            }
+
+            //@ts-ignore
+            commandsFaker[object.schema.name] = { schema: object.schema, logic: object.logic }
         }
-        // read each .js into an {}
-        // JSON.stringify({}) then save it into a file similat to builtin.js
 
-        // for (const [currentIndex, cmdPath] of cmdPaths.entries()) {
-        //     this.loadScript(cmdPath, () => {
-
-        //         //@ts-ignore
-        //         if (!root.schema) {
-        //             this.commands = {}
-        //             this.logger.log(`Command defined at ${cmdPath} has no schema set!`, LoggerLevel.ERR)
-        //             return
-        //         }
-
-        //         //@ts-ignore
-        //         if (!root.schema.name) {
-        //             this.commands = {}
-        //             this.logger.log(`Command defined at ${cmdPath} has no name set!`, LoggerLevel.ERR)
-        //             return
-        //         }
-
-        //         //@ts-ignore
-        //         if (!root.schema.mandatory) {
-        //             this.commands = {}
-        //             this.logger.log(`Command defined at ${cmdPath} has no 'mandatory' field set!`, LoggerLevel.ERR)
-        //             return
-        //         }
-
-        //         //@ts-ignore
-        //         for (const mandatoryOpt of root.schema.mandatory) {
-        //             //@ts-ignore
-        //             if (!root.schema[mandatoryOpt]) {
-        //                 this.commands = {}
-        //                 this.logger.log(`Missing mandatory option '${mandatoryOpt}' from schema`, LoggerLevel.ERR)
-        //                 return
-        //             }
-        //         }
-
-        //         //@ts-ignore
-        //         for (const [opt, argType] of Object.entries(root.schema)) {
-        //             if (opt === 'name' || opt === 'mandatory') continue
-
-        //             //@ts-ignore
-        //             if (!Object.values(ValidTypes).includes(argType)) {
-        //                 this.commands = {}
-        //                 this.logger.log(`Argument type for option '${opt}' is not valid (current: ${argType})!`, LoggerLevel.ERR)
-        //                 return
-        //             }
-        //         }
-
-        //         //@ts-ignore
-        //         if (this.commands[root.schema.name]) {
-        //             //@ts-ignore
-        //             this.logger.log(`User defined command '${root.schema.name}' already exists!`, LoggerLevel.ERR)
-        //             this.commands = {}
-        //             return
-        //         }
-
-        //         //@ts-ignore
-        //         this.commands[root.schema.name] = { schema: root.schema, logic: root.logic }
-
-        //         this.unloadScript()
-
-        //         if (currentIndex + 1 === cmdPaths.length) {
-        //             this.logger.log(`User defined commands retard loading finished!`)
-        //         }
-        //     })
-        // }
+        this.commands = commandsFaker
         return true
-    }
-
-
-    private loadScript(filePath: string, callback: any) {
-        let head = document.getElementsByTagName('head')[0]
-        let script = document.createElement('script')
-        script.type = 'text/javascript'
-        script.src = filePath
-        script.id = 'cmd-script'
-        script.onload = callback
-        head.appendChild(script)
-    }
-
-    private unloadScript(): void {
-        const elem = document.getElementById('cmd-script')
-        if (elem)
-            elem.remove()
-        else
-            this.logger.log('Unloading of invisible script tag', LoggerLevel.WRN)
     }
 
     public getCommands(): CommandsStruct { return this.commands ?? null }

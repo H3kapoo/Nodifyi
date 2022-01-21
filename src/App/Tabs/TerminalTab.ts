@@ -58,7 +58,7 @@ export default class TerminalTab {
         this.listeners[key].push(listener)
     }
 
-    public printInput() {
+    private printInput() {
         const shallPrintOnlyPrefix = this.userInput.length ? false : true
 
         if (shallPrintOnlyPrefix)
@@ -76,59 +76,6 @@ export default class TerminalTab {
         }
 
         utils.setCaret(this.terminalDOM, this.terminalPrefix)
-        return true
-    }
-
-    public printStd(fromContext: string, msg: string) {
-        if (!this.userInput.length) {
-            this.logger.log('User input is null in printStd', LoggerLevel.WRN)
-            return false
-        }
-
-        const outputDiv = document.createElement("div")
-        const contextDOM = `<span id='cmd-info-text-prep'>${fromContext}</span>`
-        const sanitized = utils.sanitizeInput(msg)
-
-        let content = ''
-        if (sanitized === null)
-            this.logger.log('Sanitize in printStd is null. Empty output shall be produced', LoggerLevel.WRN)
-        else
-            content = sanitized.replace(/[0-9]+/g, (m) => { return `<span id='cmd-text-number'>${m}</span>` })
-
-        outputDiv.id = 'cmd-info-text'
-        outputDiv.innerHTML = contextDOM + content
-
-        if (!document.getElementById('command-line-base').appendChild(outputDiv)) {
-            this.logger.log('Could not appendChild for printStd!', LoggerLevel.ERR)
-            return false
-        }
-        return true
-    }
-
-    public printErr(fromContext: string, msg: string) {
-        if (!this.userInput.length) {
-            this.logger.log('User input is null in printErr', LoggerLevel.WRN)
-            return false
-        }
-
-        const outputDiv = document.createElement("div")
-        const contextDOM = `<span id='cmd-err-text-prep'>${fromContext}</span>`
-        const sanitized = utils.sanitizeInput(msg)
-
-        /* Info printing highlights the numbers in the input :)*/
-        let content = ''
-        if (sanitized === null)
-            this.logger.log('Sanitize in printErr is null. Empty output shall be produced', LoggerLevel.WRN)
-        else
-            content = sanitized.replace(/[0-9]+/g, (m) => { return `<span id='cmd-text-number'>${m}</span>` })
-
-        outputDiv.id = 'cmd-info-text'
-        outputDiv.innerHTML = contextDOM + content
-
-        if (!document.getElementById('command-line-base').appendChild(outputDiv)) {
-            this.logger.log('Could not appendChild for printErr!', LoggerLevel.ERR)
-            return false
-        }
         return true
     }
 

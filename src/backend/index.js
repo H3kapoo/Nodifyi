@@ -18,10 +18,15 @@ const menu = new Menu()
 const debugMenu = new MenuItem({
     label: 'Export',
     submenu: [
+        // {
+        //     label: 'Reload',
+        //     accelerator: 'Shift+R',
+        //     click: () => { createModal() }
+        // },
         {
             label: 'Reload',
             accelerator: 'Shift+R',
-            click: () => { createModal() }
+            click: () => { mainWindow.webContents.send('RELOAD_CONFIG') }
         },
         {
             label: 'Debug console',
