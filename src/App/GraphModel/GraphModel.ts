@@ -1,25 +1,22 @@
 import { Logger, LoggerLevel } from "../../Logger/Logger"
 import IReloadable from "../Configuration/IReloadable"
+import IAppStartup from "../IAppStartup"
 import { GraphNodeId, GraphNodeSet, ConnectionSet } from "../types"
 import Connection from "./Connection"
 import GraphNode from "./GraphNode"
 
 
 /** Class handling the insert/remove/update of graph objects */
-export default class GraphModel implements IReloadable {
+export default class GraphModel implements IReloadable, IAppStartup {
     private logger = new Logger('GraphModel')
 
     private model: GraphNodeSet
     private connections: ConnectionSet
 
-    constructor() {
-        this.initialize()
-        this.logger.log('Initialized')
-    }
-
-    private initialize(): void {
+    public initialize() {
         this.model = {}
         this.connections = {}
+        return true
     }
 
     public addNode(node: GraphNode) {
@@ -121,9 +118,11 @@ export default class GraphModel implements IReloadable {
         this.logger.log('needs reload')
     }
 
-
     public getModel() { return this.model }
 
     public getConnections() { return this.connections }
 
+    public getModuleName(): string {
+        return this.logger.getContext()
+    }
 }

@@ -1,14 +1,14 @@
 import { Logger, LoggerLevel } from "../../../Logger/Logger"
-import CommandLoaderBI from "./CommandLodaderBI"
+import CommandLoaderBI from "./CommandLoaderBI"
 import CommandLoaderUD from "./CommandLoaderUD"
 import { CommandsStruct } from "../../types"
 import IReloadable from "../../Configuration/IReloadable"
-import path from 'path'
 import Configuration from "../../Configuration/Configuration"
+import IAppStartup from "../../IAppStartup"
+const builtin = require('../BuiltinCommands/builtin')
 
 
-export default class CommandStore implements IReloadable {
-
+export default class CommandStore implements IReloadable, IAppStartup {
     private logger = new Logger('CommandStore')
 
     private loaderBI: CommandLoaderBI
@@ -16,42 +16,40 @@ export default class CommandStore implements IReloadable {
 
     private commands: CommandsStruct
 
-    constructor() {
-        if (this.initialize())
-            this.logger.log('Initialized')
-        else
-            this.logger.log('NOT Initialized', LoggerLevel.ERR)
-    }
-
-    private initialize() {
+    public initialize() {
         const udPath = Configuration.get().param('udPath') as string
+
         this.loaderBI = new CommandLoaderBI()
-        this.loaderUD = new CommandLoaderUD(udPath)
+        this.loaderUD = new CommandLoaderUD()
 
-        const commandsBI = this.loaderBI.getCommands()
-        const commandsUD = this.loaderUD.getCommands()
-
-        if (!commandsBI) {
+        if (!this.loaderBI.initialize(builtin)) {
             this.logger.log(`Fatal error! Built-in commands error overflow!`, LoggerLevel.ERR)
             return false
         }
 
-        if (!commandsUD) {
+        if (!this.loaderUD.initialize(udPath)) {
             this.logger.log(`Fatal error! User-defined commands error overflow!`, LoggerLevel.ERR)
             return false
         }
 
+        this.commands = this.mergeSources(this.loaderBI.getCommands(), this.loaderUD.getCommands())
+
+        if (!this.commands)
+            return false
+        return true
+    }
+
+    private mergeSources(commandsBI: CommandsStruct, commandsUD: CommandsStruct): CommandsStruct {
         const commandsFaker = commandsBI
 
         for (const [name, value] of Object.entries(commandsUD)) {
             if (commandsFaker[name]) {
                 this.logger.log(`Internal command '${name}' cannot be redefined by user!`, LoggerLevel.ERR)
-                return false
+                return null
             }
             commandsFaker[name] = value
         }
-        this.commands = commandsFaker
-        return true
+        return commandsFaker
     }
 
     public onConfReload(): void {
@@ -63,4 +61,6 @@ export default class CommandStore implements IReloadable {
     }
 
     public getCommands(): CommandsStruct { return this.commands ?? null }
+
+    public getModuleName(): string { return this.logger.getContext() }
 }

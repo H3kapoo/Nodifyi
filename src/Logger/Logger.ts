@@ -32,13 +32,22 @@ export class Logger {
 
     }
 
+    public logc(customContext: string, msg: any, level?: LoggerLevel) {
+        if (!Logger.loggingActive) return
+
+        if (level)
+            console.log(`%c[${level}][${customContext}] ${msg}`, this.getLoggerLevelColor(level))
+        else
+            console.log(`%c[${this.defaultLevel}][${customContext}] ${msg}`, this.getLoggerLevelColor(this.defaultLevel))
+    }
+
     public raw(msg: any) {
         console.log(`[${this.context}] printed ->`)
         console.log(msg)
     }
 
     public getContext(): string {
-        return `[${this.context}]`
+        return this.context
     }
 
     private getLoggerLevelColor(lvl: LoggerLevel): string {

@@ -1,12 +1,13 @@
 import { Logger, LoggerLevel } from "../../Logger/Logger";
 import Configuration from "../Configuration/Configuration";
+import IAppStartup from "../IAppStartup";
 import { StringKeyObject } from "../types";
 import ITerminalTabListener from "./ITerminalTabListener";
 import * as utils from './TerminalUtils'
 
 
 /** Class handling interaction with the Terminal tab in subview-2*/
-export default class TerminalTab {
+export default class TerminalTab implements IAppStartup {
     private logger = new Logger('TerminalTab')
 
     private terminalDOM: HTMLElement
@@ -17,14 +18,7 @@ export default class TerminalTab {
 
     private listeners: { [key: string]: ITerminalTabListener[] }
 
-    constructor() {
-        if (this.initialize())
-            this.logger.log('Initialized')
-        else
-            this.logger.log('NOT Initialized', LoggerLevel.ERR)
-    }
-
-    private initialize() {
+    public initialize() {
         this.inputHistory = []
         this.inputHistoryOffset = 0
         this.userInput = null
@@ -150,5 +144,9 @@ export default class TerminalTab {
         event.preventDefault()
         let text = '' + event.clipboardData.getData("text/plain").replace(this.terminalPrefix, '')
         document.execCommand("insertText", false, text)
+    }
+
+    public getModuleName(): string {
+        return this.logger.getContext()
     }
 }

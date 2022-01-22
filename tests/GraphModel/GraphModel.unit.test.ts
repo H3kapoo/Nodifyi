@@ -19,6 +19,7 @@ should()
     before() {
         GraphNode.testOnlyResetIdGiver()
         this.sut = new GraphModel()
+        this.sut.initialize()
         this.node1 = new CircleNode()
         this.node2 = new CircleNode()
         this.node3 = new CircleNode()

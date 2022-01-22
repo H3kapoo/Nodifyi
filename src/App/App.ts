@@ -21,19 +21,18 @@ export default class App {
     private executor: Executor
 
     constructor() {
-        this.initialize()
-        this.logger.log('Initialized')
+        if (this.initialize())
+            this.logger.log('Initialized')
+        else
+            this.logger.log(`--- APPLICATION ABORT | CONTACT OWNER ---`, LoggerLevel.ERR)
     }
 
-    private initialize(): void {
+    private initialize() {
         const confPath = path.join(os.homedir(), '.defaultConf.json')
 
-        if (!Configuration.get().loadConf(confPath)) {
-            this.logger.log(`--- APPLICATION ABORT | CONTACT OWNER ---`, LoggerLevel.ERR)
-            return
-        }
-
-        this.initializeAndSubscribeComponents()
+        if (!Configuration.get().loadConf(confPath) || !this.initializeAndSubscribeComponents())
+            return false
+        return true
     }
 
     private initializeAndSubscribeComponents() {
@@ -43,6 +42,20 @@ export default class App {
         this.graphModel = new GraphModel()
         this.parser = new Parser()
         this.executor = new Executor()
+
+        /* Initialize all components */
+        const startupMods = [this.commandStore, this.graphModel, this.terminalTab,]
+        const allStarted = startupMods.every(mod => {
+            if (!mod.initialize()) {
+                this.logger.logc(mod.getModuleName(), `Startup NOT Initialized!`, LoggerLevel.ERR)
+                return false
+            }
+            this.logger.logc(mod.getModuleName(), `Startup Initialized!`)
+            return true
+        })
+
+        if (!allStarted)
+            return false
 
         /* Subscribe for input events from terminal tab */
         this.terminalTab.subscribeOnKeyPress('Enter', this.parser)
@@ -62,5 +75,6 @@ export default class App {
         })
 
         this.logger.log('Components initialized & subscribbed!')
+        return true
     }
 }

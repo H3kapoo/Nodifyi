@@ -22,8 +22,8 @@ interface GraphNodeSet {
 
 interface CommandSchema {
     name: string,
-    mandatory: string[]
-    [option: string]: string
+    mandatory: string[],
+    option?: string
 }
 
 interface CommandsStruct {
