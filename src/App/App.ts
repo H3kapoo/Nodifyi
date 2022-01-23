@@ -3,7 +3,8 @@ import { Logger, LoggerLevel } from "../Logger/Logger"
 import Configuration from "./Configuration/Configuration"
 import os from 'os'
 import path from 'path'
-import TerminalTab from "./Tabs/TerminalTab"
+import Renderer from "./Renderer/Renderer"
+import TabsLoader from "./Tabs/TabsLoader"
 import Parser from "./Commands/Parser/Parser"
 import Executor from "./Commands/Executor/Executor"
 import CommandStore from "./Commands/Storage/CommandStore"
@@ -16,7 +17,8 @@ export default class App {
 
     private commandStore: CommandStore
     private graphModel: GraphModel
-    private terminalTab: TerminalTab
+    private renderer: Renderer
+    private tabsLoader: TabsLoader
     private parser: Parser
     private executor: Executor
 
@@ -37,14 +39,15 @@ export default class App {
 
     private initializeAndSubscribeComponents() {
         /* Init modules */
-        this.terminalTab = new TerminalTab()
+        this.tabsLoader = new TabsLoader()
         this.commandStore = new CommandStore()
         this.graphModel = new GraphModel()
+        this.renderer = new Renderer()
         this.parser = new Parser()
         this.executor = new Executor()
 
         /* Initialize all components */
-        const startupMods = [this.commandStore, this.graphModel, this.terminalTab,]
+        const startupMods = [this.commandStore, this.graphModel, this.tabsLoader, this.renderer]
         const allStarted = startupMods.every(mod => {
             if (!mod.initialize()) {
                 this.logger.logc(mod.getModuleName(), `Startup NOT Initialized!`, LoggerLevel.ERR)
@@ -58,10 +61,14 @@ export default class App {
             return false
 
         /* Subscribe for input events from terminal tab */
-        this.terminalTab.subscribeOnKeyPress('Enter', this.parser)
+        this.tabsLoader.getTerminalTab().subscribeOnKeyPress('Enter', this.parser)
 
         /* Subscribe for when something gets parsed */
         this.parser.subscribeOnParsed(this.executor)
+
+        /* Subscribe the graphModel & canvas context to the Renderer*/
+        this.renderer.subscribeGraphModel(this.graphModel)
+        this.renderer.subscribeCanvas(this.tabsLoader.getCanvasTab().getCanvas())
 
         /* Subscribe modules that are affected by conf reload */
         Configuration.get().subscribeReloadable(this.commandStore)
@@ -73,6 +80,9 @@ export default class App {
                 "udPath": "/home/hekapoo/Documents/_Licence/nodify2/src/App/Commands/UserDefinedDummy"
             })
         })
+
+        /* Start-app render trigger */
+        this.renderer.render()
 
         this.logger.log('Components initialized & subscribbed!')
         return true

@@ -7,7 +7,7 @@ import * as utils from './TerminalUtils'
 
 
 /** Class handling interaction with the Terminal tab in subview-2*/
-export default class TerminalTab implements IAppStartup {
+export default class TerminalTab {
     private logger = new Logger('TerminalTab')
 
     private terminalDOM: HTMLElement
@@ -144,9 +144,5 @@ export default class TerminalTab implements IAppStartup {
         event.preventDefault()
         let text = '' + event.clipboardData.getData("text/plain").replace(this.terminalPrefix, '')
         document.execCommand("insertText", false, text)
-    }
-
-    public getModuleName(): string {
-        return this.logger.getContext()
     }
 }

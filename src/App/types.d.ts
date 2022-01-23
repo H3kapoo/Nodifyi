@@ -1,5 +1,32 @@
 import Connection from "./GraphModel/Connection";
 
+interface ConnectionOptions {
+    color?: string,
+    elevation?: number
+}
+
+interface GraphNodeBaseOptions {
+    position: Vec2d,
+    color?: string,
+    radius?: number
+}
+
+interface CircleNodeOptions {
+    position: Vec2d,
+    color?: string,
+    radius?: number
+}
+
+type Vec2d = [number, number]
+
+type Vec3d = [number, number, number]
+
+interface ConnectionPoints {
+    start: Vec2d,
+    end: Vec2d,
+    control: Vec2d,
+}
+
 type GraphNodeId = number
 
 type CommandLogic = Function

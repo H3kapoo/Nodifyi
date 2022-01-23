@@ -2,10 +2,10 @@
 import { suite, test } from '@testdeck/mocha'
 import { spy } from 'sinon'
 import { should } from 'chai'
-import { mock, instance } from 'ts-mockito'
+import { mock, instance, anything } from 'ts-mockito'
 import GraphModel from '../../src/App/GraphModel/GraphModel'
 import CircleNode from '../../src/App/GraphModel/CircleNode'
-import GraphNode from '../../src/App/GraphModel/GraphNode'
+import GraphNodeBase from '../../src/App/GraphModel/GraphNodeBase'
 import { EXPECT, EXPECT_EQL, EXPECT_NOT_NULL } from '../Utils/Expectation'
 
 should()
@@ -17,12 +17,12 @@ should()
     private node3: CircleNode
 
     before() {
-        GraphNode.testOnlyResetIdGiver()
+        GraphNodeBase.testOnlyResetIdGiver()
         this.sut = new GraphModel()
         this.sut.initialize()
-        this.node1 = new CircleNode()
-        this.node2 = new CircleNode()
-        this.node3 = new CircleNode()
+        this.node1 = new CircleNode(anything())
+        this.node2 = new CircleNode(anything())
+        this.node3 = new CircleNode(anything())
     }
 
     @test 'ShouldAddAndConnectNodes'() {
@@ -31,8 +31,8 @@ should()
         this.sut.addNode(this.node2)
         this.sut.addNode(this.node3)
 
-        this.sut.addConnection(this.node1.getUniqueId(), this.node2.getUniqueId())
-        this.sut.addConnection(this.node3.getUniqueId(), this.node2.getUniqueId())
+        this.sut.addConnection(this.node1.getUniqueId(), this.node2.getUniqueId(), {})
+        this.sut.addConnection(this.node3.getUniqueId(), this.node2.getUniqueId(), {})
 
         const expectedModel = {
             0: { graphNode: this.node1, inIds: new Set(), outIds: new Set([1]) },
@@ -54,8 +54,8 @@ should()
         this.sut.addNode(this.node2)
         this.sut.addNode(this.node3)
 
-        this.sut.addConnection(this.node1.getUniqueId(), this.node2.getUniqueId())
-        this.sut.addConnection(this.node2.getUniqueId(), this.node3.getUniqueId())
+        this.sut.addConnection(this.node1.getUniqueId(), this.node2.getUniqueId(), {})
+        this.sut.addConnection(this.node2.getUniqueId(), this.node3.getUniqueId(), {})
 
         EXPECT(this.sut.rmNode(this.node1.getUniqueId()), true)
         EXPECT(this.sut.rmNode(this.node2.getUniqueId()), true)
@@ -67,8 +67,8 @@ should()
         this.sut.addNode(this.node2)
         this.sut.addNode(this.node3)
 
-        this.sut.addConnection(this.node1.getUniqueId(), this.node2.getUniqueId())
-        this.sut.addConnection(this.node3.getUniqueId(), this.node2.getUniqueId())
+        this.sut.addConnection(this.node1.getUniqueId(), this.node2.getUniqueId(), {})
+        this.sut.addConnection(this.node3.getUniqueId(), this.node2.getUniqueId(), {})
 
         this.sut.rmConnection(this.node1.getUniqueId(), this.node2.getUniqueId())
         this.sut.rmConnection(this.node3.getUniqueId(), this.node2.getUniqueId())
@@ -94,8 +94,8 @@ should()
 
     @test 'ShouldNotBeAbleToAddConnections'() {
         this.sut.addNode(this.node1)
-        EXPECT(this.sut.addConnection(this.node1.getUniqueId(), 2), false)
-        EXPECT(this.sut.addConnection(-4, 2), false)
+        EXPECT(this.sut.addConnection(this.node1.getUniqueId(), 2, {}), false)
+        EXPECT(this.sut.addConnection(-4, 2, {}), false)
     }
 
     @test 'ShouldFindAndReturnNodes'() {

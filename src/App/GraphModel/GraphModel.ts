@@ -1,9 +1,9 @@
 import { Logger, LoggerLevel } from "../../Logger/Logger"
 import IReloadable from "../Configuration/IReloadable"
 import IAppStartup from "../IAppStartup"
-import { GraphNodeId, GraphNodeSet, ConnectionSet } from "../types"
+import { GraphNodeId, GraphNodeSet, ConnectionSet, ConnectionOptions } from "../types"
 import Connection from "./Connection"
-import GraphNode from "./GraphNode"
+import GraphNodeBase from "./GraphNodeBase"
 
 
 /** Class handling the insert/remove/update of graph objects */
@@ -19,12 +19,12 @@ export default class GraphModel implements IReloadable, IAppStartup {
         return true
     }
 
-    public addNode(node: GraphNode) {
+    public addNode(node: GraphNodeBase) {
         this.model[node.getUniqueId()] = { graphNode: node, inIds: new Set(), outIds: new Set() }
         return true
     }
 
-    public findNode(id: GraphNodeId): GraphNode {
+    public findNode(id: GraphNodeId): GraphNodeBase {
         if (this.model[id])
             return this.model[id].graphNode
         this.logger.log(`Node ${id} was not found!`, LoggerLevel.WRN)
@@ -58,12 +58,12 @@ export default class GraphModel implements IReloadable, IAppStartup {
         return true
     }
 
-    public addConnection(fromId: GraphNodeId, toId: GraphNodeId) {
+    public addConnection(fromId: GraphNodeId, toId: GraphNodeId, options: ConnectionOptions) {
         const fromNode = this.model[fromId]
         const toNode = this.model[toId]
 
         if (fromNode && toNode) {
-            const conn = new Connection(fromNode.graphNode, toNode.graphNode)
+            const conn = new Connection(fromNode.graphNode, toNode.graphNode, options)
             this.connections[conn.getConnectionId()] = conn
             fromNode.outIds.add(toId)
             toNode.inIds.add(fromId)

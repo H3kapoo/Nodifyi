@@ -19,11 +19,6 @@ import '../src/App/Styles/Tabby.css'
 import '../src/App/Styles/index.css'
 
 
-new ScrollBooster({
-    viewport: document.querySelector('#canvas-container-tab'),
-    scrollMode: 'native',
-})
-
 /* Create tabs area */
 new Tabby('[data-tabs-left]')
 new Tabby('[data-tabs-right]')
