@@ -6,7 +6,7 @@ export default class TerminalTabOutputHelper {
 
     private context: string
 
-    public setOutputContext(context: string) { this.context = context }
+    public setOutputContext(context: string) { this.context = `[${context}]` }
 
     public printStd(msg: string) {
         const outputDiv = document.createElement("div")

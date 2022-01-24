@@ -15,11 +15,15 @@ export default class Renderer implements IAppStartup {
     private drawContext: CanvasRenderingContext2D
     private drawCanvas: HTMLCanvasElement
     private isCurrentlyDrawing: boolean
+    private needsRerendering: boolean
+    private startDelta: number
+    private endDelta: number
     private bgGridSpacing: number
     private backgroundDataImage: HTMLImageElement
 
     public initialize() {
         this.bgGridSpacing = Configuration.get().param('backgroundGridSpacing') as number
+        this.needsRerendering = false
 
         if (!this.bgGridSpacing) {
             this.logger.log('Failed to fetch backgroundGridSpacing of canvas!', LoggerLevel.ERR)
@@ -27,7 +31,6 @@ export default class Renderer implements IAppStartup {
         }
         return true
     }
-
 
     public render() {
         if (!this.currentModel) {
@@ -40,12 +43,22 @@ export default class Renderer implements IAppStartup {
             return false
         }
 
-        this.clearAndRenderBackgroundGrid()
-        this.renderModel()
+        this.renderModelProxy()
         return true
     }
 
-    private renderModel() {
+    private renderModelProxy() { window.requestAnimationFrame(this.renderModel.bind(this)) }
+
+    private renderModel(timeStamp: DOMHighResTimeStamp) {
+        this.clearAndRenderBackgroundGrid()
+
+        if (!this.startDelta)
+            this.startDelta = timeStamp
+
+        this.endDelta = timeStamp
+
+        let deltaTime = this.endDelta - this.startDelta
+
         const n1 = new CircleNode({
             position: [300, 400],
             color: 'black',
@@ -64,12 +77,22 @@ export default class Renderer implements IAppStartup {
         })
 
         for (const [id, nodeData] of Object.entries(this.currentModel.getModel())) {
-            nodeData.graphNode.toggleHeadsUpIndexing()
+            // nodeData.graphNode.toggleHeadsUpIndexing()
+            // here we should update the state of the node if it has some animation on it
+            //nodeData.graphNode.update(deltaTime)
             nodeData.graphNode.render(this.drawContext)
         }
+
         for (const [id, connData] of Object.entries(this.currentModel.getConnections())) {
+            // here we should update the state of the connection if it has some animation on it
+            // connData.update(deltaTime)
             connData.render(this.drawContext)
         }
+
+        this.startDelta = this.endDelta
+
+        if (this.needsRerendering)
+            window.requestAnimationFrame(this.renderModel.bind(this))
     }
 
     private clearAndRenderBackgroundGrid() {
@@ -102,7 +125,10 @@ export default class Renderer implements IAppStartup {
 
     public subscribeGraphModel(currentModel: GraphModel) { this.currentModel = currentModel }
 
-    public subscribeCanvas(canvas: HTMLCanvasElement) { this.drawCanvas = canvas; this.drawContext = canvas.getContext('2d') }
+    public subscribeCanvas(canvas: HTMLCanvasElement) {
+        this.drawCanvas = canvas
+        this.drawContext = canvas.getContext('2d')
+    }
 
     public getModuleName(): string { return this.logger.getContext() }
 }

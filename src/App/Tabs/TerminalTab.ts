@@ -39,11 +39,10 @@ export default class TerminalTab {
     }
 
     private notifier(evt: KeyboardEvent) {
-        if (this.listeners[evt.key])
-            this.listeners[evt.key].forEach(l => l.onListenedKey(this.userInput))
-
         if (evt.key === 'Enter')
             this.printInput()
+        if (this.listeners[evt.key])
+            this.listeners[evt.key].forEach(l => l.onListenedKey(this.userInput))
     }
 
     public subscribeOnKeyPress(key: string, listener: ITerminalTabListener) {

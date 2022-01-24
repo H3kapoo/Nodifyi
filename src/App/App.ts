@@ -47,7 +47,7 @@ export default class App {
         this.executor = new Executor()
 
         /* Initialize all components */
-        const startupMods = [this.commandStore, this.graphModel, this.tabsLoader, this.renderer]
+        const startupMods = [this.commandStore, this.graphModel, this.tabsLoader, this.renderer, this.parser]
         const allStarted = startupMods.every(mod => {
             if (!mod.initialize()) {
                 this.logger.logc(mod.getModuleName(), `Startup NOT Initialized!`, LoggerLevel.ERR)
@@ -65,6 +65,7 @@ export default class App {
 
         /* Subscribe for when something gets parsed */
         this.parser.subscribeOnParsed(this.executor)
+        this.parser.subscribeCommands(this.commandStore.getCommands())
 
         /* Subscribe the graphModel & canvas context to the Renderer*/
         this.renderer.subscribeGraphModel(this.graphModel)

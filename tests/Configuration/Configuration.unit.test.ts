@@ -6,15 +6,14 @@ import { mock, instance } from 'ts-mockito'
 import { EXPECT, EXPECT_EQL, EXPECT_NOT_NULL, EXPECT_NULL } from '../Utils/Expectation'
 import Configuration from "../../src/App/Configuration/Configuration"
 import GraphModel from '../../src/App/GraphModel/GraphModel'
-import path from 'path'
-import os from 'os'
+import { join } from 'path'
 
 
 should()
 @suite class ConfigurationTests {
 
     private sut: Configuration // Singleton
-    private pathToConf: string = path.join(os.homedir(), '.defaultConf.json')
+    private pathToConf: string = join(__dirname, '../Commands/Storage/default.json')
     private fakePathToConf: string = 'fake-path'
 
     before() {

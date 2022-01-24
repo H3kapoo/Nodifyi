@@ -3,8 +3,8 @@ module.exports = {
         "schema": {
             "name": 'delnode',
             "mandatory": ["id"],
-            "id": "Numberv",
-            "ceva": "Numberv2"
+            "id": "String",
+            "ceva": "NotRequired"
         },
         async logic(parsedData, api) {
         }
@@ -13,7 +13,7 @@ module.exports = {
         "schema": {
             "name": 'mknode',
             "mandatory": ["id"],
-            "id": "Numberv2",
+            "id": "Number2",
         },
         async logic(parsedData, api) {
         }

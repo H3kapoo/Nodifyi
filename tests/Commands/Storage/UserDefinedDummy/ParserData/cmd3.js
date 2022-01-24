@@ -1,8 +1,9 @@
 root = {
     "schema": {
-        "name": 'testing2',
+        "name": 'testing3',
         "mandatory": [],
-        "id": "Number2",
+        "id": "Number",
+        "ceva": "NotRequired"
     },
     async logic(parsedData, api) { }
 }

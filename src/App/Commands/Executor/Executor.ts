@@ -1,4 +1,5 @@
 import { Logger, LoggerLevel } from "../../../Logger/Logger"
+import { ParsedInput } from "../../types"
 import IParserListener from "../Parser/IParserListener"
 
 
@@ -16,7 +17,6 @@ export default class Executor implements IParserListener {
         return true
     }
 
-    subscribeOnParsed(): void {
-        this.logger.log('Called')
+    onInputParsed(parsedInput: ParsedInput[]): void {
     }
 }

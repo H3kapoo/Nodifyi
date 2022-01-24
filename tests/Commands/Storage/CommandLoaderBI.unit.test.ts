@@ -20,8 +20,8 @@ should()
                 "schema": {
                     "name": 'testing1',
                     "mandatory": ["id"],
-                    "id": "Numberv",
-                    "ceva": "Numberv2"
+                    "id": "Number",
+                    "ceva": "Number2"
                 },
                 async logic(parsedData, api) { }
             },
@@ -29,7 +29,7 @@ should()
                 "schema": {
                     "name": 'testin2',
                     "mandatory": ["id"],
-                    "id": "Numberv2",
+                    "id": "Number2",
                 },
                 async logic(parsedData, api) { }
             },

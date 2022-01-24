@@ -1,3 +1,5 @@
+import { ParsedInput } from "../../types";
+
 export default interface IParserListener {
-    subscribeOnParsed(): void
+    onInputParsed(parsedInput: ParsedInput[]): void
 }

@@ -46,7 +46,6 @@ export default class CircleNode extends GraphNodeBase {
         context.strokeText(this.getUniqueId().toString(), position[0], position[1] - 1.5 * radius)
     }
 
-
     public getOptions(): CircleNodeOptions { return this.options }
 
     public getType() { return NodeType.Circle }
