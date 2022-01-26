@@ -12,7 +12,6 @@ export function keepCaretAwayFromBeginText(event: KeyboardEvent, terminalDOM: HT
 
     if (getCaretCharacterOffsetWithin(terminalDOM) < prefixText.length)
         setCaret(terminalDOM, prefixText)
-
 }
 
 export function getCaretCharacterOffsetWithin(terminalDOM: HTMLElement): number {

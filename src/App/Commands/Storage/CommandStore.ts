@@ -4,11 +4,10 @@ import CommandLoaderUD from "./CommandLoaderUD"
 import { CommandsStruct } from "../../types"
 import IReloadable from "../../Configuration/IReloadable"
 import Configuration from "../../Configuration/Configuration"
-import IAppStartup from "../../IAppStartup"
 const builtin = require('../BuiltinCommands/builtin')
 
 
-export default class CommandStore implements IReloadable, IAppStartup {
+export default class CommandStore implements IReloadable {
     private logger = new Logger('CommandStore')
 
     private loaderBI: CommandLoaderBI
@@ -62,5 +61,4 @@ export default class CommandStore implements IReloadable, IAppStartup {
 
     public getCommands(): CommandsStruct { return this.commands ?? null }
 
-    public getModuleName(): string { return this.logger.getContext() }
 }

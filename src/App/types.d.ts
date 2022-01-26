@@ -2,9 +2,8 @@ import Connection from "./GraphModel/Connection";
 
 type ArgTypeParseResult = string | number | string[] | string[][] | number[] | number[][] | null
 
-interface FeedbackResult {
-    feedback: string,
-    result: ArgTypeParseResult
+interface APIObject {
+    [key: string]: Function
 }
 
 interface CommandOptions {
@@ -14,6 +13,20 @@ interface CommandOptions {
 interface ParsedInput {
     commandName: string,
     options: CommandOptions,
+}
+
+interface AnimationOptions {
+    [key: string]: any
+}
+
+type AnyConnectionOptions = Object
+
+interface AnyObjectOptions {
+    [key: string]: any
+}
+
+interface AnyGraphNodeOptions {
+    [key: string]: any
 }
 
 interface ConnectionOptions {

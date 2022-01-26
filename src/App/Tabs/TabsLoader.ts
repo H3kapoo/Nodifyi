@@ -1,11 +1,10 @@
 import { Logger, LoggerLevel } from "../../Logger/Logger";
-import IAppStartup from "../IAppStartup";
 import CanvasTab from "./CanvasTab";
 import TerminalTab from "./TerminalTab";
 
 
 /** Handles the initialization of all tabs present */
-export default class TabsLoader implements IAppStartup {
+export default class TabsLoader {
 
     private logger = new Logger('TabsLoader')
 
@@ -24,12 +23,12 @@ export default class TabsLoader implements IAppStartup {
             this.logger.log('Canvas NOT Initialized!', LoggerLevel.ERR)
             return false
         }
+
+        this.logger.log('Module initialized!')
         return true
     }
 
     public getTerminalTab() { return this.terminalTab }
 
     public getCanvasTab() { return this.canvasTab }
-
-    public getModuleName(): string { return this.logger.getContext() }
 }

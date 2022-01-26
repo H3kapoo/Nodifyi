@@ -47,15 +47,16 @@ export default class App {
         this.executor = new Executor()
 
         /* Initialize all components */
-        const startupMods = [this.commandStore, this.graphModel, this.tabsLoader, this.renderer, this.parser]
-        const allStarted = startupMods.every(mod => {
-            if (!mod.initialize()) {
-                this.logger.logc(mod.getModuleName(), `Startup NOT Initialized!`, LoggerLevel.ERR)
-                return false
-            }
-            this.logger.logc(mod.getModuleName(), `Startup Initialized!`)
-            return true
-        })
+        const startupMods = [
+            this.commandStore.initialize(),
+            this.graphModel.initialize(),
+            this.tabsLoader.initialize(),
+            this.renderer.initialize(this.graphModel),
+            this.parser.initialize(),
+            this.executor.initialize(this.graphModel, this.renderer)
+        ]
+
+        const allStarted = startupMods.every(inited => inited === true)
 
         if (!allStarted)
             return false
@@ -67,8 +68,10 @@ export default class App {
         this.parser.subscribeOnParsed(this.executor)
         this.parser.subscribeCommands(this.commandStore.getCommands())
 
+        /* Subscribe commands store, graphModel and renderer to Executor */
+        this.executor.subscribeCommands(this.commandStore.getCommands())
+
         /* Subscribe the graphModel & canvas context to the Renderer*/
-        this.renderer.subscribeGraphModel(this.graphModel)
         this.renderer.subscribeCanvas(this.tabsLoader.getCanvasTab().getCanvas())
 
         /* Subscribe modules that are affected by conf reload */

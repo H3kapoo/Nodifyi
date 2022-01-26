@@ -1,10 +1,12 @@
-import { GraphNodeBaseOptions } from "../types"
+import { AnimationOptions, CircleNodeOptions, GraphNodeBaseOptions } from "../types"
+
 
 export default abstract class GraphNodeBase {
     static idGiver = 1
     private uniqueId: number
     private indexing: boolean
-    protected initialize(): void { this.uniqueId = GraphNodeBase.idGiver++; this.indexing = false }
+
+    protected initialize() { this.uniqueId = GraphNodeBase.idGiver++; this.indexing = false }
 
     public abstract render(ctx: CanvasRenderingContext2D): void
 

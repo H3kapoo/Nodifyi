@@ -1,7 +1,5 @@
 import { Logger, LoggerLevel } from "../../Logger/Logger";
 import Configuration from "../Configuration/Configuration";
-import IAppStartup from "../IAppStartup";
-import { StringKeyObject } from "../types";
 import ITerminalTabListener from "./ITerminalTabListener";
 import * as utils from './TerminalUtils'
 

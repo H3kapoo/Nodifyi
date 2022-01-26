@@ -5,10 +5,9 @@ import IParserListener from "./IParserListener"
 import { parsers } from './ValidTypesParser'
 import { ValidTypes } from "../Validation/ValidTypes"
 import TerminalTabOutputHelper from "../../Tabs/TerminalTabOutputHelper"
-import IAppStartup from "../../IAppStartup"
 
 
-export default class Parser extends TerminalTabOutputHelper implements ITerminalTabListener, IAppStartup {
+export default class Parser extends TerminalTabOutputHelper implements ITerminalTabListener {
     private logger = new Logger('Parser')
 
     private commands: CommandsStruct
@@ -18,6 +17,7 @@ export default class Parser extends TerminalTabOutputHelper implements ITerminal
         this.commands = {}
         this.parseListeners = []
         this.setOutputContext(this.logger.getContext())
+        this.logger.log('Module initialized!')
         return true
     }
 
@@ -148,6 +148,4 @@ export default class Parser extends TerminalTabOutputHelper implements ITerminal
         if (parseResult)
             this.parseListeners.forEach(l => l.onInputParsed(parseResult))
     }
-
-    public getModuleName(): string { return this.logger.getContext() }
 }
