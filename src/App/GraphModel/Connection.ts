@@ -1,10 +1,11 @@
-import { GraphNodeBaseOptions, Vec2d, ConnectionPoints, ConnectionOptions } from "../types"
+import { GraphNodeBaseOptions, Vec2d, ConnectionPoints, ConnectionOptions, AnimationOptions } from "../types"
 import GraphNodeBase from "./GraphNodeBase"
 import * as utils from '../Renderer/RendererUtils'
+import Animator from "../Animation/Animator"
 
 
 enum ConnectionDefaults {
-    COLOR = 'black',
+    COLOR = '000000ff',
     ELEVATION = 100
 }
 
@@ -16,15 +17,14 @@ export default class Connection {
     private toNode: GraphNodeBase
 
     private options: ConnectionOptions
+    private animator: Animator
 
     constructor(fromNode: GraphNodeBase, toNode: GraphNodeBase, options: ConnectionOptions) {
-        this.initialize(fromNode, toNode, options)
-    }
-
-    private initialize(fromNode: GraphNodeBase, toNode: GraphNodeBase, options: ConnectionOptions) {
         this.fromNode = fromNode
         this.toNode = toNode
         this.options = options
+        this.options.color = this.options.color ?? ConnectionDefaults.COLOR
+        this.options.elevation = this.options.elevation ?? ConnectionDefaults.ELEVATION
         this.uniqueId = Connection.idGiver++
     }
 
@@ -39,7 +39,9 @@ export default class Connection {
         const nodeEndRadius: number = toNodeOpts.radius
 
         const connColor: string = this.options.color || ConnectionDefaults.COLOR
-        const connElevation: number = this.options.elevation || ConnectionDefaults.ELEVATION
+        //TODO: Remove hack .001
+        //POTENTIAL FIX: In validation if elev===0 => elev = .001
+        const connElevation: number = this.options.elevation + (.001) || ConnectionDefaults.ELEVATION
 
         const connPoints: ConnectionPoints =
             utils.getBezierPoints(connStartPos, connEndPos, nodeStartRadius, nodeEndRadius, connElevation)
@@ -62,7 +64,33 @@ export default class Connection {
 
     public getConnectionId() { return Connection.getConnectionId(this.fromNode, this.toNode) }
 
+    public getOptions(): ConnectionOptions { return this.options }
+
     static getConnectionId(fromNode: GraphNodeBase, toNode: GraphNodeBase) {
         return fromNode.getUniqueId() * 1000 + toNode.getUniqueId()
+    }
+
+    public uploadAnimationObject(animation: AnimationOptions) {
+        this.animator = new Animator(this.options, animation)
+    }
+
+    public update(delta: number) {
+        if (this.animator)
+            this.options = this.animator.update(delta) as ConnectionOptions
+    }
+
+    public isAnimationDone() {
+        let done = true
+        if (this.animator)
+            done = this.animator.isAnimationDone()
+        if (done)
+            this.animator = null
+        return done
+    }
+
+    public updateOptions(options: ConnectionOptions) {
+        for (const [opt, val] of Object.entries(options))
+            //@ts-ignore
+            this.options[opt] = val
     }
 }

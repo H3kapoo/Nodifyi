@@ -77,12 +77,26 @@ export default class App {
         /* Subscribe modules that are affected by conf reload */
         Configuration.get().subscribeReloadable(this.commandStore)
         Configuration.get().subscribeReloadable(this.graphModel)
+        Configuration.get().subscribeReloadable(this.tabsLoader.getCanvasTab())
+        Configuration.get().subscribeReloadable(this.renderer)
 
         /** DBG ONLY - TBR */
         ipcRenderer.on('RELOAD_CONFIG', () => {
+            // Configuration.get().updateCurrentConf({
+            //     "udPath": "/home/hekapoo/Documents/_Licence/nodify2/src/App/Commands/UserDefinedDummy",
+            //     "canvasWidth": 1500,
+            //     "canvasHeight": 1500
+            // })
+            // this.renderer.render()
+        })
+
+        ipcRenderer.on('PREFS_UPDATE', (evt: any, val: any) => {
             Configuration.get().updateCurrentConf({
-                "udPath": "/home/hekapoo/Documents/_Licence/nodify2/src/App/Commands/UserDefinedDummy"
+                "udPath": "/home/hekapoo/Documents/_Licence/nodify2/src/App/Commands/UserDefinedDummy",
+                "canvasWidth": val.canvasWidth,
+                "canvasHeight": val.canvasHeight
             })
+            this.renderer.render()
         })
 
         /* Start-app render trigger */

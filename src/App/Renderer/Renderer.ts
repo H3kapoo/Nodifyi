@@ -1,12 +1,13 @@
 import { Logger, LoggerLevel } from "../../Logger/Logger";
 import Configuration from "../Configuration/Configuration";
+import IReloadable from "../Configuration/IReloadable";
 import CircleNode from "../GraphModel/CircleNode";
 import GraphModel from "../GraphModel/GraphModel";
 import { Vec2d } from "../types";
 
 
 /** Class that handles the rendering of the canvas element*/
-export default class Renderer {
+export default class Renderer implements IReloadable {
     private logger = new Logger('Renderer')
 
     private currentModel: GraphModel
@@ -42,12 +43,6 @@ export default class Renderer {
             this.logger.log('There is not graph model subscribbed!', LoggerLevel.ERR)
             return false
         }
-
-        if (!this.drawCanvas) {
-            this.logger.log('There is not canvas subscribbed!', LoggerLevel.ERR)
-            return false
-        }
-
         await this.renderModelProxy()
         return true
     }
@@ -56,7 +51,9 @@ export default class Renderer {
         await new Promise<void>((res, rej) => {
             window.requestAnimationFrame(this.renderModel.bind(this))
             this.resolver = res
+            this.isCurrentlyDrawing = true
         })
+        this.isCurrentlyDrawing = false
     }
 
     private renderModel(timeStamp: DOMHighResTimeStamp) {
@@ -68,38 +65,45 @@ export default class Renderer {
         this.endDelta = timeStamp
 
         let deltaTime = this.endDelta - this.startDelta
+
+        /* A little hack because at first run, timeStamp seems to skyrocket to 1000+*/
         if (deltaTime > 30) deltaTime = 16
 
-        for (const [id, nodeData] of Object.entries(this.currentModel.getModel())) {
-            // nodeData.graphNode.toggleHeadsUpIndexing()
-            // here we should update the state of the node if it has some animation on it
+        this.needsRerendering = false
+        for (const [id, connData] of Object.entries(this.currentModel.getConnections())) {
+            connData.update(deltaTime)
+            connData.render(this.drawContext)
 
-            /*DGB ONLY */
-            // this needs to be refactored, ineficient
-            if (!nodeData.graphNode.isAnimationDone())
+            /* Check to see if any conn still needs a render pass because of anim 
+               If there are no objects, resolve promise & exit, rerender otherwise
+            */
+
+            if (!connData.isAnimationDone())
                 this.needsRerendering = true
-            else {
-                this.needsRerendering = false
-                this.resolver()
-            }
+        }
+
+        for (const [id, nodeData] of Object.entries(this.currentModel.getModel())) {
 
             nodeData.graphNode.update(deltaTime)
             nodeData.graphNode.render(this.drawContext)
-        }
 
-        for (const [id, connData] of Object.entries(this.currentModel.getConnections())) {
-            // here we should update the state of the connection if it has some animation on it
-            // connData.update(deltaTime)
-            connData.render(this.drawContext)
+            /* Check to see if any node still needs a render pass because of anim 
+               If there are no objects, resolve promise & exit, rerender otherwise
+            */
+            if (!nodeData.graphNode.isAnimationDone())
+                this.needsRerendering = true
         }
 
         this.startDelta = this.endDelta
 
         if (this.needsRerendering)
             window.requestAnimationFrame(this.renderModel.bind(this))
+        else
+            this.resolver()
     }
 
     private clearAndRenderBackgroundGrid() {
+
         const width = this.drawCanvas.width
         const height = this.drawCanvas.height
         this.drawContext.fillStyle = 'white'
@@ -146,8 +150,15 @@ export default class Renderer {
         this.drawContext.stroke()
     }
 
+    public onConfReload() {
+        this.logger.log('Renderer will reload')
+        this.backgroundDataImage = null
+    }
+
     public subscribeCanvas(canvas: HTMLCanvasElement) {
         this.drawCanvas = canvas
         this.drawContext = canvas.getContext('2d')
     }
+
+    public isBusyDrawing() { return this.isCurrentlyDrawing }
 }

@@ -58,7 +58,7 @@ export default class GraphModel implements IReloadable {
         return true
     }
 
-    public addConnection(fromId: GraphNodeId, toId: GraphNodeId, options: ConnectionOptions) {
+    public addConnection(fromId: GraphNodeId, toId: GraphNodeId, options: ConnectionOptions): Connection {
         const fromNode = this.model[fromId]
         const toNode = this.model[toId]
 
@@ -67,11 +67,11 @@ export default class GraphModel implements IReloadable {
             this.connections[conn.getConnectionId()] = conn
             fromNode.outIds.add(toId)
             toNode.inIds.add(fromId)
-            return true
+            return conn
         }
 
         this.logger.log('Could not connect nodes, one of it doesnt exist!', LoggerLevel.WRN)
-        return false
+        return null
     }
 
     public findConnection(fromId: GraphNodeId, toId: GraphNodeId): Connection {

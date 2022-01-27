@@ -1,6 +1,7 @@
 import ScrollBooster from "scrollbooster";
 import { Logger, LoggerLevel } from "../../Logger/Logger";
 import Configuration from "../Configuration/Configuration";
+import IReloadable from "../Configuration/IReloadable";
 
 
 enum CanvasDimensions {
@@ -11,7 +12,7 @@ enum CanvasDimensions {
 }
 
 /** Handles the tab containing the working canvas */
-export default class CanvasTab {
+export default class CanvasTab implements IReloadable {
     private logger = new Logger('TabsLoader')
 
     private canvasDOM: HTMLCanvasElement
@@ -53,5 +54,22 @@ export default class CanvasTab {
         return true
     }
 
+    public onConfReload(): void {
+        this.logger.log('Canvas tab will reload opts')
+        const canvasHeight = Configuration.get().param('canvasHeight') as number
+        const canvasWidth = Configuration.get().param('canvasWidth') as number
+
+        if (!canvasWidth || !canvasHeight) {
+            this.logger.log('Failed to fetch width or height of canvas!', LoggerLevel.ERR)
+        }
+
+        if (canvasHeight < CanvasDimensions.MIN_HEIGHT || canvasWidth < CanvasDimensions.MIN_WIDTH)
+            this.logger.log('Canvas dimensions are bellow minimal requirements! (300x300)', LoggerLevel.WRN)
+        if (canvasHeight > CanvasDimensions.MAX_HEIGHT || canvasWidth > CanvasDimensions.MAX_HEIGHT)
+            this.logger.log('Canvas dimensions are above maximum requirements! (2kx2k)', LoggerLevel.WRN)
+
+        this.canvasDOM.width = canvasWidth
+        this.canvasDOM.height = canvasHeight
+    }
     public getCanvas() { return this.canvasDOM }
 }

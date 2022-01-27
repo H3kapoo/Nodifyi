@@ -92,10 +92,16 @@ should()
         EXPECT_EQL(this.sut.getConnections(), {})
     }
 
+    @test 'ShouldBeAbleToAddConnectionsAndReturnThem'() {
+        this.sut.addNode(this.node1)
+        EXPECT(this.sut.addConnection(this.node1.getUniqueId(), 2, {}), null)
+        EXPECT(this.sut.addConnection(-4, 2, {}), null)
+    }
+
     @test 'ShouldNotBeAbleToAddConnections'() {
         this.sut.addNode(this.node1)
-        EXPECT(this.sut.addConnection(this.node1.getUniqueId(), 2, {}), false)
-        EXPECT(this.sut.addConnection(-4, 2, {}), false)
+        this.sut.addNode(this.node2)
+        EXPECT_NOT_NULL(this.sut.addConnection(this.node1.getUniqueId(), this.node2.getUniqueId(), {}))
     }
 
     @test 'ShouldFindAndReturnNodes'() {

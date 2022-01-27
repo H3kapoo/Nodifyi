@@ -11,7 +11,7 @@ module.exports = {
     target: 'electron-renderer',
     entry: {
         frontEnd: path.resolve(__dirname, 'index.ts'),
-        gifLogic: path.resolve(__dirname, 'Templates/gifLogic.ts')
+        preferencesWindow: path.resolve(__dirname, 'Templates/preferencesWindow.ts')
     },
     output: {
         filename: '[name].js',
@@ -31,14 +31,14 @@ module.exports = {
             chunks: ['frontEnd']
         }),
         new HtmlWebpackPlugin({
-            filename: 'gifWindow.html',
-            template: path.resolve(__dirname, "Templates/gifWindow.html"),
-            chunks: ['gifLogic']
+            filename: 'preferencesWindow.html',
+            template: path.resolve(__dirname, "Templates/preferencesWindow.html"),
+            chunks: ['preferencesWindow']
         }),
     ],
-    // optimization: {
-    //     minimize: false
-    // },
+    optimization: {
+        minimize: false
+    },
     module: {
         rules: [
             {

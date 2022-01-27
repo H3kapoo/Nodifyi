@@ -1,4 +1,4 @@
-import { AnimationOptions, CircleNodeOptions, GraphNodeBaseOptions } from "../types"
+import { AnimationOptions, AnyGraphNodeOptions, CircleNodeOptions, GraphNodeBaseOptions } from "../types"
 
 
 export default abstract class GraphNodeBase {
@@ -11,6 +11,14 @@ export default abstract class GraphNodeBase {
     public abstract render(ctx: CanvasRenderingContext2D): void
 
     public abstract getOptions(): GraphNodeBaseOptions
+
+    public abstract uploadAnimationObject(animation: AnimationOptions): void
+
+    public abstract update(delta: number): void
+
+    public abstract isAnimationDone(): boolean
+
+    public abstract updateOptions(options: AnyGraphNodeOptions): void
 
     public toggleHeadsUpIndexing() { this.indexing = !this.indexing }
 

@@ -10,7 +10,7 @@ try {
 
 let mainWindow = null
 let indexHtmlLoc = '../Webpacked/index.html'
-let gifHtmlLoc = '../Webpacked/gifWindow.html'
+let prefsWindowHtmlLoc = '../Webpacked/preferencesWindow.html'
 
 const menu = new Menu()
 
@@ -24,9 +24,10 @@ const debugMenu = new MenuItem({
         //     click: () => { createModal() }
         // },
         {
-            label: 'Reload',
-            accelerator: 'Shift+R',
-            click: () => { mainWindow.webContents.send('RELOAD_CONFIG') }
+            label: 'Preferences',
+            accelerator: 'Shift+P',
+            // click: () => { mainWindow.webContents.send('RELOAD_CONFIG') }
+            click: () => { openPrefsModal() }
         },
         {
             label: 'Debug console',
@@ -41,7 +42,7 @@ const debugMenu = new MenuItem({
 menu.append(debugMenu)
 Menu.setApplicationMenu(menu)
 
-ipcMain.on('TESTING', () => console.log('ok'))
+ipcMain.on('PREFS_UPDATE', (e, v) => mainWindow.webContents.send('PREFS_UPDATE', v))
 
 /* Create window */
 app.whenReady().then(() => {
@@ -55,7 +56,7 @@ app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') app.quit()
 })
 
-function createModal() {
+function openPrefsModal() {
     const childWindow = new BrowserWindow({
         width: 1000,
         height: 700,
@@ -69,11 +70,9 @@ function createModal() {
         },
     });
 
-    childWindow.loadFile(path.join(__dirname, gifHtmlLoc))
-
-    childWindow.once("ready-to-show", () => {
-        childWindow.show()
-    })
+    childWindow.loadFile(path.join(__dirname, prefsWindowHtmlLoc))
+    // childWindow.setMenu(null)
+    childWindow.once("ready-to-show", () => { childWindow.show() })
 }
 
 function createWindow() {

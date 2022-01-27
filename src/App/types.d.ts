@@ -19,8 +19,9 @@ interface AnimationOptions {
     [key: string]: any
 }
 
-type AnyConnectionOptions = Object
-
+interface AnyConnectionOptions {
+    [key: string]: any
+}
 interface AnyObjectOptions {
     [key: string]: any
 }

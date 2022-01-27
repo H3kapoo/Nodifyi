@@ -3,7 +3,7 @@ import GraphModel from "../../GraphModel/GraphModel";
 import Renderer from "../../Renderer/Renderer";
 import {
     AnyConnectionOptions, AnyGraphNodeOptions,
-    APIObject, CircleNodeOptions, GraphNodeBaseOptions, GraphNodeId
+    APIObject, CircleNodeOptions, GraphNodeId
 } from "../../types";
 
 
@@ -26,8 +26,15 @@ export default class APIHolder {
         return node.getUniqueId()
     }
 
-    private updateNode() {
+    private async updateNode(id: GraphNodeId, options: AnyGraphNodeOptions): Promise<void> {
+        const node = this.graphModel.findNode(id)
 
+        if (!node) return null
+
+        if (options.animation)
+            node.uploadAnimationObject(options.animation)
+        node.updateOptions(options)
+        await this.renderer.render()
     }
 
     private deleteNode(id: GraphNodeId) {
@@ -35,17 +42,29 @@ export default class APIHolder {
         this.renderer.render()
     }
 
-    private createConnection(fromId: GraphNodeId, toId: GraphNodeId, options: AnyConnectionOptions) {
-        this.graphModel.addConnection(fromId, toId, options)
+    private async createConnection(fromId: GraphNodeId, toId: GraphNodeId, options: AnyConnectionOptions) {
+        const conn = this.graphModel.addConnection(fromId, toId, options)
+        if (options.animation)
+            conn.uploadAnimationObject(options.animation)
+        await this.renderer.render()
+    }
+
+    private async updateConnection(
+        fromId: GraphNodeId, toId: GraphNodeId, options: AnyConnectionOptions): Promise<void> {
+
+        const conn = this.graphModel.findConnection(fromId, toId)
+
+        if (!conn) return null
+
+        if (options.animation)
+            conn.uploadAnimationObject(options.animation)
+        conn.updateOptions(options)
+        await this.renderer.render()
+    }
+
+    private deleteConnection(fromId: GraphNodeId, toId: GraphNodeId) {
+        this.graphModel.rmConnection(fromId, toId)
         this.renderer.render()
-    }
-
-    private updateConnection(id: GraphNodeId) {
-
-    }
-
-    private deleteConnection(id: GraphNodeId) {
-
     }
 
     public getAPI(): APIObject {

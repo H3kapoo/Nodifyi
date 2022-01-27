@@ -7,18 +7,19 @@ import IParserListener from "../Parser/IParserListener"
 import APIHolder from "./APICommands"
 
 
-//TODO: TerminalOutputHelper as a helper class, not as extending it
-export default class Executor extends TerminalTabOutputHelper implements IParserListener {
+export default class Executor implements IParserListener {
     private logger = new Logger('Executor')
 
+    private terminalHelper: TerminalTabOutputHelper
     private commands: CommandsStruct
     private API: APIObject
-
-    constructor() { super() }
+    private renderer: Renderer
 
     public initialize(graphModel: GraphModel, renderer: Renderer) {
         this.API = new APIHolder(graphModel, renderer).getAPI()
-        this.setOutputContext(this.logger.getContext())
+        this.terminalHelper = new TerminalTabOutputHelper()
+        this.renderer = renderer
+        this.terminalHelper.setOutputContext(this.logger.getContext())
         this.logger.log('Module initialized!')
         return true
     }
@@ -31,14 +32,18 @@ export default class Executor extends TerminalTabOutputHelper implements IParser
 
         for (const parsedInput of parsedInputs) {
             try {
-                await this.commands[parsedInput.commandName].logic(parsedInput.options, this.API)
+                if (!this.renderer.isBusyDrawing())
+                    await this.commands[parsedInput.commandName].logic(parsedInput.options, this.API)
+                else {
+                    this.logger.log('Canvas is busy drawing right now!', LoggerLevel.WRN)
+                    this.terminalHelper.printErr(`Can't execute command right now! Canvas is busy drawing!`)
+                }
             }
             //TODO: Catch syntax errors here from the user side and process them
             catch (err) {
                 console.log(err);
             }
         }
-
         return true
     }
 

@@ -5,7 +5,7 @@ import Animator from "../Animation/Animator";
 
 
 enum CircleNodeDefaults {
-    COLOR = 'black',
+    COLOR = '#000000ff',
     RADIUS = 30
 }
 
@@ -34,7 +34,8 @@ export default class CircleNode extends GraphNodeBase {
         context.strokeStyle = color
         context.stroke()
 
-        if (this.getIndexingState()) { this.renderHeadsUpIndexing(context) }
+        // if (this.getIndexingState()) { this.renderHeadsUpIndexing(context) }
+        if (true) { this.renderHeadsUpIndexing(context) }
     }
 
     private renderHeadsUpIndexing(context: CanvasRenderingContext2D) {
@@ -59,12 +60,22 @@ export default class CircleNode extends GraphNodeBase {
             this.options = this.animator.update(delta) as CircleNodeOptions
     }
 
-    public isAnimationDone() { return this.animator.isAnimationDone() }
+    public isAnimationDone() {
+        let done = true
+        if (this.animator)
+            done = this.animator.isAnimationDone()
+        if (done)
+            this.animator = null
+        return done
+    }
 
-    public updateOptions(options: CircleNodeOptions) { this.options = options }
+    public updateOptions(options: CircleNodeOptions) {
+        for (const [opt, val] of Object.entries(options))
+            //@ts-ignore
+            this.options[opt] = val
+    }
 
     public getOptions(): CircleNodeOptions { return this.options }
 
     public getType() { return NodeType.Circle }
-
 }
