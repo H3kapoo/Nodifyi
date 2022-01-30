@@ -8,6 +8,7 @@ import TabsLoader from "./Tabs/TabsLoader"
 import Parser from "./Commands/Parser/Parser"
 import Executor from "./Commands/Executor/Executor"
 import CommandStore from "./Commands/Storage/CommandStore"
+import GIFExporter from "./Exporting/GIFExporter"
 
 const { ipcRenderer } = require('electron')
 
@@ -21,6 +22,7 @@ export default class App {
     private tabsLoader: TabsLoader
     private parser: Parser
     private executor: Executor
+    private gifExporter: GIFExporter
 
     constructor() {
         if (this.initialize())
@@ -45,6 +47,7 @@ export default class App {
         this.renderer = new Renderer()
         this.parser = new Parser()
         this.executor = new Executor()
+        this.gifExporter = new GIFExporter()
 
         /* Initialize all components */
         const startupMods = [
@@ -53,7 +56,8 @@ export default class App {
             this.tabsLoader.initialize(),
             this.renderer.initialize(this.graphModel),
             this.parser.initialize(),
-            this.executor.initialize(this.graphModel, this.renderer)
+            this.executor.initialize(this.graphModel, this.renderer),
+            this.gifExporter.initialize(this.renderer)
         ]
 
         const allStarted = startupMods.every(inited => inited === true)
@@ -96,7 +100,8 @@ export default class App {
                 "canvasWidth": val.canvasWidth,
                 "canvasHeight": val.canvasHeight
             })
-            this.renderer.render()
+            this.renderer.render(false)
+            ipcRenderer.send('PREFS_UPDATE_CLOSE', {})
         })
 
         /* Start-app render trigger */

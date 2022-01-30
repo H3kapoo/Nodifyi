@@ -5,7 +5,7 @@ import Animator from "../Animation/Animator"
 
 
 enum ConnectionDefaults {
-    COLOR = '000000ff',
+    COLOR = '#000000ff',
     ELEVATION = 100
 }
 
@@ -47,13 +47,11 @@ export default class Connection {
             utils.getBezierPoints(connStartPos, connEndPos, nodeStartRadius, nodeEndRadius, connElevation)
 
         ctx.beginPath()
-        ctx.strokeStyle = connColor
         ctx.lineWidth = 4 //hardcoded
-        ctx.beginPath()
         ctx.moveTo(connPoints.start[0], connPoints.start[1])
         ctx.quadraticCurveTo(connPoints.control[0], connPoints.control[1], connPoints.end[0], connPoints.end[1])
+        ctx.strokeStyle = connColor
         ctx.stroke()
-
     }
 
     public getUniqueId() { return this.uniqueId }

@@ -19,11 +19,15 @@ export default class Renderer implements IReloadable {
     private endDelta: number
     private bgGridSpacing: number
     private backgroundDataImage: HTMLImageElement
+    private bufferStateImage: boolean
+    private bufferedStateImagesData: string[]
     private resolver: Function
 
     public initialize(graphModel: GraphModel) {
         this.bgGridSpacing = Configuration.get().param('backgroundGridSpacing') as number
         this.needsRerendering = false
+        this.bufferStateImage = false
+        this.bufferedStateImagesData = []
 
         if (!this.bgGridSpacing) {
             this.logger.log('Failed to fetch backgroundGridSpacing of canvas!', LoggerLevel.ERR)
@@ -34,17 +38,33 @@ export default class Renderer implements IReloadable {
         this.currentModel = graphModel
 
         this.logger.log('Module initialized!')
+
         return true
     }
 
-    public async render() {
+    public beginBufferStateImageData() { this.bufferStateImage = true }
+
+    public endBufferStateImageData() { this.bufferStateImage = false }
+
+    public getBufferedStateImageData() { return this.bufferedStateImagesData }
+
+    public async render(shouldAwait: boolean = true) {
 
         if (!this.currentModel) {
             this.logger.log('There is not graph model subscribbed!', LoggerLevel.ERR)
             return false
         }
-        await this.renderModelProxy()
+
+        if (shouldAwait)
+            await this.renderModelProxy()
+        else
+            this.fastRenderModelProxy()
         return true
+    }
+
+    private fastRenderModelProxy() {
+        window.requestAnimationFrame(this.renderModel.bind(this))
+        this.resolver = () => { }
     }
 
     private async renderModelProxy() {
@@ -70,6 +90,7 @@ export default class Renderer implements IReloadable {
         if (deltaTime > 30) deltaTime = 16
 
         this.needsRerendering = false
+
         for (const [id, connData] of Object.entries(this.currentModel.getConnections())) {
             connData.update(deltaTime)
             connData.render(this.drawContext)
@@ -90,18 +111,22 @@ export default class Renderer implements IReloadable {
             /* Check to see if any node still needs a render pass because of anim 
                If there are no objects, resolve promise & exit, rerender otherwise
             */
+
             if (!nodeData.graphNode.isAnimationDone())
                 this.needsRerendering = true
         }
 
         this.startDelta = this.endDelta
 
+        /* If buffering is on, save the rendered state */
+        if (this.bufferStateImage)
+            this.bufferedStateImagesData.push(this.drawCanvas.toDataURL('image/png'))
+
         if (this.needsRerendering)
             window.requestAnimationFrame(this.renderModel.bind(this))
         else
             this.resolver()
     }
-
     private clearAndRenderBackgroundGrid() {
 
         const width = this.drawCanvas.width

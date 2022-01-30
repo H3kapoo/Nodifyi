@@ -2,15 +2,51 @@ module.exports = {
     1: {
         "schema": {
             "name": 'delnode',
-            "mandatory": ["id"],
+            "mandatory": [],
             "id": "String",
             "ceva": "NotRequired"
         },
         async logic(parsedData, api) {
-            const n1 = api.createNode({ position: [300, 300] })
-            const n2 = api.createNode({ position: [600, 600] })
-            api.createConnection(n1, n2, {})
-            api.deleteNode(n1)
+            const poss = [
+                [100, 300],
+                [250, 300],
+                [400, 300],
+                [550, 300],
+                [700, 300],
+            ]
+            let ids = []
+            for (const pos of poss) {
+                const id = await api.createNode({
+                    position: pos,
+                    color: '#00000000',
+                    animation: {
+                        color: '#000000ff',
+                        duration: 100
+                    }
+                })
+                ids.push(id)
+            }
+
+            //TO FIX: trying to create conns on startPos === endPos
+            for (let i = 0; i < ids.length - 1; i++) {
+                api.createConnection(ids[i], ids[i + 1], {
+                    elevation: 0,
+                    animation: {
+                        elevation: ids[i] % 2 ? 50 : -50,
+                        duration: 200
+                    }
+                })
+            }
+
+            async function createConn(n1, n2) {
+                await api.createConnection(n1, n2, {
+                    elevation: 0,
+                    animation: {
+                        elevation: n1 % 2 ? 50 : -50,
+                        duration: 200
+                    }
+                })
+            }
         }
     },
     4: {
@@ -52,7 +88,7 @@ module.exports = {
             "skip": "AbsNumber"
         },
         async logic(parsedData, api) {
-            const pts = radialPoints(parsedData.pos, parsedData.radius || 300, 10)
+            const pts = radialPoints(parsedData.pos, parsedData.radius || 300, 15)
             const nodeIds = []
             for (const pt of pts) {
                 const id = await api.createNode({
@@ -72,13 +108,11 @@ module.exports = {
             for (let i = 0; i < nodeIds.length; i += skip) {
                 for (let j = i; j < nodeIds.length; j += skip) {
                     if (i != j) {
-                        api.createConnection(nodeIds[i], nodeIds[j], {
+                        await api.createConnection(nodeIds[i], nodeIds[j], {
                             elevation: 100,
-                            color: '#000000ff',
                             animation: {
-                                color: '#000000ff',
-                                elevation: 0,
-                                duration: 2000
+                                elevation: 30,
+                                duration: 100
                             }
                         })
                     }
@@ -99,13 +133,12 @@ module.exports = {
     },
     3: {
         "schema": {
-            "name": 'del1',
+            "name": 'createNode',
             "mandatory": ["id"],
-            "id": "AbsNumber",
+            "id": "Number",
         },
         async logic(parsedData, api) {
-
-            api.deleteNode(parsedData.id)
+            await api.createNode(parsedData.id, {})
         }
     },
 }

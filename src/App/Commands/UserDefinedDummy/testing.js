@@ -5,10 +5,8 @@ root = {
         "id": "Number",
         "ceva": "Number2"
     },
-    async logic(laba) {
+    async logic() {
         console.log('testing')
-        for (let x of laba) {
 
-        }
     }
 }

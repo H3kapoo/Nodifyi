@@ -1,10 +1,12 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, webContents } = require('electron')
 const { Menu, MenuItem, ipcMain } = require('electron')
+require('@electron/remote/main').initialize()
 const path = require('path')
 
 try {
     require('electron-reloader')(module, {
-        ignore: ['/home/hekapoo/Documents/_Licence/nodify2/src/Webpacked/output']
+        ignore: ['/home/hekapoo/Documents/_Licence/nodify2/src/Webpacked/temp',
+            '/home/hekapoo/Documents/_Licence/nodify2/mygif.gif']
     })
 } catch (_) { }
 
@@ -16,13 +18,13 @@ const menu = new Menu()
 
 /*App Menu*/
 const debugMenu = new MenuItem({
-    label: 'Export',
+    label: 'File',
     submenu: [
-        // {
-        //     label: 'Reload',
-        //     accelerator: 'Shift+R',
-        //     click: () => { createModal() }
-        // },
+        {
+            label: 'Toggle capture GIF',
+            accelerator: 'Shift+G',
+            click: () => { mainWindow.webContents.send('TOGGLE_CAPUTRE_GIF') }
+        },
         {
             label: 'Preferences',
             accelerator: 'Shift+P',
@@ -43,6 +45,7 @@ menu.append(debugMenu)
 Menu.setApplicationMenu(menu)
 
 ipcMain.on('PREFS_UPDATE', (e, v) => mainWindow.webContents.send('PREFS_UPDATE', v))
+// ipcMain.on('PREFS_UPDATE_CLOSE',)
 
 /* Create window */
 app.whenReady().then(() => {
@@ -72,6 +75,7 @@ function openPrefsModal() {
 
     childWindow.loadFile(path.join(__dirname, prefsWindowHtmlLoc))
     // childWindow.setMenu(null)
+    require("@electron/remote/main").enable(childWindow.webContents)
     childWindow.once("ready-to-show", () => { childWindow.show() })
 }
 
@@ -86,5 +90,6 @@ function createWindow() {
             enableRemoteModule: true
         }
     })
+    require("@electron/remote/main").enable(mainWindow.webContents)
     mainWindow.loadFile(path.join(__dirname, indexHtmlLoc))
 }

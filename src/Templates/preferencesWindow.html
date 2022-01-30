@@ -5,13 +5,39 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GIF WINDOW</title>
+    <title>Preferences</title>
 </head>
 
 <body>
-    <input id="width" type="number" />
-    <input id="height" type="number" />
-    <button id="submit">Send data</button>
+    <div id='preferences-tab-list'>
+        <div id='names-of-them'>
+            <ul id='opts-container' data-tabs-prefs>
+                <li><a data-tabby-default href="#canvas-prefs-tab">Canvas</a></li>
+                <li><a href="#commands-prefs-tab">Commands</a></li>
+            </ul>
+        </div>
+        <div id='opts-part'>
+            <div id='canvas-prefs-tab'>
+                <div id='canvasDims'>
+                    <label>Canvas width</label>
+                    <input id="width" type="number" placeholder="1000" />
+                    <label>Canvas height</label>
+                    <input id="height" type="number" placeholder="1000" />
+                </div>
+                <div id='apply-settings'>
+                    <button id="submit">Apply (needs restart)</button>
+                </div>
+                <!-- <p1>Commands inteligent--</p1> -->
+
+            </div>
+
+
+            <div id='commands-prefs-tab'>
+                <p1>Commands inteligent0</p1>
+            </div>
+
+        </div>
+    </div>
 </body>
 
 </html>

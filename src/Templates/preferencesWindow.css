@@ -1,0 +1,84 @@
+@font-face {
+    font-family: "mainFont";
+    src: url("../App/Styles/JetBrainsMono-Regular.ttf");
+}
+
+*{
+    font-family: "mainFont";
+    padding: 0;
+    margin: 0;
+    box-sizing:border-box;
+}
+body{
+    background-color: rgb(240, 240, 240);
+    width: 100wh;
+    height: 100vh;
+    min-width: 500px;
+}
+#preferences-tab-list{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    /* grid-template-columns: 1fr 1fr; */
+    background-color: rgb(224, 224, 224);
+    min-width: 700px;
+}
+
+#opts-part{
+    padding-left: 10px;
+    padding-right: 10px;
+    background-color: rgb(255, 255, 255);
+    width: 100%;
+    height: 100%;
+}
+#opts-container{
+    display: flex;
+    flex-direction: column;
+}
+#canvas-prefs-tab{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;    
+    width: 100%;
+    height: 100%;
+}
+
+/* #commands-prefs-tab{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;    
+    width: 100%;
+    height: 100%;
+} */
+
+#canvasDims{
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    grid-template-rows: 1fr 1fr;
+}
+label{
+    min-width: 200px;
+}
+
+#width, #height{
+    width: 200px;
+}
+#apply-settings{
+    width: 100%;
+    padding-bottom: 10px;
+}
+#submit{
+    width: 100%;
+    bottom: 0;
+}
+
+#names-of-them{
+    overflow: auto;
+    width: 100%;
+    max-width: 200px;
+}
+a{
+   width: 100%;
+   min-width: 200px;
+   max-width: 200px;
+}

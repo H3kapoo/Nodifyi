@@ -19,11 +19,15 @@ export default class APIHolder {
 
     private async createNode(options: AnyGraphNodeOptions): Promise<number> {
         const node = new CircleNode(options as CircleNodeOptions)
-        if (options.animation)
-            node.uploadAnimationObject(options.animation)
         this.graphModel.addNode(node)
-        await this.renderer.render()
-        return node.getUniqueId()
+
+        if (options.animation) {
+            node.uploadAnimationObject(options.animation)
+            await this.renderer.render()
+        }
+        else
+            this.renderer.render(false)
+        return Promise.resolve(node.getUniqueId())
     }
 
     private async updateNode(id: GraphNodeId, options: AnyGraphNodeOptions): Promise<void> {
@@ -31,10 +35,12 @@ export default class APIHolder {
 
         if (!node) return null
 
-        if (options.animation)
-            node.uploadAnimationObject(options.animation)
         node.updateOptions(options)
-        await this.renderer.render()
+        if (options.animation) {
+            node.uploadAnimationObject(options.animation)
+            await this.renderer.render()
+        } else
+            this.renderer.render(false)
     }
 
     private deleteNode(id: GraphNodeId) {
@@ -44,9 +50,11 @@ export default class APIHolder {
 
     private async createConnection(fromId: GraphNodeId, toId: GraphNodeId, options: AnyConnectionOptions) {
         const conn = this.graphModel.addConnection(fromId, toId, options)
-        if (options.animation)
+        if (options.animation) {
             conn.uploadAnimationObject(options.animation)
-        await this.renderer.render()
+            await this.renderer.render()
+        } else
+            this.renderer.render(false)
     }
 
     private async updateConnection(
