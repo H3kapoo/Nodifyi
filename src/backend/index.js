@@ -6,7 +6,9 @@ const path = require('path')
 try {
     require('electron-reloader')(module, {
         ignore: ['/home/hekapoo/Documents/_Licence/nodify2/src/Webpacked/temp',
-            '/home/hekapoo/Documents/_Licence/nodify2/mygif.gif']
+            '/home/hekapoo/Documents/_Licence/nodify2/mygif.gif',
+            '/home/hekapoo/Documents/_Licence/nodify2/mygif.mkv',
+            '/home/hekapoo/Documents/_Licence/nodify2/pallete.png']
     })
 } catch (_) { }
 

@@ -22,6 +22,7 @@ export default class Animator {
 
     public update(delta: number) {
         this.currentDuration += delta
+
         this.t = this.currentDuration / this.totalDuration
 
         if (this.t >= 1) {

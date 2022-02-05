@@ -21,13 +21,20 @@ export default class APIHolder {
         const node = new CircleNode(options as CircleNodeOptions)
         this.graphModel.addNode(node)
 
-        if (options.animation) {
+        if (options.animation)
             node.uploadAnimationObject(options.animation)
-            await this.renderer.render()
-        }
-        else
-            this.renderer.render(false)
+        await this.renderer.render()
         return Promise.resolve(node.getUniqueId())
+    }
+
+    private createNodeSync(options: AnyGraphNodeOptions): number {
+        const node = new CircleNode(options as CircleNodeOptions)
+        this.graphModel.addNode(node)
+
+        if (options.animation)
+            node.uploadAnimationObject(options.animation)
+        this.renderer.render(false)
+        return node.getUniqueId()
     }
 
     private async updateNode(id: GraphNodeId, options: AnyGraphNodeOptions): Promise<void> {
@@ -36,25 +43,41 @@ export default class APIHolder {
         if (!node) return null
 
         node.updateOptions(options)
-        if (options.animation) {
+        if (options.animation)
             node.uploadAnimationObject(options.animation)
-            await this.renderer.render()
-        } else
-            this.renderer.render(false)
+        await this.renderer.render()
     }
 
-    private deleteNode(id: GraphNodeId) {
+    private updateNodeSync(id: GraphNodeId, options: AnyGraphNodeOptions): void {
+        const node = this.graphModel.findNode(id)
+
+        if (!node) return null
+
+        node.updateOptions(options)
+        if (options.animation)
+            node.uploadAnimationObject(options.animation)
+        this.renderer.render(false)
+    }
+
+    private deleteNodeSync(id: GraphNodeId) {
         this.graphModel.rmNode(id)
         this.renderer.render()
     }
 
-    private async createConnection(fromId: GraphNodeId, toId: GraphNodeId, options: AnyConnectionOptions) {
+    private async createConnection(
+        fromId: GraphNodeId, toId: GraphNodeId, options: AnyConnectionOptions): Promise<void> {
+
         const conn = this.graphModel.addConnection(fromId, toId, options)
-        if (options.animation) {
+        if (options.animation)
             conn.uploadAnimationObject(options.animation)
-            await this.renderer.render()
-        } else
-            this.renderer.render(false)
+        await this.renderer.render()
+    }
+
+    private createConnectionSync(fromId: GraphNodeId, toId: GraphNodeId, options: AnyConnectionOptions) {
+        const conn = this.graphModel.addConnection(fromId, toId, options)
+        if (options.animation)
+            conn.uploadAnimationObject(options.animation)
+        this.renderer.render(false)
     }
 
     private async updateConnection(
@@ -63,14 +86,25 @@ export default class APIHolder {
         const conn = this.graphModel.findConnection(fromId, toId)
 
         if (!conn) return null
-
         if (options.animation)
             conn.uploadAnimationObject(options.animation)
         conn.updateOptions(options)
         await this.renderer.render()
     }
 
-    private deleteConnection(fromId: GraphNodeId, toId: GraphNodeId) {
+    private updateConnectionSync(
+        fromId: GraphNodeId, toId: GraphNodeId, options: AnyConnectionOptions): void {
+
+        const conn = this.graphModel.findConnection(fromId, toId)
+
+        if (!conn) return null
+        if (options.animation)
+            conn.uploadAnimationObject(options.animation)
+        conn.updateOptions(options)
+        this.renderer.render(false)
+    }
+
+    private deleteConnectionSync(fromId: GraphNodeId, toId: GraphNodeId) {
         this.graphModel.rmConnection(fromId, toId)
         this.renderer.render()
     }
@@ -78,11 +112,15 @@ export default class APIHolder {
     public getAPI(): APIObject {
         return {
             'createNode': this.createNode.bind(this),
+            'createNodeSync': this.createNodeSync.bind(this),
             'updateNode': this.updateNode.bind(this),
-            'deleteNode': this.deleteNode.bind(this),
+            'updateNodeSync': this.updateNodeSync.bind(this),
+            'deleteNodeSync': this.deleteNodeSync.bind(this),
             'createConnection': this.createConnection.bind(this),
+            'createConnectionSync': this.createConnectionSync.bind(this),
             'updateConnection': this.updateConnection.bind(this),
-            'deleteConnection': this.deleteConnection.bind(this)
+            'updateConnectionSync': this.updateConnectionSync.bind(this),
+            'deleteConnectionSync': this.deleteConnectionSync.bind(this)
         }
     }
 }

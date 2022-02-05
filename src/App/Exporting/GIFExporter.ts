@@ -3,8 +3,10 @@ import { join } from 'path'
 import { existsSync, mkdirSync, writeFileSync, rename, rmdirSync } from "fs"
 import Renderer from "../Renderer/Renderer"
 const { ipcRenderer } = require('electron')
-const spawn = require('child_process').spawn
-const { dialog, BrowserWindow, getCurrentWindow } = require('@electron/remote')
+const { dialog } = require('@electron/remote')
+//@ts-ignore
+const ffmpeg = require("fluent-ffmpeg");
+
 
 /* Class handling the capture and exporting of gifs */
 export default class GIFExporter {
@@ -37,8 +39,7 @@ export default class GIFExporter {
 
     private async processFFMPEG() {
         const tempFolder = join(__dirname, 'temp')
-        console.log(tempFolder)
-        // creates 'temp' folder if it doesn't exist
+
         if (!existsSync(tempFolder))
             mkdirSync(tempFolder)
         else {
@@ -49,21 +50,39 @@ export default class GIFExporter {
         const buff = []
         for (let str of this.renderer.getBufferedStateImageData())
             buff.push(str.replace(/^data:image\/png;base64,/, ""))
+        buff.push(this.renderer.getCurrentStateImageData().replace(/^data:image\/png;base64,/, ""))
 
-        // convert states from renderer to PNG images
+
         let i = 0
-        for (let data of buff)
-            writeFileSync(join(tempFolder, `test${i++}.png`), data, 'base64')
+        for (let data of buff) {
+            const p = join(tempFolder, `test${i++}.png`)
+            writeFileSync(p, data, 'base64')
+        }
 
+        ffmpeg(`${tempFolder}/test%d.png`)
+            .inputOptions('-f image2')
+            .on('end', function (stdout: any, stderr: any) {
+                console.log('Transcoding succeeded !')
+                ffmpeg(`mygif.mkv`)
+                    .inputOptions('-y')
+                    .outputOptions('-vf palettegen')
+                    .on('end', function (stdout: any, stderr: any) {
+                        console.log('Transcoding succeeded 2!')
 
-        //TODO: Refactor
-        this.runCommand('ffmpeg', `-f image2 -i test%d.png video.mkv`, () => {
-            this.runCommand('ffmpeg', '-y -i video.mkv -vf palettegen palette.png', () => {
-                this.runCommand('ffmpeg', '-i video.mkv -i palette.png -filter_complex paletteuse -r 10 output.gif', () => {
-                    this.showSaveDialog(tempFolder)
-                })
+                        ffmpeg(`mygif.mkv`)
+                            .withOptions([
+                                `-i pallete.png`,
+                                `-filter_complex paletteuse`
+                            ])
+                            .inputOptions('-r 5')
+                            .on('end', function (stdout: any, stderr: any) {
+                                console.log('Transcoding succeeded 3!')
+                            })
+                            .output('mygif.gif').run()
+                    })
+                    .output('pallete.png').run()
             })
-        })
+            .output('mygif.mkv').run()
     }
 
     private showSaveDialog(tempFolder: string) {
@@ -76,20 +95,5 @@ export default class GIFExporter {
             console.log(pathToSave);
 
         }).catch((err: any) => { console.log(err) })
-    }
-
-    private runCommand(cmd: any, args: any, onFinish: any) {
-        try {
-            const proc = spawn(cmd, args.split(' '), {
-                cwd: join(__dirname, 'temp'),
-            })
-            proc.stderr.setEncoding("utf8")
-            proc.stderr.on('data', (err: any) => console.log(err))
-            proc.on('close', onFinish)
-        } catch (ex) {
-            console.log(ex);
-
-        }
-
     }
 }

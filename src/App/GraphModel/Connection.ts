@@ -28,6 +28,8 @@ export default class Connection {
         this.uniqueId = Connection.idGiver++
     }
 
+    private elevThen: number = null
+
     public render(ctx: CanvasRenderingContext2D) {
         const fromNodeOpts: GraphNodeBaseOptions = this.fromNode.getOptions()
         const toNodeOpts: GraphNodeBaseOptions = this.toNode.getOptions()

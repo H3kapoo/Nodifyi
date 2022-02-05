@@ -26,7 +26,7 @@ export default class CanvasTab implements IReloadable {
             return false
         }
 
-        this.canvasContext = this.canvasDOM.getContext('2d')
+        this.canvasContext = this.canvasDOM.getContext('2d', { alpha: false })
         const canvasHeight = Configuration.get().param('canvasHeight') as number
         const canvasWidth = Configuration.get().param('canvasWidth') as number
 

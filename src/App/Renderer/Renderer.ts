@@ -17,16 +17,21 @@ export default class Renderer implements IReloadable {
     private needsRerendering: boolean
     private startDelta: number
     private endDelta: number
+    private frameNumber: number
     private bgGridSpacing: number
+    private resolver: Function
     private backgroundDataImage: HTMLImageElement
+
+    private bufferSkipFrames: number
     private bufferStateImage: boolean
     private bufferedStateImagesData: string[]
-    private resolver: Function
 
     public initialize(graphModel: GraphModel) {
         this.bgGridSpacing = Configuration.get().param('backgroundGridSpacing') as number
         this.needsRerendering = false
         this.bufferStateImage = false
+        this.frameNumber = 0
+        this.bufferSkipFrames = 10
         this.bufferedStateImagesData = []
 
         if (!this.bgGridSpacing) {
@@ -36,17 +41,9 @@ export default class Renderer implements IReloadable {
         }
 
         this.currentModel = graphModel
-
         this.logger.log('Module initialized!')
-
         return true
     }
-
-    public beginBufferStateImageData() { this.bufferStateImage = true }
-
-    public endBufferStateImageData() { this.bufferStateImage = false }
-
-    public getBufferedStateImageData() { return this.bufferedStateImagesData }
 
     public async render(shouldAwait: boolean = true) {
 
@@ -56,18 +53,18 @@ export default class Renderer implements IReloadable {
         }
 
         if (shouldAwait)
-            await this.renderModelProxy()
+            await this.awaitableRenderModelProxy()
         else
-            this.fastRenderModelProxy()
+            this.noAwaitRenderModelProxy()
         return true
     }
 
-    private fastRenderModelProxy() {
+    private noAwaitRenderModelProxy() {
         window.requestAnimationFrame(this.renderModel.bind(this))
         this.resolver = () => { }
     }
 
-    private async renderModelProxy() {
+    private async awaitableRenderModelProxy() {
         await new Promise<void>((res, rej) => {
             window.requestAnimationFrame(this.renderModel.bind(this))
             this.resolver = res
@@ -77,56 +74,65 @@ export default class Renderer implements IReloadable {
     }
 
     private renderModel(timeStamp: DOMHighResTimeStamp) {
-        this.clearAndRenderBackgroundGrid()
-
         if (!this.startDelta)
             this.startDelta = timeStamp
-
         this.endDelta = timeStamp
-
         let deltaTime = this.endDelta - this.startDelta
-
-        /* A little hack because at first run, timeStamp seems to skyrocket to 1000+*/
-        if (deltaTime > 30) deltaTime = 16
-
         this.needsRerendering = false
 
-        for (const [id, connData] of Object.entries(this.currentModel.getConnections())) {
-            connData.update(deltaTime)
-            connData.render(this.drawContext)
+        if (deltaTime > 200) deltaTime = 16
 
-            /* Check to see if any conn still needs a render pass because of anim 
-               If there are no objects, resolve promise & exit, rerender otherwise
-            */
+        if (deltaTime !== 0) {
+            this.clearAndRenderBackgroundGrid()
 
-            if (!connData.isAnimationDone())
-                this.needsRerendering = true
+            for (const [id, connData] of Object.entries(this.currentModel.getConnections())) {
+                connData.update(deltaTime)
+                connData.render(this.drawContext)
+
+                if (!connData.isAnimationDone())
+                    this.needsRerendering = true
+            }
+
+            for (const [id, nodeData] of Object.entries(this.currentModel.getModel())) {
+                nodeData.graphNode.update(deltaTime)
+                nodeData.graphNode.render(this.drawContext)
+
+                if (!nodeData.graphNode.isAnimationDone())
+                    this.needsRerendering = true
+            }
+
+            /* If buffering is on, save the rendered state every bufferSkipFrames frames */
+            if (this.bufferStateImage && (this.frameNumber % this.bufferSkipFrames === 0))
+                this.bufferedStateImagesData.push(this.drawCanvas.toDataURL('image/png'))
+
+            this.startDelta = this.endDelta
         }
+        else
+            this.needsRerendering = true
 
-        for (const [id, nodeData] of Object.entries(this.currentModel.getModel())) {
-
-            nodeData.graphNode.update(deltaTime)
-            nodeData.graphNode.render(this.drawContext)
-
-            /* Check to see if any node still needs a render pass because of anim 
-               If there are no objects, resolve promise & exit, rerender otherwise
-            */
-
-            if (!nodeData.graphNode.isAnimationDone())
-                this.needsRerendering = true
-        }
-
-        this.startDelta = this.endDelta
-
-        /* If buffering is on, save the rendered state */
-        if (this.bufferStateImage)
-            this.bufferedStateImagesData.push(this.drawCanvas.toDataURL('image/png'))
-
-        if (this.needsRerendering)
+        if (this.needsRerendering && deltaTime !== 0)
             window.requestAnimationFrame(this.renderModel.bind(this))
         else
             this.resolver()
+        console.log("a");
+
+        this.frameNumber++
     }
+
+    public getCurrentStateImageData(): string {
+        return this.drawCanvas.toDataURL('image/png')
+    }
+
+    public beginBufferStateImageData() {
+        this.bufferStateImage = true
+    }
+
+    public endBufferStateImageData() {
+        this.bufferStateImage = false
+    }
+
+    public getBufferedStateImageData() { return this.bufferedStateImagesData }
+
     private clearAndRenderBackgroundGrid() {
 
         const width = this.drawCanvas.width

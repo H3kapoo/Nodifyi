@@ -88,7 +88,7 @@ module.exports = {
             "skip": "AbsNumber"
         },
         async logic(parsedData, api) {
-            const pts = radialPoints(parsedData.pos, parsedData.radius || 300, 15)
+            const pts = radialPoints(parsedData.pos, parsedData.radius || 300, 50)
             const nodeIds = []
             for (const pt of pts) {
                 const id = await api.createNode({
@@ -97,7 +97,7 @@ module.exports = {
                     animation: {
                         position: pt,
                         color: '#000000ff',
-                        duration: 1
+                        duration: 30
                     }
                 })
                 nodeIds.push(id)
@@ -108,11 +108,11 @@ module.exports = {
             for (let i = 0; i < nodeIds.length; i += skip) {
                 for (let j = i; j < nodeIds.length; j += skip) {
                     if (i != j) {
-                        await api.createConnection(nodeIds[i], nodeIds[j], {
-                            elevation: 100,
+                        api.createConnectionSync(nodeIds[i], nodeIds[j], {
+                            elevation: 200,
                             animation: {
-                                elevation: 30,
-                                duration: 100
+                                elevation: 0,
+                                duration: 1000
                             }
                         })
                     }
@@ -141,4 +141,23 @@ module.exports = {
             await api.createNode(parsedData.id, {})
         }
     },
+    4: {
+        "schema": {
+            "name": 'cns',
+            "mandatory": ["pos"],
+            "pos": "AbsNumber2vs",
+        },
+        async logic(parsedData, api) {
+            for (const pos of parsedData.pos) {
+                const id = api.createNodeSync({
+                    position: pos,
+                    animation: {
+                        position: [500, 600],
+                        duration: 500
+                    }
+                })
+            }
+
+        }
+    }
 }
