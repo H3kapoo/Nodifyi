@@ -50,6 +50,6 @@ submit.addEventListener('click', () => {
         canvasHeight: h
     })
 
+    /* This will close the prefs window */
     getCurrentWindow().close()
-
 })

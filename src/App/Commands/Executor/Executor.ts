@@ -4,6 +4,7 @@ import Renderer from "../../Renderer/Renderer"
 import TerminalTabOutputHelper from "../../Tabs/TerminalTabOutputHelper"
 import { APIObject, CommandsStruct, ParsedInput } from "../../types"
 import IParserListener from "../Parser/IParserListener"
+import CommandStore from "../Storage/CommandStore"
 import APIHolder from "./APICommands"
 
 
@@ -15,10 +16,11 @@ export default class Executor implements IParserListener {
     private API: APIObject
     private renderer: Renderer
 
-    public initialize(graphModel: GraphModel, renderer: Renderer) {
+    public initialize(graphModel: GraphModel, renderer: Renderer, commands: CommandsStruct) {
         this.API = new APIHolder(graphModel, renderer).getAPI()
         this.terminalHelper = new TerminalTabOutputHelper()
         this.renderer = renderer
+        this.commands = commands
         this.terminalHelper.setOutputContext(this.logger.getContext())
         this.logger.log('Module initialized!')
         return true
@@ -48,6 +50,4 @@ export default class Executor implements IParserListener {
     }
 
     public onInputParsed(parsedInputs: ParsedInput[]) { this.executeCommandChain(parsedInputs) }
-
-    public subscribeCommands(commands: CommandsStruct) { this.commands = commands }
 }

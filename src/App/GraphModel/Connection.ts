@@ -28,8 +28,6 @@ export default class Connection {
         this.uniqueId = Connection.idGiver++
     }
 
-    private elevThen: number = null
-
     public render(ctx: CanvasRenderingContext2D) {
         const fromNodeOpts: GraphNodeBaseOptions = this.fromNode.getOptions()
         const toNodeOpts: GraphNodeBaseOptions = this.toNode.getOptions()
@@ -41,6 +39,7 @@ export default class Connection {
         const nodeEndRadius: number = toNodeOpts.radius
 
         const connColor: string = this.options.color || ConnectionDefaults.COLOR
+        //TODO: When start=end pos, it breaks
         //TODO: Remove hack .001
         //POTENTIAL FIX: In validation if elev===0 => elev = .001
         const connElevation: number = this.options.elevation + (.001) || ConnectionDefaults.ELEVATION

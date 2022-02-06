@@ -16,11 +16,11 @@ export default class TabsLoader {
         this.canvasTab = new CanvasTab()
 
         if (!this.terminalTab.initialize()) {
-            this.logger.log('Terminal NOT Initialized!', LoggerLevel.ERR)
+            this.logger.log('Terminal NOT Initialized!', LoggerLevel.FATAL)
             return false
         }
         if (!this.canvasTab.initialize()) {
-            this.logger.log('Canvas NOT Initialized!', LoggerLevel.ERR)
+            this.logger.log('Canvas NOT Initialized!', LoggerLevel.FATAL)
             return false
         }
 

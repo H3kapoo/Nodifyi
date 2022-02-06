@@ -1,6 +1,6 @@
 root = {
     "schema": {
-        "name": 'delnode2',
+        "name": 'delnode22',
         "mandatory": ["id"],
         "id": "Number",
         "ceva": "Number2"

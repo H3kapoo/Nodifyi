@@ -7,16 +7,18 @@ import { ValidTypes } from "../Validation/ValidTypes"
 import TerminalTabOutputHelper from "../../Tabs/TerminalTabOutputHelper"
 
 
-export default class Parser extends TerminalTabOutputHelper implements ITerminalTabListener {
+export default class Parser implements ITerminalTabListener {
     private logger = new Logger('Parser')
 
+    private terminalHelper: TerminalTabOutputHelper
     private commands: CommandsStruct
     private parseListeners: IParserListener[]
 
-    public initialize() {
-        this.commands = {}
+    public initialize(commands: CommandsStruct) {
+        this.commands = commands
         this.parseListeners = []
-        this.setOutputContext(this.logger.getContext())
+        this.terminalHelper = new TerminalTabOutputHelper()
+        this.terminalHelper.setOutputContext(this.logger.getContext())
         this.logger.log('Module initialized!')
         return true
     }
@@ -45,7 +47,7 @@ export default class Parser extends TerminalTabOutputHelper implements ITerminal
         /* Verify command exists in storage */
         if (!this.commands[commandTokens[0]]) {
             this.logger.log(`Command '${commandTokens[0]}' doesn't exist!`, LoggerLevel.WRN)
-            this.printErr(`Command '${commandTokens[0]}' doesn't exist!`)
+            this.terminalHelper.printErr(`Command '${commandTokens[0]}' doesn't exist!`)
             return null
         }
 
@@ -75,7 +77,7 @@ export default class Parser extends TerminalTabOutputHelper implements ITerminal
             //@ts-ignore
             if (!commandSchema[optionName]) {
                 this.logger.log(`Command '${commandTokens[0]}' doesnt have option '${optionName}'`, LoggerLevel.WRN)
-                this.printErr(`Command '${commandTokens[0]}' doesnt have option '${optionName}'`)
+                this.terminalHelper.printErr(`Command '${commandTokens[0]}' doesnt have option '${optionName}'`)
                 return null
             }
 
@@ -92,7 +94,7 @@ export default class Parser extends TerminalTabOutputHelper implements ITerminal
 
             if (!optionArg) {
                 this.logger.log(`Option '${optionName}' doesnt have an argument provided!`, LoggerLevel.WRN)
-                this.printErr(`Option '${optionName}' doesnt have an argument provided!`)
+                this.terminalHelper.printErr(`Option '${optionName}' doesnt have an argument provided!`)
                 return null
             }
 
@@ -108,6 +110,9 @@ export default class Parser extends TerminalTabOutputHelper implements ITerminal
             } catch (error) {
                 //@ts-ignore
                 this.logger.log(error.message, LoggerLevel.WRN)
+                //@ts-ignore
+                this.terminalHelper.printErr(error.message)
+
                 return null
             }
 
@@ -120,7 +125,7 @@ export default class Parser extends TerminalTabOutputHelper implements ITerminal
             if (commandOptions[opt] !== undefined)
                 return true
             this.logger.log(`Mandatory option '${opt}' is required but not provided!`, LoggerLevel.WRN)
-            this.printErr(`Mandatory option '${opt}' is required but not provided in '${commandTokens[0]}'!`)
+            this.terminalHelper.printErr(`Mandatory option '${opt}' is required but not provided in '${commandTokens[0]}'!`)
             return false
         })
 
@@ -133,8 +138,6 @@ export default class Parser extends TerminalTabOutputHelper implements ITerminal
     }
 
     public subscribeOnParsed(listener: IParserListener) { this.parseListeners.push(listener) }
-
-    public subscribeCommands(commands: CommandsStruct) { this.commands = commands }
 
     public onListenedKey(userInput: string): void {
         if (!userInput.length) {

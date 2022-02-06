@@ -4,6 +4,7 @@ import IReloadable from "../Configuration/IReloadable";
 import CircleNode from "../GraphModel/CircleNode";
 import GraphModel from "../GraphModel/GraphModel";
 import { Vec2d } from "../types";
+import IRendererListener from "./IRendererListener";
 
 
 /** Class that handles the rendering of the canvas element*/
@@ -13,34 +14,27 @@ export default class Renderer implements IReloadable {
     private currentModel: GraphModel
     private drawContext: CanvasRenderingContext2D
     private drawCanvas: HTMLCanvasElement
-    private isCurrentlyDrawing: boolean
     private needsRerendering: boolean
-    private startDelta: number
-    private endDelta: number
-    private frameNumber: number
+    private lastFrameTimeMs: number = 0
     private bgGridSpacing: number
     private resolver: Function
     private backgroundDataImage: HTMLImageElement
 
-    private bufferSkipFrames: number
-    private bufferStateImage: boolean
-    private bufferedStateImagesData: string[]
+    private listeners: IRendererListener[]
 
-    public initialize(graphModel: GraphModel) {
+    public initialize(graphModel: GraphModel, canvas: HTMLCanvasElement) {
         this.bgGridSpacing = Configuration.get().param('backgroundGridSpacing') as number
         this.needsRerendering = false
-        this.bufferStateImage = false
-        this.frameNumber = 0
-        this.bufferSkipFrames = 10
-        this.bufferedStateImagesData = []
+        this.listeners = []
 
         if (!this.bgGridSpacing) {
-            this.logger.log('Failed to fetch backgroundGridSpacing of canvas!', LoggerLevel.ERR)
-            this.logger.log('Module initialized!')
+            this.logger.log('Failed to fetch backgroundGridSpacing of canvas!', LoggerLevel.FATAL)
             return false
         }
 
         this.currentModel = graphModel
+        this.drawCanvas = canvas
+        this.drawContext = canvas.getContext('2d')
         this.logger.log('Module initialized!')
         return true
     }
@@ -53,85 +47,56 @@ export default class Renderer implements IReloadable {
         }
 
         if (shouldAwait)
-            await this.awaitableRenderModelProxy()
+            await this.renderWithAwait()
         else
-            this.noAwaitRenderModelProxy()
+            this.renderImmediate()
         return true
     }
 
-    private noAwaitRenderModelProxy() {
+    private renderImmediate() {
         window.requestAnimationFrame(this.renderModel.bind(this))
         this.resolver = () => { }
     }
 
-    private async awaitableRenderModelProxy() {
+    private async renderWithAwait() {
         await new Promise<void>((res, rej) => {
             window.requestAnimationFrame(this.renderModel.bind(this))
             this.resolver = res
-            this.isCurrentlyDrawing = true
         })
-        this.isCurrentlyDrawing = false
     }
 
     private renderModel(timeStamp: DOMHighResTimeStamp) {
-        if (!this.startDelta)
-            this.startDelta = timeStamp
-        this.endDelta = timeStamp
-        let deltaTime = this.endDelta - this.startDelta
+
+        let deltaTime = timeStamp - this.lastFrameTimeMs
+        this.lastFrameTimeMs = timeStamp
+
         this.needsRerendering = false
+        if (deltaTime === 0) return
 
         if (deltaTime > 200) deltaTime = 16
+        this.clearAndRenderBackgroundGrid()
 
-        if (deltaTime !== 0) {
-            this.clearAndRenderBackgroundGrid()
+        for (const [id, connData] of Object.entries(this.currentModel.getConnections())) {
+            connData.update(deltaTime)
+            connData.render(this.drawContext)
 
-            for (const [id, connData] of Object.entries(this.currentModel.getConnections())) {
-                connData.update(deltaTime)
-                connData.render(this.drawContext)
-
-                if (!connData.isAnimationDone())
-                    this.needsRerendering = true
-            }
-
-            for (const [id, nodeData] of Object.entries(this.currentModel.getModel())) {
-                nodeData.graphNode.update(deltaTime)
-                nodeData.graphNode.render(this.drawContext)
-
-                if (!nodeData.graphNode.isAnimationDone())
-                    this.needsRerendering = true
-            }
-
-            /* If buffering is on, save the rendered state every bufferSkipFrames frames */
-            if (this.bufferStateImage && (this.frameNumber % this.bufferSkipFrames === 0))
-                this.bufferedStateImagesData.push(this.drawCanvas.toDataURL('image/png'))
-
-            this.startDelta = this.endDelta
+            if (!connData.isAnimationDone())
+                this.needsRerendering = true
         }
-        else
-            this.needsRerendering = true
+        for (const [id, nodeData] of Object.entries(this.currentModel.getModel())) {
+            nodeData.graphNode.update(deltaTime)
+            nodeData.graphNode.render(this.drawContext)
+
+            if (!nodeData.graphNode.isAnimationDone())
+                this.needsRerendering = true
+        }
+        this.notifyRender()
 
         if (this.needsRerendering && deltaTime !== 0)
             window.requestAnimationFrame(this.renderModel.bind(this))
         else
             this.resolver()
-        console.log("a");
-
-        this.frameNumber++
     }
-
-    public getCurrentStateImageData(): string {
-        return this.drawCanvas.toDataURL('image/png')
-    }
-
-    public beginBufferStateImageData() {
-        this.bufferStateImage = true
-    }
-
-    public endBufferStateImageData() {
-        this.bufferStateImage = false
-    }
-
-    public getBufferedStateImageData() { return this.bufferedStateImagesData }
 
     private clearAndRenderBackgroundGrid() {
 
@@ -181,15 +146,36 @@ export default class Renderer implements IReloadable {
         this.drawContext.stroke()
     }
 
+    public isBusyDrawing() { return this.needsRerendering }
+
     public onConfReload() {
         this.logger.log('Renderer will reload')
         this.backgroundDataImage = null
     }
 
-    public subscribeCanvas(canvas: HTMLCanvasElement) {
-        this.drawCanvas = canvas
-        this.drawContext = canvas.getContext('2d')
+    public subscribeRendererListener(listener: IRendererListener) {
+        if (this.listeners.indexOf(listener) !== -1) {
+            this.logger.log('Trying to subscribe IRendererListener that is already subscribbed!', LoggerLevel.ERR)
+            return false
+        }
+
+        this.listeners.push(listener)
+        return true
     }
 
-    public isBusyDrawing() { return this.isCurrentlyDrawing }
+    public unsubscribeRendererListener(listener: IRendererListener) {
+        const index = this.listeners.indexOf(listener)
+        if (index === -1) {
+            this.logger.log('Trying to unsubscribe IRendererListener that is not subscribbed!', LoggerLevel.ERR)
+            return false
+        }
+
+        this.listeners.splice(index, 1)
+        return true
+    }
+
+    private notifyRender() {
+        this.listeners.forEach(r => r.onRendered(this.drawCanvas))
+    }
+
 }

@@ -22,12 +22,12 @@ export default class CommandStore implements IReloadable {
         this.loaderUD = new CommandLoaderUD()
 
         if (!this.loaderBI.initialize(builtin)) {
-            this.logger.log(`Fatal error! Built-in commands error overflow!`, LoggerLevel.ERR)
+            this.logger.log(`Fatal error! Built-in commands error overflow!`, LoggerLevel.FATAL)
             return false
         }
 
         if (!this.loaderUD.initialize(udPath)) {
-            this.logger.log(`Fatal error! User-defined commands error overflow!`, LoggerLevel.ERR)
+            this.logger.log(`Fatal error! User-defined commands error overflow!`, LoggerLevel.FATAL)
             return false
         }
 
@@ -43,7 +43,7 @@ export default class CommandStore implements IReloadable {
 
         for (const [name, value] of Object.entries(commandsUD)) {
             if (commandsFaker[name]) {
-                this.logger.log(`Internal command '${name}' cannot be redefined by user!`, LoggerLevel.ERR)
+                this.logger.log(`Internal command '${name}' cannot be redefined by user!`, LoggerLevel.FATAL)
                 return null
             }
             commandsFaker[name] = value

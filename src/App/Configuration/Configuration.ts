@@ -2,7 +2,7 @@ import { Logger, LoggerLevel } from "../../Logger/Logger"
 import { StringKeyObject } from "../types"
 import IReloadable from "./IReloadable"
 import fs from 'fs'
-
+import { join } from "path"
 
 /** Handles loading of configuration file*/
 export default class Configuration {
@@ -17,7 +17,6 @@ export default class Configuration {
         this.reloadablesList = []
         this.conf = {}
         this.confPath = ''
-        this.logger.log('Initialized')
     }
 
     public static get(): Configuration {
@@ -26,15 +25,38 @@ export default class Configuration {
         return Configuration.instance
     }
 
+    public loadConfOrDefault(confPath: string): boolean {
+        try {
+            fs.readFileSync(confPath)
+        } catch {
+            this.logger.log(`Warning! Could not load conf from ${confPath}. Creating default values at location!`, LoggerLevel.WRN)
+            const defaultConf = JSON.parse(fs.readFileSync(join(__dirname, '../App/Configuration/defaultValues.json')).toString())
+            fs.writeFileSync(confPath, JSON.stringify(defaultConf), 'utf-8')
+        }
+
+        try {
+            const rawResult = fs.readFileSync(confPath).toString()
+            this.conf = JSON.parse(rawResult)
+            this.confPath = confPath
+            this.logger.log('Initialized')
+        }
+        catch (error) {
+            this.logger.log(`Error! Could not parse conf from ${confPath}!`, LoggerLevel.FATAL)
+            return false
+        }
+        return true
+    }
+
     public loadConf(confPath: string): boolean {
         try {
             const rawResult = fs.readFileSync(confPath).toString()
             this.conf = JSON.parse(rawResult)
             this.confPath = confPath
+            this.logger.log('Initialized')
             return true
         }
         catch (error) {
-            this.logger.log(`Fatal error! Could not load conf from ${confPath}`, LoggerLevel.ERR)
+            this.logger.log(`Fatal error! Could not load conf from ${confPath}`, LoggerLevel.FATAL)
             return false
         }
     }

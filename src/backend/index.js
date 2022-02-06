@@ -13,8 +13,10 @@ try {
 } catch (_) { }
 
 let mainWindow = null
+let fatalModalWindow = null
 let indexHtmlLoc = '../Webpacked/index.html'
 let prefsWindowHtmlLoc = '../Webpacked/preferencesWindow.html'
+let fatalWindowHtmlLoc = '../Webpacked/fatalWindow.html'
 
 const menu = new Menu()
 
@@ -22,6 +24,11 @@ const menu = new Menu()
 const debugMenu = new MenuItem({
     label: 'File',
     submenu: [
+        {
+            label: 'Export PNG',
+            accelerator: 'Shift+P',
+            click: () => { mainWindow.webContents.send('TOGGLE_EXPORT_PNG') }
+        },
         {
             label: 'Toggle capture GIF',
             accelerator: 'Shift+G',
@@ -47,7 +54,7 @@ menu.append(debugMenu)
 Menu.setApplicationMenu(menu)
 
 ipcMain.on('PREFS_UPDATE', (e, v) => mainWindow.webContents.send('PREFS_UPDATE', v))
-// ipcMain.on('PREFS_UPDATE_CLOSE',)
+ipcMain.on('FATAL_ERROR', (e, v) => openFatalModal(v))
 
 /* Create window */
 app.whenReady().then(() => {
@@ -60,6 +67,40 @@ app.whenReady().then(() => {
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') app.quit()
 })
+
+function openFatalModal(message) {
+    if (fatalModalWindow) {
+        fatalModalWindow.once("ready-to-show", () => {
+            fatalModalWindow.show()
+            fatalModalWindow.webContents.send('FATAL_ERROR_MESSAGE', message)
+        })
+        return
+    }
+
+    fatalModalWindow = new BrowserWindow({
+        width: 600,
+        height: 300,
+        modal: true,
+        show: false,
+        // frame: false,
+        parent: mainWindow,
+        resizable: false,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+            enableRemoteModule: true,
+        },
+    });
+
+    fatalModalWindow.loadFile(path.join(__dirname, fatalWindowHtmlLoc))
+    fatalModalWindow.setMenu(null)
+    require("@electron/remote/main").enable(fatalModalWindow.webContents)
+    fatalModalWindow.once("ready-to-show", () => {
+        fatalModalWindow.show()
+        fatalModalWindow.webContents.send('FATAL_ERROR_MESSAGE', message)
+        // fatalModalWindow.webContents.openDevTools()
+    })
+}
 
 function openPrefsModal() {
     const childWindow = new BrowserWindow({

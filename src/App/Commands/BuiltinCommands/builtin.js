@@ -1,4 +1,87 @@
 module.exports = {
+    "cn":
+    {
+        "schema": {
+            "name": 'cn',
+            "mandatory": ["pos"],
+            "pos": "AbsNumber2vs",
+        },
+        async logic(parsedData, api) {
+            for (const pos of parsedData.pos)
+                api.createNodeSync({ position: pos })
+            api.doOutput('Created nodes!')
+        }
+    },
+    "un":
+    {
+        "schema": {
+            "name": 'un',
+            "mandatory": ["id", "pos"],
+            "id": "AbsNumberv",
+            "pos": "AbsNumber2vs"
+        },
+        async logic(parsedData, api) {
+            for (const [index, id] of parsedData.id.entries())
+                if (index < parsedData.pos.length)
+                    api.updateNodeSync(id, { position: parsedData.pos[index] })
+            api.doOutput('Updated nodes!')
+
+        }
+    },
+    "dn":
+    {
+        "schema": {
+            "name": 'dn',
+            "mandatory": ["id"],
+            "id": "AbsNumberv",
+        },
+        async logic(parsedData, api) {
+            for (const id of parsedData.id)
+                api.deleteNodeSync(id)
+            api.doOutput('Deleted nodes!')
+        }
+    },
+    "cc":
+    {
+        "schema": {
+            "name": 'cc',
+            "mandatory": ["id"],
+            "id": "AbsNumber2vs",
+        },
+        async logic(parsedData, api) {
+            for (const id of parsedData.id)
+                api.createConnectionSync(id[0], id[1], {})
+            api.doOutput('Created connections!')
+        }
+    },
+    "uc":
+    {
+        "schema": {
+            "name": 'uc',
+            "mandatory": ["id", "elev"],
+            "id": "AbsNumber2vs",
+            "elev": "AbsNumberv"
+        },
+        async logic(parsedData, api) {
+            for (const [index, id] of parsedData.id.entries())
+                if (index < parsedData.elev.length)
+                    api.updateConnectionSync(id[0], id[1], { elevation: parsedData.elev[index] })
+            api.doOutput('Updated connections!')
+        }
+    },
+    "dc":
+    {
+        "schema": {
+            "name": 'dc',
+            "mandatory": ["id"],
+            "id": "AbsNumber2vs",
+        },
+        async logic(parsedData, api) {
+            for (const [index, id] of parsedData.id.entries())
+                api.deleteConnectionSync(id[0], id[1])
+            api.doOutput('Deleted connections!')
+        }
+    },
     1: {
         "schema": {
             "name": 'delnode',
@@ -88,16 +171,15 @@ module.exports = {
             "skip": "AbsNumber"
         },
         async logic(parsedData, api) {
-            const pts = radialPoints(parsedData.pos, parsedData.radius || 300, 50)
+            const pts = radialPoints(parsedData.pos, parsedData.radius || 300, 20)
             const nodeIds = []
             for (const pt of pts) {
-                const id = await api.createNode({
-                    position: parsedData.pos,
+                const id = api.createNodeSync({
+                    position: pt,
                     color: '#00000000',
                     animation: {
-                        position: pt,
                         color: '#000000ff',
-                        duration: 30
+                        duration: 1000
                     }
                 })
                 nodeIds.push(id)
@@ -110,8 +192,10 @@ module.exports = {
                     if (i != j) {
                         api.createConnectionSync(nodeIds[i], nodeIds[j], {
                             elevation: 200,
+                            color: '#00000000',
                             animation: {
                                 elevation: 0,
+                                color: '#000000ff',
                                 duration: 1000
                             }
                         })

@@ -1,7 +1,7 @@
 import { Logger } from "../../Logger/Logger"
 import { join } from 'path'
-import { existsSync, mkdirSync, writeFileSync, rename, rmdirSync } from "fs"
-import Renderer from "../Renderer/Renderer"
+import { existsSync, mkdirSync, writeFileSync, rename, rmSync } from "fs"
+import IRendererListener from "../Renderer/IRendererListener"
 const { ipcRenderer } = require('electron')
 const { dialog } = require('@electron/remote')
 //@ts-ignore
@@ -9,80 +9,101 @@ const ffmpeg = require("fluent-ffmpeg");
 
 
 /* Class handling the capture and exporting of gifs */
-export default class GIFExporter {
+export default class GIFExporter implements IRendererListener {
     private logger = new Logger('GIFExporter')
-    private renderer: Renderer
-    private isCapturing: boolean
+    private isCapturingEnabled: boolean
+    private skipFrames: number
+    private frameCount: number
+    private bufferData: string[]
 
-    public initialize(renderer: Renderer) {
-        this.logger.log('Module initialized!')
-        this.isCapturing = false
-        this.renderer = renderer
+    public initialize() {
+        this.isCapturingEnabled = false
+        this.bufferData = []
+        this.skipFrames = 1
+        this.frameCount = 0
         ipcRenderer.on('TOGGLE_CAPUTRE_GIF', () => this.handleCapture())
         return true
     }
 
-    private async handleCapture() {
-        /* toggle capturing state */
-        this.isCapturing = !this.isCapturing
-
-        if (this.isCapturing) {
-            this.logger.log('Capturing ON')
-            this.renderer.beginBufferStateImageData()
-        }
-        else {
-            this.logger.log('Capturing OFF. Processing..')
-            this.renderer.endBufferStateImageData()
-            await this.processFFMPEG()
-        }
+    onRendered(canvas: HTMLCanvasElement) {
+        if (this.isCapturingEnabled && (this.frameCount % this.skipFrames === 0))
+            this.bufferData.push(canvas.toDataURL('image/png'))
+        this.frameCount++
     }
 
-    private async processFFMPEG() {
-        const tempFolder = join(__dirname, 'temp')
+    private async handleCapture() {
+
+        /* toggle capturing state */
+        this.isCapturingEnabled = !this.isCapturingEnabled
+
+        if (this.isCapturingEnabled) {
+            console.log("Capture ON")
+            // invoke capture will be started window
+        }
+        else {
+            console.log("Capture OFF, Processing..")
+            // invoke gonna process window
+        }
+
+        if (!this.isCapturingEnabled)
+            await this.process()
+    }
+
+    private async process() {
+        const tempFolderPath = this.createTempFolder('temp')
+        this.writeBufferToTempFolder(tempFolderPath)
+        await this.processGif(tempFolderPath, 'test', 5)
+        this.showSaveDialog(tempFolderPath)
+    }
+
+    private createTempFolder(tempFolderName: string): string {
+        const tempFolder = join(__dirname, tempFolderName)
 
         if (!existsSync(tempFolder))
             mkdirSync(tempFolder)
         else {
-            rmdirSync(tempFolder, { recursive: true })
+            rmSync(tempFolder, { recursive: true })
             mkdirSync(tempFolder)
         }
+        return tempFolder
+    }
 
+    private writeBufferToTempFolder(tempFolderPath: string) {
         const buff = []
-        for (let str of this.renderer.getBufferedStateImageData())
+        for (let str of this.bufferData)
             buff.push(str.replace(/^data:image\/png;base64,/, ""))
-        buff.push(this.renderer.getCurrentStateImageData().replace(/^data:image\/png;base64,/, ""))
 
+        for (const [index, data] of buff.entries())
+            writeFileSync(join(tempFolderPath, `test${index}.png`), data, 'base64')
+    }
 
-        let i = 0
-        for (let data of buff) {
-            const p = join(tempFolder, `test${i++}.png`)
-            writeFileSync(p, data, 'base64')
-        }
-
-        ffmpeg(`${tempFolder}/test%d.png`)
-            .inputOptions('-f image2')
-            .on('end', function (stdout: any, stderr: any) {
-                console.log('Transcoding succeeded !')
-                ffmpeg(`mygif.mkv`)
-                    .inputOptions('-y')
-                    .outputOptions('-vf palettegen')
-                    .on('end', function (stdout: any, stderr: any) {
-                        console.log('Transcoding succeeded 2!')
-
-                        ffmpeg(`mygif.mkv`)
-                            .withOptions([
-                                `-i pallete.png`,
-                                `-filter_complex paletteuse`
-                            ])
-                            .inputOptions('-r 5')
-                            .on('end', function (stdout: any, stderr: any) {
-                                console.log('Transcoding succeeded 3!')
-                            })
-                            .output('mygif.gif').run()
-                    })
-                    .output('pallete.png').run()
-            })
-            .output('mygif.mkv').run()
+    private async processGif(tempFolderPath: string, imagesPrefix: string, fps: number) {
+        return new Promise<void>((res, rej) => {
+            ffmpeg(`${tempFolderPath}/${imagesPrefix}%d.png`)
+                .inputOptions('-f image2')
+                .on('end', function (stdout: any, stderr: any) {
+                    console.log('Transcoding succeeded !')
+                    ffmpeg(join(tempFolderPath, `mygif.mkv`))
+                        .inputOptions('-y')
+                        .outputOptions('-vf palettegen')
+                        .on('end', function (stdout: any, stderr: any) {
+                            console.log('Transcoding succeeded 2!')
+                            ffmpeg(join(tempFolderPath, `mygif.mkv`))
+                                .withOptions([
+                                    `-i ${join(tempFolderPath, 'pallete.png')}`,
+                                    `-filter_complex paletteuse`
+                                ])
+                                .inputOptions(`-r ${fps}`)
+                                .on('end', function (stdout: any, stderr: any) {
+                                    console.log('Transcoding succeeded 3!')
+                                    res()
+                                })
+                                .output(join(tempFolderPath, 'output.gif')).run()
+                        })
+                        .output(join(tempFolderPath, 'pallete.png')).run()
+                })
+                .output(join(tempFolderPath, 'mygif.mkv')).run()
+        })
     }
 
     private showSaveDialog(tempFolder: string) {
@@ -91,9 +112,8 @@ export default class GIFExporter {
             rename(join(tempFolder, `output.gif`), pathToSave, (e) => {
                 console.log(e)
             })
-            rmdirSync(tempFolder, { recursive: true })
+            rmSync(tempFolder, { recursive: true })
             console.log(pathToSave);
-
         }).catch((err: any) => { console.log(err) })
     }
 }

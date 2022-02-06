@@ -3,18 +3,21 @@ import IReloadable from "../Configuration/IReloadable"
 import { GraphNodeId, GraphNodeSet, ConnectionSet, ConnectionOptions } from "../types"
 import Connection from "./Connection"
 import GraphNodeBase from "./GraphNodeBase"
-
+import TerminalTabOutputHelper from "../Tabs/TerminalTabOutputHelper"
 
 /** Class handling the insert/remove/update of graph objects */
 export default class GraphModel implements IReloadable {
     private logger = new Logger('GraphModel')
 
+    private terminalHelper: TerminalTabOutputHelper
     private model: GraphNodeSet
     private connections: ConnectionSet
 
     public initialize() {
         this.model = {}
         this.connections = {}
+        this.terminalHelper = new TerminalTabOutputHelper()
+        this.terminalHelper.setOutputContext(this.logger.getContext())
         this.logger.log('Module initialized!')
         return true
     }
@@ -28,12 +31,14 @@ export default class GraphModel implements IReloadable {
         if (this.model[id])
             return this.model[id].graphNode
         this.logger.log(`Node ${id} was not found!`, LoggerLevel.WRN)
+        this.terminalHelper.printErr(`Node ${id} was not found!`)
         return null
     }
 
     public rmNode(id: GraphNodeId) {
         if (!this.model[id]) {
             this.logger.log(`Could not delete invisible node id ${id}!`, LoggerLevel.WRN)
+            this.terminalHelper.printErr(`Could not delete invisible node id ${id}!`)
             return false
         }
 
@@ -41,6 +46,7 @@ export default class GraphModel implements IReloadable {
         for (const toNode of [...this.model[id].outIds]) {
             if (!this.rmConnection(id, toNode)) {
                 this.logger.log(`Failed removing connection between node ${id} and ${toNode}!`, LoggerLevel.ERR)
+                this.terminalHelper.printErr(`Failed removing connection between node ${id} and ${toNode}!`)
                 return false
             }
         }
@@ -49,6 +55,7 @@ export default class GraphModel implements IReloadable {
         for (const fromNode of [...this.model[id].inIds]) {
             if (!this.rmConnection(fromNode, id)) {
                 this.logger.log(`Failed removing connection between node ${fromNode} and ${id}!`, LoggerLevel.ERR)
+                this.terminalHelper.printErr(`Failed removing connection between node ${fromNode} and ${id}!`)
                 return false
             }
         }
@@ -71,6 +78,7 @@ export default class GraphModel implements IReloadable {
         }
 
         this.logger.log('Could not connect nodes, one of it doesnt exist!', LoggerLevel.WRN)
+        this.terminalHelper.printErr('Could not connect nodes, one of it doesnt exist!')
         return null
     }
 
@@ -82,6 +90,7 @@ export default class GraphModel implements IReloadable {
 
             if (!fromNode.outIds.has(toId)) {
                 this.logger.log(`Connection not found between nodes ${fromId} and ${toId}!`, LoggerLevel.WRN)
+                this.terminalHelper.printErr(`Connection not found between nodes ${fromId} and ${toId}!`)
                 return null
             }
 
@@ -90,9 +99,11 @@ export default class GraphModel implements IReloadable {
             if (this.connections[connId])
                 return this.connections[connId]
             this.logger.log(`Connection not found between nodes ${fromId} and ${toId} in Set!`, LoggerLevel.ERR)
+            this.terminalHelper.printErr(`Connection not found between nodes ${fromId} and ${toId}!`)
         }
 
         this.logger.log('Could not find base nodes, at least one of it doesnt exist!', LoggerLevel.WRN)
+        this.terminalHelper.printErr('Could not find base nodes, at least one of it doesnt exist!')
         return null
     }
 
@@ -101,6 +112,7 @@ export default class GraphModel implements IReloadable {
 
         if (!conn) {
             this.logger.log(`Connection doesnt exist between node ${fromId} and ${toId}!`, LoggerLevel.WRN)
+            this.terminalHelper.printErr(`Connection doesnt exist between node ${fromId} and ${toId}!`)
             return false
         }
 

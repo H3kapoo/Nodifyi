@@ -12,7 +12,9 @@ module.exports = {
     target: 'electron-renderer',
     entry: {
         frontEnd: path.resolve(__dirname, 'index.ts'),
-        preferencesWindow: path.resolve(__dirname, 'Templates/preferencesWindow.ts')
+        preferencesWindow: path.resolve(__dirname, 'Templates/preferencesWindow.ts'),
+        fatalWindow: path.resolve(__dirname, 'Templates/fatalWindow.ts')
+
     },
     output: {
         filename: '[name].js',
@@ -38,6 +40,11 @@ module.exports = {
             filename: 'preferencesWindow.html',
             template: path.resolve(__dirname, "Templates/preferencesWindow.html"),
             chunks: ['preferencesWindow']
+        }),
+        new HtmlWebpackPlugin({
+            filename: 'fatalWindow.html',
+            template: path.resolve(__dirname, "Templates/fatalWindow.html"),
+            chunks: ['fatalWindow']
         }),
     ],
     optimization: {

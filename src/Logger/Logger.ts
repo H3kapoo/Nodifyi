@@ -1,8 +1,12 @@
+const { ipcRenderer } = require('electron')
+
+
 export enum LoggerLevel {
     DBG = 'DBG',
     INFO = 'INFO',
     WRN = 'WRN',
-    ERR = 'ERR'
+    ERR = 'ERR',
+    FATAL = 'FATAL'
 }
 enum LoggerColor {
     DBG = '#999',
@@ -16,7 +20,7 @@ export class Logger {
     private context: string
     private defaultLevel: LoggerLevel
     static loggingActive: boolean = true
-
+    private static alreadyDid = false;
     constructor(context: string, defaultLevel: LoggerLevel = LoggerLevel.INFO) {
         this.context = context
         this.defaultLevel = defaultLevel
@@ -29,6 +33,16 @@ export class Logger {
             console.log(`%c[${level}][${this.context}] ${msg}`, this.getLoggerLevelColor(level))
         else
             console.log(`%c[${this.defaultLevel}][${this.context}] ${msg}`, this.getLoggerLevelColor(this.defaultLevel))
+
+
+        /* This is a temporary solution, to be removed in later versions */
+        /* Only open error dialog on FATAL */
+        if (level && level === LoggerLevel.FATAL) {
+            ipcRenderer.send("FATAL_ERROR", { msg: msg })
+            Logger.alreadyDid = true
+            console.log('wut');
+
+        }
 
     }
 

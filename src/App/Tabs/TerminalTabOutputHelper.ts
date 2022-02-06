@@ -5,10 +5,18 @@ import { sanitizeInput } from "./TerminalUtils"
 export default class TerminalTabOutputHelper {
 
     private context: string
+    private isError: boolean = false
 
     public setOutputContext(context: string) { this.context = `[${context}]` }
 
+    public setBlockStdOutput() { this.isError = true }
+
     public printStd(msg: string) {
+        if (this.isError) {
+            this.isError = false
+            return
+        }
+
         const outputDiv = document.createElement("div")
         const contextDOM = `<span id='cmd-info-text-prep'>${this.context}</span>`
         const sanitized = sanitizeInput(msg)
