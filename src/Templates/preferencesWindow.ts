@@ -17,13 +17,32 @@ Configuration.get().loadConf(confPath)
 new Tabby('[data-tabs-prefs]')
 const logger = new Logger('PreferencesWindow', LoggerLevel.ERR)
 
+const tabsIds = [
+    'canvas-prefs-tab',
+    'commands-prefs-tab',
+    'exporting-prefs-tab',
+]
+
+/* Hide other tabs besides the first one */
+tabsIds.forEach(tabId => {
+    if (tabId !== tabsIds[0])
+        document.getElementById(tabId).style.display = 'none'
+})
+
 document.addEventListener('tabby', (event) => {
+    /* Assume every display is 'flex' */
     //@ts-ignore
-    console.log(event.target.style)
+    const currentTabId = event.detail.tab.id.split('_')[1]
+
+    //set previous tab & all thats not current to display to 'none'
+    tabsIds.forEach(tabId => {
+        if (tabId !== currentTabId)
+            document.getElementById(tabId).style.display = 'none'
+    })
+
+    //set current tab display to whatever display was ('flex')
     //@ts-ignore
-    console.log(window.getComputedStyle(event.detail.previousContent).display)
-    document.getElementById('canvas-prefs-tab').style.display = 'none'
-    //deci asa cu switching tre //TODO:
+    document.getElementById(currentTabId).style.display = 'flex'
 })
 
 /* Get relevant object*/
