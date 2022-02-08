@@ -15,12 +15,14 @@ export default class Executor implements IParserListener {
     private commands: CommandsStruct
     private API: APIObject
     private renderer: Renderer
+    private projectDirty: boolean
 
     public initialize(graphModel: GraphModel, renderer: Renderer, commands: CommandsStruct) {
         this.API = new APIHolder(graphModel, renderer).getAPI()
         this.terminalHelper = new TerminalTabOutputHelper()
         this.renderer = renderer
         this.commands = commands
+        this.projectDirty = false
         this.terminalHelper.setOutputContext(this.logger.getContext())
         this.logger.log('Module initialized!')
         return true

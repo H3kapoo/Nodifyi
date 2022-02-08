@@ -17,6 +17,8 @@ Configuration.get().loadConf(confPath)
 new Tabby('[data-tabs-prefs]')
 const logger = new Logger('PreferencesWindow', LoggerLevel.ERR)
 
+const finalSubmit = document.getElementById('final_submit')
+const changes: { [key: string]: any } = {}
 const tabsIds = [
     'canvas-prefs-tab',
     'commands-prefs-tab',
@@ -45,30 +47,59 @@ document.addEventListener('tabby', (event) => {
     document.getElementById(currentTabId).style.display = 'flex'
 })
 
-/* Get relevant object*/
+/* CANVAS PREFS WINDOW BEING */
 const width = <HTMLInputElement>document.getElementById('width')
 const height = <HTMLInputElement>document.getElementById('height')
-const submit = document.getElementById('submit')
 
 height.value = Configuration.get().param('canvasHeight').toString()
 width.value = Configuration.get().param('canvasWidth').toString()
 
-submit.addEventListener('click', () => {
+width.addEventListener('focusout', () => {
     if (!width.value || !height.value) {
         logger.log('No values provided')
         return
     }
+    width.value = clamp(500, 2000, parseInt(width.value)).toString()
+    height.value = clamp(500, 2000, parseInt(height.value)).toString()
+    //IMPARTE ASTEA IN DOUA
+})
+/* CANVAS PREFS WINDOW END */
 
-    let w = parseInt(width.value)
-    let h = parseInt(height.value)
-    w = w < 200 ? 500 : w
-    h = h < 200 ? 500 : h
+/* EXPORTING PREFS WINDOW BEING */
+const delayElement = <HTMLInputElement>document.getElementById('delay')
+const skipFramesElement = <HTMLInputElement>document.getElementById('skip_frames')
+// const submitExport = document.getElementById('submit-export')
 
+delayElement.value = Configuration.get().param('gif_delay').toString()
+skipFramesElement.value = Configuration.get().param('frame_skip').toString()
+
+// submitExport.addEventListener('click', () => {
+//     let delayInt = parseInt(delayElement.value)
+//     let skipFramesInt = parseInt(skipFramesElement.value)
+//     delayInt = clamp(100, 1000, delayInt)
+//     skipFramesInt = clamp(1, 100, skipFramesInt)
+
+// })
+/* EXPORTING PREFS WINDOW END */
+
+
+
+finalSubmit.addEventListener('click', () => {
     ipcRenderer.send('PREFS_UPDATE', {
-        canvasWidth: w,
-        canvasHeight: h
+        canvasWidth: width.value,
+        canvasHeight: height.value,
+        gif_delay: delayElement.value,
+        frame_skip: skipFramesElement.value
     })
 
     /* This will close the prefs window */
     getCurrentWindow().close()
 })
+
+function clamp(min: number, max: number, value: number) {
+    if (value > max)
+        return max
+    if (value < min)
+        return min
+    return value
+}

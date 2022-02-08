@@ -1,7 +1,8 @@
-import { Logger } from "../../Logger/Logger"
+import { Logger, LoggerLevel } from "../../Logger/Logger"
 import { join } from 'path'
 import { existsSync, mkdirSync, writeFileSync, rename, rmSync } from "fs"
 import IRendererListener from "../Renderer/IRendererListener"
+import Configuration from "../Configuration/Configuration"
 const { ipcRenderer } = require('electron')
 const { dialog } = require('@electron/remote')
 //@ts-ignore
@@ -12,21 +13,34 @@ const ffmpeg = require("fluent-ffmpeg");
 export default class GIFExporter implements IRendererListener {
     private logger = new Logger('GIFExporter')
     private isCapturingEnabled: boolean
-    private skipFrames: number
+    private frameSkip: number
+    private gifDelay: number
     private frameCount: number
     private bufferData: string[]
 
     public initialize() {
         this.isCapturingEnabled = false
         this.bufferData = []
-        this.skipFrames = 1
+        this.gifDelay = Configuration.get().param('gif_delay') as number
+        this.frameSkip = Configuration.get().param('frame_skip') as number
         this.frameCount = 0
+
+        if (!this.gifDelay) {
+            this.logger.log('Empty gifDelay parameter in configuration!', LoggerLevel.FATAL)
+            return false
+        }
+
+        if (!this.frameSkip) {
+            this.logger.log('Empty frameSkip parameter in configuration!', LoggerLevel.FATAL)
+            return false
+        }
+
         ipcRenderer.on('TOGGLE_CAPUTRE_GIF', () => this.handleCapture())
         return true
     }
 
     onRendered(canvas: HTMLCanvasElement) {
-        if (this.isCapturingEnabled && (this.frameCount % this.skipFrames === 0))
+        if (this.isCapturingEnabled && (this.frameCount % this.frameSkip === 0))
             this.bufferData.push(canvas.toDataURL('image/png'))
         this.frameCount++
     }
@@ -52,7 +66,7 @@ export default class GIFExporter implements IRendererListener {
     private async process() {
         const tempFolderPath = this.createTempFolder('temp')
         this.writeBufferToTempFolder(tempFolderPath)
-        await this.processGif(tempFolderPath, 'test', 5)
+        await this.processGif(tempFolderPath, 'test', 1000 / this.gifDelay)
         this.showSaveDialog(tempFolderPath)
     }
 

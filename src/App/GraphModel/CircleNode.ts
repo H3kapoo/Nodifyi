@@ -1,4 +1,4 @@
-import { AnimationOptions, CircleNodeOptions, GraphNodeBaseOptions, Vec2d } from "../types";
+import { AnimationOptions, CircleNodeOptions, Vec2d } from "../types";
 import { NodeType } from "./GraphNodeType";
 import GraphNodeBase from "./GraphNodeBase";
 import Animator from "../Animation/Animator";
@@ -76,6 +76,17 @@ export default class CircleNode extends GraphNodeBase {
     }
 
     public getOptions(): CircleNodeOptions { return this.options }
+
+    public createFromData(data: Object) {
+        GraphNodeBase.idGiver = 1
+        //@ts-ignore
+        this.uniqueId = data.uniqueId
+        //@ts-ignore
+        this.options = data.options
+
+        //@ts-ignore
+        GraphNodeBase.idGiver = Math.max(GraphNodeBase.idGiver, data.uniqueId + 1)
+    }
 
     public getType() { return NodeType.Circle }
 }

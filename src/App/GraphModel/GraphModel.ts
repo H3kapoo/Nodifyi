@@ -4,6 +4,8 @@ import { GraphNodeId, GraphNodeSet, ConnectionSet, ConnectionOptions } from "../
 import Connection from "./Connection"
 import GraphNodeBase from "./GraphNodeBase"
 import TerminalTabOutputHelper from "../Tabs/TerminalTabOutputHelper"
+import { NodeType } from "./GraphNodeType"
+import CircleNode from "./CircleNode"
 
 /** Class handling the insert/remove/update of graph objects */
 export default class GraphModel implements IReloadable {
@@ -133,4 +135,80 @@ export default class GraphModel implements IReloadable {
     public getModel() { return this.model }
 
     public getConnections() { return this.connections }
+
+    public getJson(): Object {
+        const modelToSave = {
+            'nodes': {} as any,
+            'conns': {} as any
+        }
+        /* Skip the animations or they will play at load */
+        for (const [id, node] of Object.entries(this.model)) {
+            modelToSave.nodes[node.graphNode.getUniqueId()] = {
+                type: node.graphNode.getType(),
+                options: this.exceptAnimations(node.graphNode.getOptions()),
+                inIds: Array.from(node.inIds),
+                outIds: Array.from(node.outIds),
+            }
+        }
+
+        for (const [id, conn] of Object.entries(this.connections)) {
+            modelToSave.conns[conn.getConnectionId()] = {
+                options: this.exceptAnimations(conn.getOptions()),
+                uniqueId: conn.getUniqueId()
+            }
+        }
+
+        return modelToSave
+    }
+
+    public loadJson(jsonObject: Object) {
+        //@ts-ignore
+        if (!jsonObject.nodes || !jsonObject.conns)
+            return
+
+        this.model = {}
+        this.connections = {}
+
+        const model: GraphNodeSet = {}
+
+        //@ts-ignore
+        for (const [id, data] of Object.entries(jsonObject.nodes)) {
+            let node: GraphNodeBase
+
+            //@ts-ignore
+            switch (data.type) {
+                case NodeType.Circle:
+                    node = new CircleNode({})
+            }
+
+            if (node) {
+                //@ts-ignore
+                node.createFromData({ uniqueId: parseInt(id), options: data.options })
+                model[parseInt(id)] = {
+                    graphNode: node,
+                    //@ts-ignore
+                    inIds: new Set(data.inIds),
+                    //@ts-ignore
+                    outIds: new Set(data.outIds)
+                }
+            }
+        }
+        this.model = model
+
+        //@ts-ignore
+        for (const [id, data] of Object.entries(jsonObject.conns)) {
+            const identifier = parseInt(id)
+            const startId = Math.trunc(identifier / 1000)
+            const endId = identifier % 1000
+            //@ts-ignore
+            const options = data.options
+            this.addConnection(startId, endId, options)
+        }
+    }
+
+    private exceptAnimations(obj: Object): Object {
+        //@ts-ignore
+        delete obj.animation
+        return obj
+    }
 }

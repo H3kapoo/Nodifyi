@@ -25,8 +25,11 @@ body{
 }
 
 #opts-part{
-    padding-left: 10px;
-    padding-right: 10px;
+    /* padding-left: 10px; */
+    /* padding-right: 10px; */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     background-color: rgb(255, 255, 255);
     width: 100%;
     height: 100%;
@@ -36,6 +39,8 @@ body{
     flex-direction: column;
 }
 #canvas-prefs-tab{
+    padding-left: 10px;
+    padding-right: 10px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;    
@@ -44,6 +49,7 @@ body{
 }
 
 #canvasDims{
+    margin: 10px 0px;
     display: grid;
     grid-template-columns: 1fr 3fr;
     grid-template-rows: 1fr 1fr;
@@ -52,16 +58,21 @@ label{
     min-width: 200px;
 }
 
+input{
+    text-align: center;
+}
+
 #width, #height{
     width: 200px;
+    margin: 3px 0px;
 }
-#apply-settings{
+#apply{
     width: 100%;
     padding-bottom: 10px;
 }
-#submit{
+#final_submit{
     width: 100%;
-    bottom: 0;
+    height: 40px;
 }
 
 #names-of-them{
@@ -76,9 +87,34 @@ a{
 }
 
 #exporting-prefs-tab{
+    padding-left: 10px;
+    padding-right: 10px;
+    border-top: 1px rgb(138, 138, 138) solid;
     display: flex;
     flex-direction: column;
     justify-content: space-between;    
     width: 100%;
     height: 100%;
+}
+
+#exporting-gif-wrapper{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#exporting-gif-title{
+    margin: 10px 0px;
+}
+
+#exporting-gif-opts{
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    grid-template-rows: 1fr 1fr;
+}
+
+#delay, #skip_frames{
+    width: 200px;
+    margin: 3px 0px;
 }

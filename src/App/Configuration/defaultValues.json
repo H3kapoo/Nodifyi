@@ -25,5 +25,7 @@
     "ceva": 343,
     "ctrl": 40,
     "test": "string",
-    "udPath": "/home/hekapoo/Documents/_Licence/nodify2/src/App/Commands/UserDefinedDummy"
+    "udPath": "/home/hekapoo/Documents/_Licence/nodify2/src/App/Commands/UserDefinedDummy",
+    "gif_delay": 1000,
+    "frame_skip": 1
 }

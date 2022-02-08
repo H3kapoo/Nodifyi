@@ -41,6 +41,16 @@ const debugMenu = new MenuItem({
             click: () => { openPrefsModal() }
         },
         {
+            label: 'Save As..',
+            accelerator: 'Shift+S',
+            click: () => { mainWindow.webContents.send('SAVEAS_LOCALLY') }
+        },
+        {
+            label: 'Load',
+            accelerator: 'Shift+L',
+            click: () => { mainWindow.webContents.send('LOAD_LOCALLY') }
+        },
+        {
             label: 'Debug console',
             accelerator: 'Ctrl+Shift+I',
             click: (item, focusedWindow) => {

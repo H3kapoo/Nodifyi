@@ -1,4 +1,5 @@
 import Connection from "./GraphModel/Connection";
+import GraphNodeBase from "./GraphModel/GraphNodeBase";
 
 type ArgTypeParseResult = string | number | string[] | string[][] | number[] | number[][] | null
 
@@ -36,13 +37,13 @@ interface ConnectionOptions {
 }
 
 interface GraphNodeBaseOptions {
-    position: Vec2d,
+    position?: Vec2d,
     color?: string,
     radius?: number
 }
 
 interface CircleNodeOptions {
-    position: Vec2d,
+    position?: Vec2d,
     color?: string,
     radius?: number
 }
@@ -71,7 +72,7 @@ interface ConnectionSet {
 
 interface GraphNodeSet {
     [key: number]: {
-        graphNode: GraphNode,
+        graphNode: GraphNodeBase,
         inIds: Set<number>,
         outIds: Set<number>
     }

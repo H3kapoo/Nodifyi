@@ -8,8 +8,9 @@ import TabsLoader from "./Tabs/TabsLoader"
 import Parser from "./Commands/Parser/Parser"
 import Executor from "./Commands/Executor/Executor"
 import CommandStore from "./Commands/Storage/CommandStore"
-import GIFExporter from "./Exporting/GIFExporter"
+import SaveLoadFacade from "./SaveLoad/SaveLoadFacade"
 import ExportManager from "./Exporting/ExportManager"
+import CircleNode from "./GraphModel/CircleNode"
 const { ipcRenderer } = require('electron')
 
 
@@ -24,6 +25,7 @@ export default class App {
     private parser: Parser
     private executor: Executor
     private exportManager: ExportManager
+    private saveLoadFacade: SaveLoadFacade
 
     constructor() {
         if (this.initialize())
@@ -49,6 +51,7 @@ export default class App {
         this.parser = new Parser()
         this.executor = new Executor()
         this.exportManager = new ExportManager()
+        this.saveLoadFacade = new SaveLoadFacade()
 
         /* Initialize all components */
         const startupMods = [
@@ -58,7 +61,8 @@ export default class App {
             this.renderer.initialize(this.graphModel, this.tabsLoader.getCanvasTab().getCanvas()),
             this.parser.initialize(this.commandStore.getCommands()),
             this.executor.initialize(this.graphModel, this.renderer, this.commandStore.getCommands()),
-            this.exportManager.initialize(this.renderer, this.tabsLoader.getCanvasTab().getCanvas())
+            this.exportManager.initialize(this.renderer, this.tabsLoader.getCanvasTab().getCanvas()),
+            this.saveLoadFacade.initialize(this.graphModel, this.renderer)
         ]
 
         const allStarted = startupMods.every(inited => inited === true)
@@ -90,6 +94,13 @@ export default class App {
 
         /* Start-app render trigger */
         this.renderer.render()
+
+        /* DBG */
+        // const n1 = new CircleNode({ position: [200, 300] })
+        // const n2 = new CircleNode({ position: [400, 500] })
+        // this.graphModel.addNode(n1)
+        // this.graphModel.addNode(n2)
+        // this.graphModel.addConnection(n1.getUniqueId(), n2.getUniqueId(), { color: 'red' })
 
         this.logger.log('Components initialized & subscribbed!')
         return true
