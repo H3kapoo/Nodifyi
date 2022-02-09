@@ -4,7 +4,7 @@ import Renderer from "../../Renderer/Renderer"
 import TerminalTabOutputHelper from "../../Tabs/TerminalTabOutputHelper"
 import { APIObject, CommandsStruct, ParsedInput } from "../../types"
 import IParserListener from "../Parser/IParserListener"
-import CommandStore from "../Storage/CommandStore"
+const { getCurrentWindow } = require('@electron/remote')
 import APIHolder from "./APICommands"
 
 
@@ -15,14 +15,12 @@ export default class Executor implements IParserListener {
     private commands: CommandsStruct
     private API: APIObject
     private renderer: Renderer
-    private projectDirty: boolean
 
     public initialize(graphModel: GraphModel, renderer: Renderer, commands: CommandsStruct) {
         this.API = new APIHolder(graphModel, renderer).getAPI()
         this.terminalHelper = new TerminalTabOutputHelper()
         this.renderer = renderer
         this.commands = commands
-        this.projectDirty = false
         this.terminalHelper.setOutputContext(this.logger.getContext())
         this.logger.log('Module initialized!')
         return true
@@ -36,8 +34,10 @@ export default class Executor implements IParserListener {
 
         for (const parsedInput of parsedInputs) {
             try {
-                if (!this.renderer.isBusyDrawing())
+                if (!this.renderer.isBusyDrawing()) {
+                    this.setProjectDirty()
                     await this.commands[parsedInput.commandName].logic(parsedInput.options, this.API)
+                }
                 else {
                     this.logger.log('Canvas is busy drawing right now!', LoggerLevel.WRN)
                     this.terminalHelper.printErr(`Can't execute command right now! Canvas is busy drawing!`)
@@ -52,4 +52,9 @@ export default class Executor implements IParserListener {
     }
 
     public onInputParsed(parsedInputs: ParsedInput[]) { this.executeCommandChain(parsedInputs) }
+
+    private setProjectDirty() {
+        const windowTitle = getCurrentWindow().getTitle()
+        getCurrentWindow().setTitle(windowTitle + '*')
+    }
 }

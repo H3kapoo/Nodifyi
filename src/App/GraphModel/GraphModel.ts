@@ -162,14 +162,18 @@ export default class GraphModel implements IReloadable {
     }
 
     public loadJson(jsonObject: Object) {
-        //@ts-ignore
-        if (!jsonObject.nodes || !jsonObject.conns)
-            return
 
         this.model = {}
         this.connections = {}
 
         const model: GraphNodeSet = {}
+
+        // reset idGiver
+        GraphNodeBase.idGiver = 1
+
+        //@ts-ignore
+        if (!jsonObject.nodes || !jsonObject.conns)
+            return
 
         //@ts-ignore
         for (const [id, data] of Object.entries(jsonObject.nodes)) {

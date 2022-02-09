@@ -22,7 +22,7 @@ const menu = new Menu()
 
 /*App Menu*/
 const debugMenu = new MenuItem({
-    label: 'File',
+    label: 'Extras',
     submenu: [
         {
             label: 'Export PNG',
@@ -41,16 +41,6 @@ const debugMenu = new MenuItem({
             click: () => { openPrefsModal() }
         },
         {
-            label: 'Save As..',
-            accelerator: 'Shift+S',
-            click: () => { mainWindow.webContents.send('SAVEAS_LOCALLY') }
-        },
-        {
-            label: 'Load',
-            accelerator: 'Shift+L',
-            click: () => { mainWindow.webContents.send('LOAD_LOCALLY') }
-        },
-        {
             label: 'Debug console',
             accelerator: 'Ctrl+Shift+I',
             click: (item, focusedWindow) => {
@@ -60,11 +50,39 @@ const debugMenu = new MenuItem({
         },]
 })
 
+const fileMenu = new MenuItem({
+    label: 'File',
+    submenu: [
+        {
+            label: 'New Project',
+            accelerator: 'Shift+N',
+            click: () => { mainWindow.webContents.send('NEW_PROJECT') }
+        },
+        {
+            id: 'save-btn-id',
+            label: 'Save',
+            accelerator: 'Shift+S',
+            click: () => { mainWindow.webContents.send('SAVE_LOCALLY') }
+        },
+        {
+            label: 'Save As..',
+            accelerator: 'Shift+K',
+            click: () => { mainWindow.webContents.send('SAVEAS_LOCALLY') }
+        },
+        {
+            label: 'Load',
+            accelerator: 'Shift+L',
+            click: () => { mainWindow.webContents.send('LOAD_LOCALLY') }
+        }]
+})
+
+menu.append(fileMenu)
 menu.append(debugMenu)
 Menu.setApplicationMenu(menu)
 
 ipcMain.on('PREFS_UPDATE', (e, v) => mainWindow.webContents.send('PREFS_UPDATE', v))
 ipcMain.on('FATAL_ERROR', (e, v) => openFatalModal(v))
+ipcMain.on('TOGGLE_SAVE_BTN', (e, v) => menu.getMenuItemById('save-btn-id').enabled = v.value)
 
 /* Create window */
 app.whenReady().then(() => {
