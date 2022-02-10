@@ -45,7 +45,7 @@ export default class SaveLoadFacade {
 
             switch (response) {
                 case 0: // YES
-                    await this.saveAsLocally()
+                    this.currentlyWorkingPath ? this.saveLocally() : await this.saveAsLocally()
                     break
                 case 2: // CANCEL
                     this.logger.log('New project prompt abort..', LoggerLevel.DBG)
@@ -58,7 +58,8 @@ export default class SaveLoadFacade {
         this.renderer.render(false)
         this.logger.log('New project created..', LoggerLevel.DBG)
         this.setProjectClean()
-        //TODO: In the future set title dynamically
+        this.setSaveButtonEnabled(false)
+        this.currentlyWorkingPath = undefined
         this.setWindowTitle('Empty Project')
     }
 
@@ -87,7 +88,7 @@ export default class SaveLoadFacade {
         const filePath = res.filePath.replace(this.fileExt, '') + this.fileExt
         writeFileSync(filePath, JSON.stringify(this.graphModel.getJson()))
         this.currentlyWorkingPath = filePath
-        this.setSaveButtonEnabled(true) // This will 'ungray' the normal Save button
+        this.setSaveButtonEnabled(true)
         this.setProjectClean()
         this.setWindowTitle(filePath.replace(/^.*[\\\/]/, ''))
         this.logger.log('Project saved locally!', LoggerLevel.DBG)
@@ -114,6 +115,8 @@ export default class SaveLoadFacade {
 
             this.logger.log('Project loaded from locally!', LoggerLevel.DBG)
             this.setWindowTitle(res.filePaths[0].replace(/^.*[\\\/]/, ''))
+            this.currentlyWorkingPath = res.filePaths[0]
+            this.setSaveButtonEnabled(true)
             this.renderer.render(false)
         } else
             this.logger.log('Trying to load from locally but nothing selected!', LoggerLevel.WRN)
