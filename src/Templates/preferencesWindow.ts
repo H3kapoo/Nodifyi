@@ -82,8 +82,6 @@ skipFramesElement.value = Configuration.get().param('frame_skip').toString()
 // })
 /* EXPORTING PREFS WINDOW END */
 
-
-
 finalSubmit.addEventListener('click', () => {
     ipcRenderer.send('PREFS_UPDATE', {
         canvasWidth: width.value,
