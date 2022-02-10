@@ -15,9 +15,11 @@ try {
 
 let mainWindow = null
 let fatalModalWindow = null
+let gifProcessingWindow = null
 let indexHtmlLoc = '../Webpacked/index.html'
 let prefsWindowHtmlLoc = '../Webpacked/preferencesWindow.html'
 let fatalWindowHtmlLoc = '../Webpacked/fatalWindow.html'
+let gifProcessingWindowHtmlLoc = '../Webpacked/gifProcessingWindow.html'
 
 const menu = new Menu()
 
@@ -31,7 +33,7 @@ const debugMenu = new MenuItem({
             click: () => { mainWindow.webContents.send('TOGGLE_EXPORT_PNG') }
         },
         {
-            label: 'Toggle capture GIF',
+            label: 'Toggle GIF Capture',
             accelerator: 'Shift+G',
             click: () => { mainWindow.webContents.send('TOGGLE_CAPUTRE_GIF') }
         },
@@ -82,6 +84,9 @@ menu.append(debugMenu)
 Menu.setApplicationMenu(menu)
 
 ipcMain.on('PREFS_UPDATE', (e, v) => mainWindow.webContents.send('PREFS_UPDATE', v))
+ipcMain.on('GIF_PROCESSING_OPEN', (e, v) => openGifProcessingModal())
+ipcMain.on('GIF_PROCESSING_MESSAGE', (e, v) => gifProcessingWindow.webContents.send('GIF_PROCESSING_MESSAGE', v))
+ipcMain.on('GIF_PROCESSING_CLOSE', (e, v) => gifProcessingWindow.close())
 ipcMain.on('FATAL_ERROR', (e, v) => openFatalModal(v))
 ipcMain.on('TOGGLE_SAVE_BTN', (e, v) => menu.getMenuItemById('save-btn-id').enabled = v.value)
 
@@ -128,6 +133,28 @@ function openFatalModal(message) {
         fatalModalWindow.show()
         fatalModalWindow.webContents.send('FATAL_ERROR_MESSAGE', message)
         // fatalModalWindow.webContents.openDevTools()
+    })
+}
+
+function openGifProcessingModal() {
+    gifProcessingWindow = new BrowserWindow({
+        width: 600,
+        height: 300,
+        modal: true,
+        show: false,
+        frame: false,
+        parent: mainWindow,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+            enableRemoteModule: true,
+        },
+    });
+
+    gifProcessingWindow.loadFile(path.join(__dirname, gifProcessingWindowHtmlLoc))
+    require("@electron/remote/main").enable(gifProcessingWindow.webContents)
+    gifProcessingWindow.once("ready-to-show", () => {
+        gifProcessingWindow.show()
     })
 }
 

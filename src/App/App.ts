@@ -10,7 +10,6 @@ import Executor from "./Commands/Executor/Executor"
 import CommandStore from "./Commands/Storage/CommandStore"
 import SaveLoadFacade from "./SaveLoad/SaveLoadFacade"
 import ExportManager from "./Exporting/ExportManager"
-import CircleNode from "./GraphModel/CircleNode"
 const { ipcRenderer } = require('electron')
 
 
@@ -83,6 +82,7 @@ export default class App {
         Configuration.get().subscribeReloadable(this.renderer)
         Configuration.get().subscribeReloadable(this.exportManager)
 
+        // TODO: This shall be moved in Configuration
         ipcRenderer.on('PREFS_UPDATE', (evt: any, val: any) => {
             Configuration.get().updateCurrentConf({
                 "udPath": "/home/hekapoo/Documents/_Licence/nodify2/src/App/Commands/UserDefinedDummy",
@@ -94,14 +94,6 @@ export default class App {
 
         /* Start-app render trigger */
         this.renderer.render()
-
-        /* DBG */
-        // const n1 = new CircleNode({ position: [200, 300] })
-        // const n2 = new CircleNode({ position: [400, 500] })
-        // this.graphModel.addNode(n1)
-        // this.graphModel.addNode(n2)
-        // this.graphModel.addConnection(n1.getUniqueId(), n2.getUniqueId(), { color: 'red' })
-
         this.logger.log('Components initialized & subscribbed!')
         return true
     }

@@ -55,6 +55,8 @@ export default class Executor implements IParserListener {
 
     private setProjectDirty() {
         const windowTitle = getCurrentWindow().getTitle()
+        if (windowTitle[windowTitle.length - 1] === '*')
+            return
         getCurrentWindow().setTitle(windowTitle + '*')
     }
 }

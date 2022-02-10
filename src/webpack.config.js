@@ -13,8 +13,8 @@ module.exports = {
     entry: {
         frontEnd: path.resolve(__dirname, 'index.ts'),
         preferencesWindow: path.resolve(__dirname, 'Templates/preferencesWindow.ts'),
-        fatalWindow: path.resolve(__dirname, 'Templates/fatalWindow.ts')
-
+        fatalWindow: path.resolve(__dirname, 'Templates/fatalWindow.ts'),
+        gifProcessingWindow: path.resolve(__dirname, 'Templates/gifProcessingWindow.ts')
     },
     output: {
         filename: '[name].js',
@@ -45,6 +45,11 @@ module.exports = {
             filename: 'fatalWindow.html',
             template: path.resolve(__dirname, "Templates/fatalWindow.html"),
             chunks: ['fatalWindow']
+        }),
+        new HtmlWebpackPlugin({
+            filename: 'gifProcessingWindow.html',
+            template: path.resolve(__dirname, "Templates/gifProcessingWindow.html"),
+            chunks: ['gifProcessingWindow']
         }),
     ],
     optimization: {

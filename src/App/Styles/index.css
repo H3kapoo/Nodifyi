@@ -36,9 +36,9 @@
     overflow: auto;
     /* background-color: rgb(75, 75, 75); */
     background-color: #E0E2EB;
-    /* border-color: red;  USE BORDER TO DETERMINE IF CAPTURING IS ON*/
-    /* border-width: 10px; */
-    /* border-style: inset; */
+    /* border: rgb(255, 61, 61) 5px solid;  */
+    /*USE BORDER TO DETERMINE IF CAPTURING IS ON*/
+    /* border: none; */
 }
 #canvas{
     overflow-x: auto;

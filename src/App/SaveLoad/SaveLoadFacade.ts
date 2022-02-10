@@ -15,6 +15,9 @@ export default class SaveLoadFacade {
     private fileExtNoDot = 'nod'
     private currentlyWorkingPath: string
 
+    //TODO: maybe it would make more sense to move the loadJson saveJson from GraphModel to here
+    //      since there is no deps for it to be in GraphModel
+
     public initialize(graphModel: GraphModel, renderer: Renderer) {
         this.graphModel = graphModel
         this.renderer = renderer
@@ -29,9 +32,7 @@ export default class SaveLoadFacade {
 
         this.logger.log('Module initialized!')
         this.setSaveButtonEnabled(false)
-
-        //DBG
-        this.setWindowTitle('Empty Project')
+        this.setWindowTitle('untitled')
         return true
     }
 
@@ -60,7 +61,7 @@ export default class SaveLoadFacade {
         this.setProjectClean()
         this.setSaveButtonEnabled(false)
         this.currentlyWorkingPath = undefined
-        this.setWindowTitle('Empty Project')
+        this.setWindowTitle('untitled')
     }
 
     private saveLocally() {
