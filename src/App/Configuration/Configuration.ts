@@ -77,12 +77,22 @@ export default class Configuration {
         }
     }
 
-    public param(paramName: string): string | number {
-        if (this.conf[paramName])
+    public param(paramName: string): string | number | boolean {
+        if (this.conf[paramName] || (this.conf[paramName] === false)) // cover bool
             return this.conf[paramName]
 
         this.logger.log(`Param '${paramName}' could not be found! `, LoggerLevel.ERR)
         return null
+    }
+
+    public reloadOnly(reloadable: IReloadable) {
+        const index = this.reloadablesList.indexOf(reloadable)
+        if (index === -1) {
+            this.logger.log('Trying to reload only IReloadable but it is not subscribbed!', LoggerLevel.ERR)
+            return false
+        }
+        this.reloadablesList[index].onConfReload()
+        return true
     }
 
     public subscribeReloadable(reloadable: IReloadable) {

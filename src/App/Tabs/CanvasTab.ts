@@ -70,6 +70,11 @@ export default class CanvasTab implements IReloadable {
 
         this.canvasDOM.width = canvasWidth
         this.canvasDOM.height = canvasHeight
+
+        new ScrollBooster({
+            viewport: document.querySelector('#canvas-container-tab'),
+            scrollMode: 'transform',
+        })
     }
     public getCanvas() { return this.canvasDOM }
 }

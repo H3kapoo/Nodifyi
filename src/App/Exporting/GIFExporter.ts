@@ -18,12 +18,17 @@ export default class GIFExporter implements IRendererListener {
     private frameCount: number
     private bufferData: string[]
 
+    constructor() {
+        ipcRenderer.on('TOGGLE_CAPUTRE_GIF', () => this.handleCapture())
+    }
+
     public initialize() {
         this.isCapturingEnabled = false
         this.bufferData = []
         this.gifDelay = Configuration.get().param('gif_delay') as number
         this.frameSkip = Configuration.get().param('frame_skip') as number
         this.frameCount = 0
+        document.getElementById('canvas-container-tab').style.border = 'none'
 
         if (!this.gifDelay) {
             this.logger.log('Empty gifDelay parameter in configuration!', LoggerLevel.FATAL)
@@ -35,7 +40,6 @@ export default class GIFExporter implements IRendererListener {
             return false
         }
 
-        ipcRenderer.on('TOGGLE_CAPUTRE_GIF', () => this.handleCapture())
         return true
     }
 
@@ -45,9 +49,11 @@ export default class GIFExporter implements IRendererListener {
         this.frameCount++
     }
 
+    //TODO: Fix reloading when capturing is on
     private async handleCapture() {
         /* toggle capturing state */
         this.isCapturingEnabled = !this.isCapturingEnabled
+        console.log('ce', this.isCapturingEnabled);
 
         if (this.isCapturingEnabled) {
             const response = dialog.showMessageBoxSync(getCurrentWindow(), {

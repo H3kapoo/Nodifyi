@@ -7,6 +7,7 @@ try {
     require('electron-reloader')(module, {
         ignore: ['/home/hekapoo/Documents/_Licence/nodify2/src/Webpacked/temp',
             '/home/hekapoo/Documents/_Licence/nodify2/mygif.gif',
+            '/home/hekapoo/Documents/_Licence/nodify2/src/App/Commands/UserDefinedDummy',
             '/home/hekapoo/Documents/_Licence/nodify2/mygif.mkv',
             '/home/hekapoo/Documents/_Licence/nodify2/zrandom-trash',
             '/home/hekapoo/Documents/_Licence/nodify2/pallete.png']
@@ -40,7 +41,6 @@ const debugMenu = new MenuItem({
         {
             label: 'Preferences',
             accelerator: 'Shift+P',
-            // click: () => { mainWindow.webContents.send('RELOAD_CONFIG') }
             click: () => { openPrefsModal() }
         },
         {
@@ -50,7 +50,23 @@ const debugMenu = new MenuItem({
                 mainWindow.webContents.openDevTools()
                 focusedWindow.toggleDevTools()
             }
-        },]
+        }]
+})
+
+const quick = new MenuItem({
+    label: 'Quick',
+    submenu: [
+        {
+            label: 'Reload commands',
+            accelerator: 'Shift+R',
+            click: () => { mainWindow.webContents.send('RELOAD_COMMANDS') }
+        },
+        // {
+        //     label: 'Interrupt current',
+        //     accelerator: 'Shift+I',
+        //     click: () => { mainWindow.webContents.send('RENDER_INTERRUPT') }
+        // }]
+    ]
 })
 
 const fileMenu = new MenuItem({
@@ -80,6 +96,7 @@ const fileMenu = new MenuItem({
 })
 
 menu.append(fileMenu)
+menu.append(quick)
 menu.append(debugMenu)
 Menu.setApplicationMenu(menu)
 

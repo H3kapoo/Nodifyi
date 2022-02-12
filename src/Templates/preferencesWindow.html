@@ -19,11 +19,28 @@
         </div>
         <div id='opts-part'>
             <div id='canvas-prefs-tab'>
-                <div id='canvasDims'>
-                    <label>Canvas width</label>
-                    <input id="width" type="number" placeholder="1000" />
-                    <label>Canvas height</label>
-                    <input id="height" type="number" placeholder="1000" />
+                <div id="canvas-wrapper">
+                    <h2 id="canvas-title">Canvas</h2>
+                    <div id="canvas-opts">
+                        <label>Width</label>
+                        <input id="width" type="number" placeholder="1000" />
+                        <label>Height</label>
+                        <input id="height" type="number" placeholder="1000" />
+                    </div>
+                </div>
+                <hr />
+                <div id="canvas-bg-wrapper">
+                    <h2 id="canvas-bg-title">Canvas Background</h2>
+                    <div id="canvas-bg-opts">
+                        <label>Background Grid </label>
+                        <input id="bgGrid" type="checkbox" />
+                        <label>Constraint Sizes </label>
+                        <input id="bgConstraint" type="checkbox" />
+                        <label>Horizontal Spacing </label>
+                        <input id="hsep" type="number" placeholder="100" />
+                        <label>Vertical Spacing </label>
+                        <input id="vsep" type="number" placeholder="100" />
+                    </div>
                 </div>
             </div>
 

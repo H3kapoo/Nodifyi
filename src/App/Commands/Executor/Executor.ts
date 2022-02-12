@@ -51,6 +51,8 @@ export default class Executor implements IParserListener {
         return true
     }
 
+    public updateCommands(commands: CommandsStruct) { this.commands = commands }
+
     public onInputParsed(parsedInputs: ParsedInput[]) { this.executeCommandChain(parsedInputs) }
 
     private setProjectDirty() {

@@ -77,19 +77,21 @@ export default class App {
 
         /* Subscribe modules that are affected by conf reload */
         Configuration.get().subscribeReloadable(this.commandStore)
-        Configuration.get().subscribeReloadable(this.graphModel)
         Configuration.get().subscribeReloadable(this.tabsLoader.getCanvasTab())
         Configuration.get().subscribeReloadable(this.renderer)
         Configuration.get().subscribeReloadable(this.exportManager)
 
-        // TODO: This shall be moved in Configuration
+        /* Preferences might affect every reloadable, so update them all */
         ipcRenderer.on('PREFS_UPDATE', (evt: any, val: any) => {
-            Configuration.get().updateCurrentConf({
-                "udPath": "/home/hekapoo/Documents/_Licence/nodify2/src/App/Commands/UserDefinedDummy",
-                "canvasWidth": val.canvasWidth,
-                "canvasHeight": val.canvasHeight
-            })
+            Configuration.get().updateCurrentConf(val)
             this.renderer.render(false)
+        })
+
+        /* Commands only affect..commands, so reload only those */
+        ipcRenderer.on('RELOAD_COMMANDS', () => {
+            Configuration.get().reloadOnly(this.commandStore)
+            this.parser.updateCommands(this.commandStore.getCommands())
+            this.executor.updateCommands(this.commandStore.getCommands())
         })
 
         /* Start-app render trigger */

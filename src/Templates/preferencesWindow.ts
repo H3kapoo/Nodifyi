@@ -18,7 +18,6 @@ new Tabby('[data-tabs-prefs]')
 const logger = new Logger('PreferencesWindow', LoggerLevel.ERR)
 
 const finalSubmit = document.getElementById('final_submit')
-const changes: { [key: string]: any } = {}
 const tabsIds = [
     'canvas-prefs-tab',
     'commands-prefs-tab',
@@ -50,44 +49,91 @@ document.addEventListener('tabby', (event) => {
 /* CANVAS PREFS WINDOW BEING */
 const width = <HTMLInputElement>document.getElementById('width')
 const height = <HTMLInputElement>document.getElementById('height')
+const hsep = <HTMLInputElement>document.getElementById('hsep')
+const vsep = <HTMLInputElement>document.getElementById('vsep')
+const bgGrid = <HTMLInputElement>document.getElementById('bgGrid')
+const bgConstraint = <HTMLInputElement>document.getElementById('bgConstraint')
 
 height.value = Configuration.get().param('canvasHeight').toString()
 width.value = Configuration.get().param('canvasWidth').toString()
+hsep.value = Configuration.get().param('backgroundHsep').toString()
+vsep.value = Configuration.get().param('backgroundVsep').toString()
+bgGrid.checked = Configuration.get().param('backgroundGridDraw') as boolean
+bgConstraint.checked = Configuration.get().param('backgroundConstraint') as boolean
 
 width.addEventListener('focusout', () => {
-    if (!width.value || !height.value) {
-        logger.log('No values provided')
-        return
+    if (!width.value) {
+        logger.log('No value provided for width!', LoggerLevel.WRN)
+        width.value = "500"
     }
+
     width.value = clamp(500, 2000, parseInt(width.value)).toString()
+})
+height.addEventListener('focusout', () => {
+    if (!height.value) {
+        logger.log('No value provided for height!', LoggerLevel.WRN)
+        height.value = "500"
+    }
     height.value = clamp(500, 2000, parseInt(height.value)).toString()
-    //IMPARTE ASTEA IN DOUA
+})
+hsep.addEventListener('focusout', () => {
+    if (!hsep.value) {
+        logger.log('No value provided for horizontal separation!', LoggerLevel.WRN)
+        hsep.value = "100"
+    }
+
+    hsep.value = clamp(20, 300, parseInt(hsep.value)).toString()
+    vsep.value = bgConstraint.checked ? hsep.value : vsep.value
+})
+vsep.addEventListener('focusout', () => {
+    if (!vsep.value) {
+        logger.log('No value provided for vertical separation!', LoggerLevel.WRN)
+        vsep.value = "100"
+    }
+    vsep.value = clamp(20, 300, parseInt(vsep.value)).toString()
+    hsep.value = bgConstraint.checked ? vsep.value : hsep.value
+})
+bgConstraint.addEventListener('change', () => {
+    hsep.value = bgConstraint.checked ? vsep.value : hsep.value
+})
+bgGrid.addEventListener('change', () => {
+    bgConstraint.disabled = hsep.disabled = vsep.disabled = !bgGrid.checked
 })
 /* CANVAS PREFS WINDOW END */
 
 /* EXPORTING PREFS WINDOW BEING */
 const delayElement = <HTMLInputElement>document.getElementById('delay')
 const skipFramesElement = <HTMLInputElement>document.getElementById('skip_frames')
-// const submitExport = document.getElementById('submit-export')
 
 delayElement.value = Configuration.get().param('gif_delay').toString()
 skipFramesElement.value = Configuration.get().param('frame_skip').toString()
 
-// submitExport.addEventListener('click', () => {
-//     let delayInt = parseInt(delayElement.value)
-//     let skipFramesInt = parseInt(skipFramesElement.value)
-//     delayInt = clamp(100, 1000, delayInt)
-//     skipFramesInt = clamp(1, 100, skipFramesInt)
-
-// })
+delayElement.addEventListener('focusout', () => {
+    if (!delayElement.value) {
+        logger.log('No value provided for delay!', LoggerLevel.WRN)
+        delayElement.value = "100"
+    }
+    delayElement.value = clamp(100, 1000, parseInt(delayElement.value)).toString()
+})
+skipFramesElement.addEventListener('focusout', () => {
+    if (!skipFramesElement.value) {
+        logger.log('No value provided for skipFrames!', LoggerLevel.WRN)
+        skipFramesElement.value = "1"
+    }
+    skipFramesElement.value = clamp(1, 100, parseInt(skipFramesElement.value)).toString()
+})
 /* EXPORTING PREFS WINDOW END */
 
 finalSubmit.addEventListener('click', () => {
     ipcRenderer.send('PREFS_UPDATE', {
-        canvasWidth: width.value,
-        canvasHeight: height.value,
-        gif_delay: delayElement.value,
-        frame_skip: skipFramesElement.value
+        canvasWidth: parseInt(width.value),
+        canvasHeight: parseInt(height.value),
+        gif_delay: parseInt(delayElement.value),
+        frame_skip: parseInt(skipFramesElement.value),
+        backgroundHsep: parseInt(hsep.value),
+        backgroundVsep: parseInt(vsep.value),
+        backgroundConstraint: bgConstraint.checked,
+        backgroundGridDraw: bgGrid.checked
     })
 
     /* This will close the prefs window */

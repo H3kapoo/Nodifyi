@@ -78,6 +78,11 @@ export default class Connection {
             this.options = this.animator.update(delta) as ConnectionOptions
     }
 
+    public resetUpdate() {
+        if (this.animator)
+            this.animator = null
+    }
+
     public isAnimationDone() {
         let done = true
         if (this.animator)

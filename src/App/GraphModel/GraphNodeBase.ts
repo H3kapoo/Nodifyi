@@ -21,9 +21,12 @@ export default abstract class GraphNodeBase {
 
     public abstract update(delta: number): void
 
+    public abstract resetUpdate(): void
+
     public abstract isAnimationDone(): boolean
 
     public abstract updateOptions(options: AnyGraphNodeOptions): void
+
 
     public toggleHeadsUpIndexing() { this.indexing = !this.indexing }
 

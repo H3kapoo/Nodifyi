@@ -137,6 +137,8 @@ export default class Parser implements ITerminalTabListener {
         return commandOptions
     }
 
+    public updateCommands(commands: CommandsStruct) { this.commands = commands }
+
     public subscribeOnParsed(listener: IParserListener) { this.parseListeners.push(listener) }
 
     public onListenedKey(userInput: string): void {

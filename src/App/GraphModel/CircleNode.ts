@@ -60,6 +60,11 @@ export default class CircleNode extends GraphNodeBase {
             this.options = this.animator.update(delta) as CircleNodeOptions
     }
 
+    public resetUpdate() {
+        if (this.animator)
+            this.animator = null
+    }
+
     public isAnimationDone() {
         let done = true
         if (this.animator)

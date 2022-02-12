@@ -8,7 +8,7 @@ import { NodeType } from "./GraphNodeType"
 import CircleNode from "./CircleNode"
 
 /** Class handling the insert/remove/update of graph objects */
-export default class GraphModel implements IReloadable {
+export default class GraphModel {
     private logger = new Logger('GraphModel')
 
     private terminalHelper: TerminalTabOutputHelper
@@ -72,6 +72,12 @@ export default class GraphModel implements IReloadable {
         const toNode = this.model[toId]
 
         if (fromNode && toNode) {
+            const connId = Connection.getConnectionId(fromNode.graphNode, toNode.graphNode)
+            if (this.connections[connId]) {
+                this.logger.log(`Node ${fromId} already connected to node ${toId}!`, LoggerLevel.WRN)
+                this.terminalHelper.printErr(`Node ${fromId} already connected to node ${toId}!`)
+                return null
+            }
             const conn = new Connection(fromNode.graphNode, toNode.graphNode, options)
             this.connections[conn.getConnectionId()] = conn
             fromNode.outIds.add(toId)
@@ -126,10 +132,6 @@ export default class GraphModel implements IReloadable {
         delete this.connections[conn.getConnectionId()]
 
         return true
-    }
-
-    public onConfReload() {
-        this.logger.log('needs reload')
     }
 
     public getModel() { return this.model }

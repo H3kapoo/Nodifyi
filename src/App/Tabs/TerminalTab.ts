@@ -41,6 +41,7 @@ export default class TerminalTab {
             this.printInput()
         if (this.listeners[evt.key])
             this.listeners[evt.key].forEach(l => l.onListenedKey(this.userInput))
+        this.scrollDownTerminal()
     }
 
     public subscribeOnKeyPress(key: string, listener: ITerminalTabListener) {

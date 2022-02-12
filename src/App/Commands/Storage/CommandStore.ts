@@ -53,6 +53,7 @@ export default class CommandStore implements IReloadable {
 
     public onConfReload(): void {
         this.logger.log('Reloading..')
+        this.commands = {}
         if (this.initialize())
             this.logger.log('Initialized by Reload')
         else
@@ -60,5 +61,4 @@ export default class CommandStore implements IReloadable {
     }
 
     public getCommands(): CommandsStruct { return this.commands ?? null }
-
 }

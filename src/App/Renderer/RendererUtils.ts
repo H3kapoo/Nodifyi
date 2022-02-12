@@ -79,7 +79,7 @@ export function getBezierPoints(
     return { start: lineStart, control: [cpPos[0], cpPos[1]], end: lineEnd }
 }
 
-export function add2d(p: Vec2d, q: Vec2d) {
+export function add2d(p: Vec2d, q: Vec2d): Vec2d {
     return [p[0] + q[0], p[1] + q[1]]
 }
 

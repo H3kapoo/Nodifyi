@@ -31,7 +31,7 @@ export default class CommandLoaderUD {
             //@ts-ignore
             if (commandsFaker[object.schema.name]) {
                 //@ts-ignore
-                this.logger.log(`User defined command '${object.schema.name}' already exists!`, LoggerLevel.ERR)
+                this.logger.log(`User defined command '${object.schema.name}' already exists!`, LoggerLevel.FATAL)
                 return false
             }
 

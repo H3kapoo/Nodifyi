@@ -1,10 +1,10 @@
 import { Logger, LoggerLevel } from "../../Logger/Logger";
 import Configuration from "../Configuration/Configuration";
 import IReloadable from "../Configuration/IReloadable";
-import CircleNode from "../GraphModel/CircleNode";
 import GraphModel from "../GraphModel/GraphModel";
 import { Vec2d } from "../types";
 import IRendererListener from "./IRendererListener";
+const { ipcRenderer } = require('electron')
 
 
 /** Class that handles the rendering of the canvas element*/
@@ -16,14 +16,17 @@ export default class Renderer implements IReloadable {
     private drawCanvas: HTMLCanvasElement
     private needsRerendering: boolean
     private lastFrameTimeMs: number = 0
-    private bgGridSpacing: number
+    private bgGridSpacing: Vec2d
     private resolver: Function
     private backgroundDataImage: HTMLImageElement
-
+    private backgroundGridDraw: boolean
     private listeners: IRendererListener[]
 
     public initialize(graphModel: GraphModel, canvas: HTMLCanvasElement) {
-        this.bgGridSpacing = Configuration.get().param('backgroundGridSpacing') as number
+        this.bgGridSpacing = [
+            Configuration.get().param('backgroundHsep') as number,
+            Configuration.get().param('backgroundVsep') as number]
+        this.backgroundGridDraw = Configuration.get().param('backgroundGridDraw') as boolean
         this.needsRerendering = false
         this.listeners = []
 
@@ -35,6 +38,7 @@ export default class Renderer implements IReloadable {
         this.currentModel = graphModel
         this.drawCanvas = canvas
         this.drawContext = canvas.getContext('2d')
+        this.onInterrupt()
         this.logger.log('Module initialized!')
         return true
     }
@@ -76,13 +80,6 @@ export default class Renderer implements IReloadable {
         if (deltaTime > 200) deltaTime = 16
         this.clearAndRenderBackgroundGrid()
 
-        for (const [id, connData] of Object.entries(this.currentModel.getConnections())) {
-            connData.update(deltaTime)
-            connData.render(this.drawContext)
-
-            if (!connData.isAnimationDone())
-                this.needsRerendering = true
-        }
         for (const [id, nodeData] of Object.entries(this.currentModel.getModel())) {
             nodeData.graphNode.update(deltaTime)
             nodeData.graphNode.render(this.drawContext)
@@ -90,12 +87,40 @@ export default class Renderer implements IReloadable {
             if (!nodeData.graphNode.isAnimationDone())
                 this.needsRerendering = true
         }
+
+        for (const [id, connData] of Object.entries(this.currentModel.getConnections())) {
+            connData.update(deltaTime)
+            connData.render(this.drawContext)
+
+            if (!connData.isAnimationDone())
+                this.needsRerendering = true
+        }
+
         this.notifyRender()
 
         if (this.needsRerendering && deltaTime !== 0)
             window.requestAnimationFrame(this.renderModel.bind(this))
         else
             this.resolver()
+    }
+
+
+    //TODO: Implement this system later
+    public onInterrupt() {
+        /* Will terminate the currently running animation bit */
+        ipcRenderer.on('RENDER_INTERRUPT', () => {
+            // needs rerendering = false
+            this.needsRerendering = false
+            // call resolver
+            this.resolver()
+
+            // reset animators on conns/nodes
+            for (const [id, nodeData] of Object.entries(this.currentModel.getModel()))
+                nodeData.graphNode.resetUpdate()
+
+            for (const [id, connData] of Object.entries(this.currentModel.getConnections()))
+                connData.resetUpdate()
+        })
     }
 
     private clearAndRenderBackgroundGrid() {
@@ -106,18 +131,22 @@ export default class Renderer implements IReloadable {
         this.drawContext.rect(0, 0, width, height)
         this.drawContext.fill()
 
+        if (!this.backgroundGridDraw) {
+            return
+        }
+
         /* Optimization so we don't recalculate static background each frame */
         if (!this.backgroundDataImage) {
-            for (let x = this.bgGridSpacing; x < width; x += this.bgGridSpacing)
-                for (let y = this.bgGridSpacing; y < height; y += this.bgGridSpacing) {
+            for (let x = this.bgGridSpacing[0]; x < width; x += this.bgGridSpacing[0])
+                for (let y = this.bgGridSpacing[1]; y < height; y += this.bgGridSpacing[1]) {
                     const text = x.toString() + ',' + y.toString()
                     this.renderText([x, y], text)
                 }
 
-            for (let y = 0; y < height; y += this.bgGridSpacing)
+            for (let y = 0; y < height; y += this.bgGridSpacing[1])
                 this.renderLine([0, y], [width, y])
 
-            for (let x = 0; x < width; x += this.bgGridSpacing)
+            for (let x = 0; x < width; x += this.bgGridSpacing[0])
                 this.renderLine([x, 0], [x, height])
 
             this.backgroundDataImage = new Image
@@ -151,6 +180,10 @@ export default class Renderer implements IReloadable {
     public onConfReload() {
         this.logger.log('Renderer will reload')
         this.backgroundDataImage = null
+        this.bgGridSpacing = [
+            Configuration.get().param('backgroundHsep') as number,
+            Configuration.get().param('backgroundVsep') as number]
+        this.backgroundGridDraw = Configuration.get().param('backgroundGridDraw') as boolean
     }
 
     public subscribeRendererListener(listener: IRendererListener) {

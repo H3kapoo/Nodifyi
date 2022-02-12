@@ -40,8 +40,6 @@ export class Logger {
         if (level && level === LoggerLevel.FATAL) {
             ipcRenderer.send("FATAL_ERROR", { msg: msg })
             Logger.alreadyDid = true
-            console.log('wut');
-
         }
 
     }
