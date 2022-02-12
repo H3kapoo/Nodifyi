@@ -1,10 +1,11 @@
 import { Logger, LoggerLevel } from "../../Logger/Logger";
+import IReloadable from "../Configuration/IReloadable";
 import CanvasTab from "./CanvasTab";
 import TerminalTab from "./TerminalTab";
 
 
 /** Handles the initialization of all tabs present */
-export default class TabsLoader {
+export default class TabsLoader implements IReloadable {
 
     private logger = new Logger('TabsLoader')
 
@@ -31,4 +32,13 @@ export default class TabsLoader {
     public getTerminalTab() { return this.terminalTab }
 
     public getCanvasTab() { return this.canvasTab }
+
+    onConfReload() {
+        this.terminalTab.onConfReload()
+        this.canvasTab.onConfReload()
+    }
+    onHardReload() {
+        this.terminalTab.onHardReload()
+        this.canvasTab.onHardReload()
+    }
 }

@@ -4,6 +4,7 @@ const { ipcRenderer } = require('electron')
 const { dialog, getCurrentWindow } = require('@electron/remote')
 import { writeFileSync, readFileSync } from "fs"
 import Renderer from "../Renderer/Renderer"
+import IReloadable from "../Configuration/IReloadable"
 
 
 export default class SaveLoadFacade {
@@ -14,14 +15,13 @@ export default class SaveLoadFacade {
     private fileExt = '.nod'
     private fileExtNoDot = 'nod'
     private currentlyWorkingPath: string
-
-    //TODO: maybe it would make more sense to move the loadJson saveJson from GraphModel to here
-    //      since there is no deps for it to be in GraphModel
+    private hardReloadables: IReloadable[]
 
     public initialize(graphModel: GraphModel, renderer: Renderer) {
         this.graphModel = graphModel
         this.renderer = renderer
         this.currentlyWorkingPath = undefined
+        this.hardReloadables = []
 
         ipcRenderer.on('NEW_PROJECT', () => this.newProject())
         ipcRenderer.on('SAVE_LOCALLY', () => this.saveLocally())
@@ -55,8 +55,7 @@ export default class SaveLoadFacade {
         }
 
         this.logger.log('Trying create new project..', LoggerLevel.DBG)
-        this.graphModel.loadJson({})
-        this.renderer.render(false)
+        this.hardReloadSubscribers()
         this.logger.log('New project created..', LoggerLevel.DBG)
         this.setProjectClean()
         this.setSaveButtonEnabled(false)
@@ -100,15 +99,16 @@ export default class SaveLoadFacade {
 
         const res = await dialog.showOpenDialog({
             filters: [
-                { name: 'NodifySave', extensions: [this.fileExtNoDot] },
+                { name: 'NodifySave', extensions: [this.fileExtNoDot] }
             ]
         })
 
         if (res.filePaths[0] !== undefined) {
             const content = readFileSync(res.filePaths[0]).toString()
-
             try {
-                this.graphModel.loadJson(JSON.parse(content))
+                const parsedJson = JSON.parse(content)
+                this.hardReloadSubscribers()
+                this.graphModel.loadJson(parsedJson)
             } catch (ex) {
                 this.logger.log('Corrupted save file!', LoggerLevel.FATAL)
                 return
@@ -150,5 +150,13 @@ export default class SaveLoadFacade {
 
     private setSaveButtonEnabled(value: boolean) {
         ipcRenderer.send('TOGGLE_SAVE_BTN', { value: value })
+    }
+
+    public subscribeHardReloadables(hardReloadables: IReloadable[]) {
+        this.hardReloadables = hardReloadables
+    }
+
+    public hardReloadSubscribers() {
+        this.hardReloadables.forEach(r => r.onHardReload())
     }
 }

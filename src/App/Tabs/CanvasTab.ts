@@ -13,10 +13,9 @@ enum CanvasDimensions {
 
 /** Handles the tab containing the working canvas */
 export default class CanvasTab implements IReloadable {
-    private logger = new Logger('TabsLoader')
+    private logger = new Logger('CanvasTab')
 
     private canvasDOM: HTMLCanvasElement
-    private canvasContext: CanvasRenderingContext2D
 
     public initialize() {
         this.canvasDOM = document.getElementById('canvas') as HTMLCanvasElement
@@ -26,7 +25,6 @@ export default class CanvasTab implements IReloadable {
             return false
         }
 
-        this.canvasContext = this.canvasDOM.getContext('2d', { alpha: false })
         const canvasHeight = Configuration.get().param('canvasHeight') as number
         const canvasWidth = Configuration.get().param('canvasWidth') as number
 
@@ -54,8 +52,9 @@ export default class CanvasTab implements IReloadable {
         return true
     }
 
+    public getCanvas() { return this.canvasDOM }
+
     public onConfReload(): void {
-        this.logger.log('Canvas tab will reload opts')
         const canvasHeight = Configuration.get().param('canvasHeight') as number
         const canvasWidth = Configuration.get().param('canvasWidth') as number
 
@@ -75,6 +74,11 @@ export default class CanvasTab implements IReloadable {
             viewport: document.querySelector('#canvas-container-tab'),
             scrollMode: 'transform',
         })
+
+        this.logger.log('Successfully conf reloaded!', LoggerLevel.DBG)
     }
-    public getCanvas() { return this.canvasDOM }
+
+    public onHardReload(): void {
+
+    }
 }

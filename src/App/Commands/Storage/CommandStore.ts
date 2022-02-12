@@ -51,14 +51,15 @@ export default class CommandStore implements IReloadable {
         return commandsFaker
     }
 
+    public getCommands(): CommandsStruct { return this.commands ?? null }
+
     public onConfReload(): void {
-        this.logger.log('Reloading..')
         this.commands = {}
         if (this.initialize())
-            this.logger.log('Initialized by Reload')
+            this.logger.log('Sucessfully conf reloaded!', LoggerLevel.DBG)
         else
-            this.logger.log('NOT Initialized by Reload')
+            this.logger.log('NOT Successfully conf reloaded!', LoggerLevel.ERR)
     }
 
-    public getCommands(): CommandsStruct { return this.commands ?? null }
+    public onHardReload() { }
 }

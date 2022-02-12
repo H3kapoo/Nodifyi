@@ -34,16 +34,15 @@ export default class ExportManager implements IReloadable {
         return true
     }
 
-    onConfReload(): void {
-        if (!this.gifExporter.initialize()) {
-            this.logger.log('GIFExporter NOT initialized!', LoggerLevel.FATAL)
-            return
-        }
+    public onConfReload() {
+        this.gifExporter.onConfReload()
+        this.imageExporter.onConfReload()
+        this.logger.log(`${this.logger.getContext()} conf reloaded succesfully!`, LoggerLevel.DBG)
+    }
 
-        if (!this.imageExporter.initialize(this.canvas)) {
-            this.logger.log('ImageExporter NOT initialized!', LoggerLevel.FATAL)
-            return
-        }
-        this.logger.log('Reloaded!')
+    public onHardReload() {
+        this.gifExporter.onHardReload()
+        this.imageExporter.onHardReload()
+        this.logger.log(`${this.logger.getContext()} hard reloaded succesfully!`, LoggerLevel.DBG)
     }
 }

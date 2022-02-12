@@ -77,9 +77,13 @@ export default class App {
 
         /* Subscribe modules that are affected by conf reload */
         Configuration.get().subscribeReloadable(this.commandStore)
-        Configuration.get().subscribeReloadable(this.tabsLoader.getCanvasTab())
+        Configuration.get().subscribeReloadable(this.tabsLoader)
         Configuration.get().subscribeReloadable(this.renderer)
         Configuration.get().subscribeReloadable(this.exportManager)
+
+        /* Subscribe hard reloadables to saveLoadFacade, objects that might need more cleanup */
+        this.saveLoadFacade.subscribeHardReloadables([
+            this.graphModel, this.exportManager, this.renderer])
 
         /* Preferences might affect every reloadable, so update them all */
         ipcRenderer.on('PREFS_UPDATE', (evt: any, val: any) => {
@@ -95,7 +99,7 @@ export default class App {
         })
 
         /* Start-app render trigger */
-        this.renderer.render()
+        this.renderer.render(false)
         this.logger.log('Components initialized & subscribbed!')
         return true
     }

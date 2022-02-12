@@ -3,6 +3,7 @@ import { join } from 'path'
 import { existsSync, mkdirSync, writeFileSync, rename, rmSync } from "fs"
 import IRendererListener from "../Renderer/IRendererListener"
 import Configuration from "../Configuration/Configuration"
+import IReloadable from "../Configuration/IReloadable"
 const { ipcRenderer } = require('electron')
 const { dialog, getCurrentWindow } = require('@electron/remote')
 //@ts-ignore
@@ -10,7 +11,7 @@ const ffmpeg = require("fluent-ffmpeg");
 
 
 /* Class handling the capture and exporting of gifs */
-export default class GIFExporter implements IRendererListener {
+export default class GIFExporter implements IRendererListener, IReloadable {
     private logger = new Logger('GIFExporter')
     private isCapturingEnabled: boolean
     private frameSkip: number
@@ -18,9 +19,7 @@ export default class GIFExporter implements IRendererListener {
     private frameCount: number
     private bufferData: string[]
 
-    constructor() {
-        ipcRenderer.on('TOGGLE_CAPUTRE_GIF', () => this.handleCapture())
-    }
+    constructor() { ipcRenderer.on('TOGGLE_CAPUTRE_GIF', () => this.handleCapture()) }
 
     public initialize() {
         this.isCapturingEnabled = false
@@ -39,17 +38,9 @@ export default class GIFExporter implements IRendererListener {
             this.logger.log('Empty frameSkip parameter in configuration!', LoggerLevel.FATAL)
             return false
         }
-
         return true
     }
 
-    onRendered(canvas: HTMLCanvasElement) {
-        if (this.isCapturingEnabled && (this.frameCount % this.frameSkip === 0))
-            this.bufferData.push(canvas.toDataURL('image/png'))
-        this.frameCount++
-    }
-
-    //TODO: Fix reloading when capturing is on
     private async handleCapture() {
         /* toggle capturing state */
         this.isCapturingEnabled = !this.isCapturingEnabled
@@ -157,4 +148,35 @@ export default class GIFExporter implements IRendererListener {
         this.logger.log(msg, LoggerLevel.DBG);
         ipcRenderer.send('GIF_PROCESSING_MESSAGE', { message: msg })
     }
+
+    public onRendered(canvas: HTMLCanvasElement) {
+        if (this.isCapturingEnabled && (this.frameCount % this.frameSkip === 0))
+            this.bufferData.push(canvas.toDataURL('image/png'))
+        this.frameCount++
+    }
+
+    public onConfReload() {
+        this.gifDelay = Configuration.get().param('gif_delay') as number
+        this.frameSkip = Configuration.get().param('frame_skip') as number
+
+        if (!this.gifDelay) {
+            this.logger.log('Empty gifDelay parameter in configuration!', LoggerLevel.FATAL)
+            return
+        }
+
+        if (!this.frameSkip) {
+            this.logger.log('Empty frameSkip parameter in configuration!', LoggerLevel.FATAL)
+            return
+        }
+        this.logger.log(`${this.logger.getContext()} conf reloaded successfully!`, LoggerLevel.DBG)
+    }
+
+    public onHardReload() {
+        this.isCapturingEnabled = false
+        this.frameCount = 0
+        this.bufferData = []
+        document.getElementById('canvas-container-tab').style.border = 'none'
+        this.logger.log(`${this.logger.getContext()} hard reloaded successfully!`, LoggerLevel.DBG)
+    }
+
 }

@@ -8,7 +8,7 @@ import { NodeType } from "./GraphNodeType"
 import CircleNode from "./CircleNode"
 
 /** Class handling the insert/remove/update of graph objects */
-export default class GraphModel {
+export default class GraphModel implements IReloadable {
     private logger = new Logger('GraphModel')
 
     private terminalHelper: TerminalTabOutputHelper
@@ -216,5 +216,12 @@ export default class GraphModel {
         //@ts-ignore
         delete obj.animation
         return obj
+    }
+
+    public onConfReload() { }
+
+    public onHardReload() {
+        this.loadJson({})
+        this.logger.log(`${this.logger.getContext()} hard reloaded successfully!`, LoggerLevel.DBG)
     }
 }

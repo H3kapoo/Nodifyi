@@ -35,10 +35,14 @@ export default class Renderer implements IReloadable {
             return false
         }
 
+        if (!this.backgroundGridDraw) {
+            this.logger.log('Failed to fetch backgroundGridDraw of canvas!', LoggerLevel.FATAL)
+            return false
+        }
+
         this.currentModel = graphModel
         this.drawCanvas = canvas
         this.drawContext = canvas.getContext('2d')
-        this.onInterrupt()
         this.logger.log('Module initialized!')
         return true
     }
@@ -103,7 +107,6 @@ export default class Renderer implements IReloadable {
         else
             this.resolver()
     }
-
 
     //TODO: Implement this system later
     public onInterrupt() {
@@ -177,21 +180,11 @@ export default class Renderer implements IReloadable {
 
     public isBusyDrawing() { return this.needsRerendering }
 
-    public onConfReload() {
-        this.logger.log('Renderer will reload')
-        this.backgroundDataImage = null
-        this.bgGridSpacing = [
-            Configuration.get().param('backgroundHsep') as number,
-            Configuration.get().param('backgroundVsep') as number]
-        this.backgroundGridDraw = Configuration.get().param('backgroundGridDraw') as boolean
-    }
-
     public subscribeRendererListener(listener: IRendererListener) {
         if (this.listeners.indexOf(listener) !== -1) {
             this.logger.log('Trying to subscribe IRendererListener that is already subscribbed!', LoggerLevel.ERR)
             return false
         }
-
         this.listeners.push(listener)
         return true
     }
@@ -202,7 +195,6 @@ export default class Renderer implements IReloadable {
             this.logger.log('Trying to unsubscribe IRendererListener that is not subscribbed!', LoggerLevel.ERR)
             return false
         }
-
         this.listeners.splice(index, 1)
         return true
     }
@@ -211,4 +203,28 @@ export default class Renderer implements IReloadable {
         this.listeners.forEach(r => r.onRendered(this.drawCanvas))
     }
 
+    public onConfReload() {
+        this.backgroundDataImage = null
+        this.bgGridSpacing = [
+            Configuration.get().param('backgroundHsep') as number,
+            Configuration.get().param('backgroundVsep') as number]
+        this.backgroundGridDraw = Configuration.get().param('backgroundGridDraw') as boolean
+
+        if (!this.bgGridSpacing) {
+            this.logger.log('Failed to fetch backgroundGridSpacing of canvas!', LoggerLevel.FATAL)
+            return false
+        }
+
+        if (!this.backgroundGridDraw) {
+            this.logger.log('Failed to fetch backgroundGridDraw of canvas!', LoggerLevel.FATAL)
+            return false
+        }
+
+        this.logger.log('Sucessfully conf reloaded!', LoggerLevel.DBG)
+    }
+
+    public onHardReload(): void {
+        this.render(false)
+        this.logger.log(`${this.logger.getContext()} hard reloaded successfully!`, LoggerLevel.DBG)
+    }
 }

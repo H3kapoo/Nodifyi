@@ -1,11 +1,12 @@
 import { Logger, LoggerLevel } from "../../Logger/Logger";
 import Configuration from "../Configuration/Configuration";
+import IReloadable from "../Configuration/IReloadable";
 import ITerminalTabListener from "./ITerminalTabListener";
 import * as utils from './TerminalUtils'
 
 
 /** Class handling interaction with the Terminal tab in subview-2*/
-export default class TerminalTab {
+export default class TerminalTab implements IReloadable {
     private logger = new Logger('TerminalTab')
 
     private terminalDOM: HTMLElement
@@ -142,5 +143,12 @@ export default class TerminalTab {
         event.preventDefault()
         let text = '' + event.clipboardData.getData("text/plain").replace(this.terminalPrefix, '')
         document.execCommand("insertText", false, text)
+    }
+
+    onConfReload(): void {
+
+    }
+    onHardReload(): void {
+
     }
 }
