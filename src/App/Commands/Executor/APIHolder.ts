@@ -13,12 +13,14 @@ export default class APIHolder {
     private graphModel: GraphModel
     private renderer: Renderer
     private outputHelper: TerminalTabOutputHelper
+    private apiBlocked: boolean
 
     constructor(graphModel: GraphModel, renderer: Renderer) {
         this.graphModel = graphModel
         this.renderer = renderer
         this.outputHelper = new TerminalTabOutputHelper()
         this.outputHelper.setOutputContext("Output")
+        this.apiBlocked = false
     }
 
     private output(message: string) {
@@ -149,7 +151,7 @@ export default class APIHolder {
         this.renderer.render()
     }
 
-    public getAPI(): APIObject {
+    private getAPI(): APIObject {
         return {
             'createNode': this.createNode.bind(this),
             'createNodeSync': this.createNodeSync.bind(this),
@@ -164,4 +166,23 @@ export default class APIHolder {
             'doOutput': this.output.bind(this)
         }
     }
+
+    public getProxyAPI(): APIObject {
+        const proxyAPI: APIObject = {}
+
+        for (const [name, func] of Object.entries(this.getAPI())) {
+            const funcProxy = new Proxy(func, {
+                apply: function (target, thisArg, argumentsList) {
+                    if (!thisArg.apiBlocked)
+                        return target(...argumentsList)
+                    else
+                        return async () => { }
+                }
+            })
+            proxyAPI[name] = funcProxy
+        }
+        return proxyAPI
+    }
+
+    public setAPIBlocked(val: boolean) { this.apiBlocked = val }
 }

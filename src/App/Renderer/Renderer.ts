@@ -4,7 +4,6 @@ import IReloadable from "../Configuration/IReloadable";
 import GraphModel from "../GraphModel/GraphModel";
 import { Vec2d } from "../types";
 import IRendererListener from "./IRendererListener";
-const { ipcRenderer } = require('electron')
 
 
 /** Class that handles the rendering of the canvas element*/
@@ -48,7 +47,6 @@ export default class Renderer implements IReloadable {
     }
 
     public async render(shouldAwait: boolean = true) {
-
         if (!this.currentModel) {
             this.logger.log('There is not graph model subscribbed!', LoggerLevel.ERR)
             return false
@@ -109,21 +107,19 @@ export default class Renderer implements IReloadable {
     }
 
     //TODO: Implement this system later
-    public onInterrupt() {
+    public interruptRender() {
         /* Will terminate the currently running animation bit */
-        ipcRenderer.on('RENDER_INTERRUPT', () => {
-            // needs rerendering = false
-            this.needsRerendering = false
-            // call resolver
-            this.resolver()
+        // needs rerendering = false
+        this.needsRerendering = false
+        // call resolver
+        this.resolver()
 
-            // reset animators on conns/nodes
-            for (const [id, nodeData] of Object.entries(this.currentModel.getModel()))
-                nodeData.graphNode.resetUpdate()
+        // reset animators on conns/nodes
+        for (const [id, nodeData] of Object.entries(this.currentModel.getModel()))
+            nodeData.graphNode.resetUpdate()
 
-            for (const [id, connData] of Object.entries(this.currentModel.getConnections()))
-                connData.resetUpdate()
-        })
+        for (const [id, connData] of Object.entries(this.currentModel.getConnections()))
+            connData.resetUpdate()
     }
 
     private clearAndRenderBackgroundGrid() {

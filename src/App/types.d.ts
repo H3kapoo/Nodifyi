@@ -78,6 +78,11 @@ interface GraphNodeSet {
     }
 }
 
+interface GraphCombined {
+    nodes: GraphNodeSet,
+    conns: ConnectionSet
+}
+
 interface CommandSchema {
     name: string,
     mandatory: string[],

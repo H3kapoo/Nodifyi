@@ -61,11 +61,21 @@ const quick = new MenuItem({
             accelerator: 'Shift+R',
             click: () => { mainWindow.webContents.send('RELOAD_COMMANDS') }
         },
-        // {
-        //     label: 'Interrupt current',
-        //     accelerator: 'Shift+I',
-        //     click: () => { mainWindow.webContents.send('RENDER_INTERRUPT') }
-        // }]
+        {
+            label: 'Interrupt',
+            accelerator: 'Shift+I',
+            click: () => { mainWindow.webContents.send('INTERRUPT') }
+        },
+        {
+            label: 'Undo',
+            accelerator: 'Ctrl+,',
+            click: () => { mainWindow.webContents.send('UNDO_ACTION') }
+        },
+        {
+            label: 'Redo',
+            accelerator: 'Ctrl+.',
+            click: () => { mainWindow.webContents.send('REDO_ACTION') }
+        }
     ]
 })
 

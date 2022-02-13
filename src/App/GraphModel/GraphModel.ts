@@ -1,6 +1,6 @@
 import { Logger, LoggerLevel } from "../../Logger/Logger"
 import IReloadable from "../Configuration/IReloadable"
-import { GraphNodeId, GraphNodeSet, ConnectionSet, ConnectionOptions } from "../types"
+import { GraphNodeId, GraphNodeSet, ConnectionSet, ConnectionOptions, GraphCombined } from "../types"
 import Connection from "./Connection"
 import GraphNodeBase from "./GraphNodeBase"
 import TerminalTabOutputHelper from "../Tabs/TerminalTabOutputHelper"
@@ -134,9 +134,32 @@ export default class GraphModel implements IReloadable {
         return true
     }
 
+    /* Maybe deprecate this two functions in Renderer.ts*/
     public getModel() { return this.model }
 
     public getConnections() { return this.connections }
+
+    public getCombined(): GraphCombined {
+        return { nodes: this.model, conns: this.connections }
+    }
+
+    public getCombinedCopy(): GraphCombined {
+        const model: GraphNodeSet = {}
+
+        for (const [id, node] of Object.entries(this.model)) {
+            model[node.graphNode.getUniqueId()] = {
+                graphNode: node.graphNode,
+                inIds: node.inIds,
+                outIds: node.outIds
+            }
+        }
+        return { nodes: model, conns: { ...this.connections } }
+    }
+
+    public setCombined(combined: GraphCombined) {
+        this.model = combined.nodes
+        this.connections = combined.conns
+    }
 
     public getJson(): Object {
         const modelToSave = {

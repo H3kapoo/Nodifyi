@@ -83,7 +83,7 @@ export default class App {
 
         /* Subscribe hard reloadables to saveLoadFacade, objects that might need more cleanup */
         this.saveLoadFacade.subscribeHardReloadables([
-            this.graphModel, this.exportManager, this.renderer])
+            this.graphModel, this.exportManager, this.renderer, this.executor])
 
         /* Preferences might affect every reloadable, so update them all */
         ipcRenderer.on('PREFS_UPDATE', (evt: any, val: any) => {

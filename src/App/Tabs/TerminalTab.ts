@@ -82,6 +82,10 @@ export default class TerminalTab implements IReloadable {
         this.terminalDOM.addEventListener('paste', evt => this.terminalPasteListener(evt))
         this.terminalDOM.addEventListener('keydown', evt => this.terminalKeyDownListener(evt))
         this.terminalDOM.addEventListener('keyup', evt => this.terminalKeyUpListener(evt))
+        document.getElementById('command-line-base').addEventListener('click', () => {
+            this.terminalDOM.focus()
+            utils.setEndOfContenteditable(this.terminalDOM)
+        })
     }
 
     private terminalKeyDownListener(event: KeyboardEvent) {
@@ -109,7 +113,8 @@ export default class TerminalTab implements IReloadable {
             /* On enter save the command in the history. The history offset is used when pressing
                up or down arrows so we can scroll between history commands.
                Recent commands are stored at the end of the array, older at the start*/
-            this.inputHistory.push(this.userInput)
+            if (this.userInput)
+                this.inputHistory.push(this.userInput)
             this.inputHistoryOffset = this.inputHistory.length
         }
 
@@ -125,7 +130,11 @@ export default class TerminalTab implements IReloadable {
 
         /* Handle history up key*/
         if (event.key === 'ArrowDown') {
-            if (this.inputHistoryOffset >= this.inputHistory.length) return
+            if (this.inputHistoryOffset >= this.inputHistory.length) {
+                this.terminalDOM.innerText = this.terminalPrefix
+                utils.setEndOfContenteditable(this.terminalDOM)
+                return
+            }
             this.inputHistoryOffset += 1
             this.terminalDOM.innerText = this.terminalPrefix + this.inputHistory[this.inputHistoryOffset - 1]
 

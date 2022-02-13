@@ -179,7 +179,7 @@ module.exports = {
                     color: '#00000000',
                     animation: {
                         color: '#000000ff',
-                        duration: 1000
+                        duration: 5000
                     }
                 })
                 nodeIds.push(id)
@@ -196,7 +196,7 @@ module.exports = {
                             animation: {
                                 elevation: 0,
                                 color: '#000000ff',
-                                duration: 1000
+                                duration: 5000
                             }
                         })
                     }
