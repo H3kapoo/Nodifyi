@@ -8,7 +8,9 @@ module.exports = {
         },
         async logic(parsedData, api) {
             for (const pos of parsedData.pos)
-                api.createNodeSync({ position: pos })
+                api.createNodeSync({
+                    position: [300, 400]
+                })
             api.doOutput('Created nodes!')
         }
     },
@@ -179,7 +181,7 @@ module.exports = {
                     color: '#00000000',
                     animation: {
                         color: '#000000ff',
-                        duration: 5000
+                        duration: -3
                     }
                 })
                 nodeIds.push(id)

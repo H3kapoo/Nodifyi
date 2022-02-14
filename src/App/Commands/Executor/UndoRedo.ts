@@ -52,7 +52,6 @@ export default class UndoRedo implements IReloadable {
         }
 
         this.historyOffset--
-        console.log('Redo pos: ', this.historyOffset)
         this.graphModel.setCombined(this.graphHistory[this.historyOffset])
         this.renderer.render(false)
     }
@@ -63,7 +62,6 @@ export default class UndoRedo implements IReloadable {
             return
         }
         this.historyOffset++
-        console.log('Redo pos: ', this.historyOffset)
         this.graphModel.setCombined(this.graphHistory[this.historyOffset])
         this.renderer.render(false)
     }

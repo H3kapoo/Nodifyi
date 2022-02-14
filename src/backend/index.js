@@ -62,11 +62,6 @@ const quick = new MenuItem({
             click: () => { mainWindow.webContents.send('RELOAD_COMMANDS') }
         },
         {
-            label: 'Interrupt',
-            accelerator: 'Shift+I',
-            click: () => { mainWindow.webContents.send('INTERRUPT') }
-        },
-        {
             label: 'Undo',
             accelerator: 'Ctrl+,',
             click: () => { mainWindow.webContents.send('UNDO_ACTION') }

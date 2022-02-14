@@ -3,7 +3,7 @@ import ITerminalTabListener from "../../Tabs/ITerminalTabListener"
 import { ArgTypeParseResult, CommandOptions, CommandsStruct, ParsedInput } from "../../types"
 import IParserListener from "./IParserListener"
 import { parsers } from './ValidTypesParser'
-import { ValidTypes } from "../Validation/ValidTypes"
+import { ValidArgTypes } from "../Validation/ValidArgTypes"
 import TerminalTabOutputHelper from "../../Tabs/TerminalTabOutputHelper"
 
 
@@ -83,7 +83,7 @@ export default class Parser implements ITerminalTabListener {
 
             /* Means option doesnt need an argument */
             //@ts-ignore
-            if (commandSchema[optionName] === ValidTypes.NotRequired) {
+            if (commandSchema[optionName] === ValidArgTypes.NotRequired) {
                 incFactor = 1
                 commandOptions[optionName] = null
                 continue

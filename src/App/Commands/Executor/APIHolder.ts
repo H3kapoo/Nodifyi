@@ -1,23 +1,26 @@
 import CircleNode from "../../GraphModel/CircleNode";
 import GraphModel from "../../GraphModel/GraphModel";
+import { NodeType } from "../../GraphModel/GraphNodeType";
 import Renderer from "../../Renderer/Renderer";
 import TerminalTabOutputHelper from "../../Tabs/TerminalTabOutputHelper";
 import {
     AnyConnectionOptions, AnyGraphNodeOptions,
     APIObject, CircleNodeOptions, GraphNodeId
 } from "../../types";
+import InputValidator from "./InputValidator";
 
 
 export default class APIHolder {
-
     private graphModel: GraphModel
     private renderer: Renderer
     private outputHelper: TerminalTabOutputHelper
+    private inputValidator: InputValidator
     private apiBlocked: boolean
 
     constructor(graphModel: GraphModel, renderer: Renderer) {
         this.graphModel = graphModel
         this.renderer = renderer
+        this.inputValidator = new InputValidator()
         this.outputHelper = new TerminalTabOutputHelper()
         this.outputHelper.setOutputContext("Output")
         this.apiBlocked = false
@@ -28,6 +31,10 @@ export default class APIHolder {
     }
 
     private async createNode(options: AnyGraphNodeOptions): Promise<number> {
+        if (!this.inputValidator.validateNodeOptions(options, NodeType.Circle)) {
+            this.apiBlocked = true
+            return
+        }
         const node = new CircleNode(options as CircleNodeOptions)
         if (!this.graphModel.addNode(node))
             this.outputHelper.setBlockStdOutput()
@@ -39,6 +46,11 @@ export default class APIHolder {
     }
 
     private createNodeSync(options: AnyGraphNodeOptions): number {
+        if (!this.inputValidator.validateNodeOptions(options, NodeType.Circle)) {
+            this.apiBlocked = true
+            return
+        }
+
         const node = new CircleNode(options as CircleNodeOptions)
         if (!this.graphModel.addNode(node))
             this.outputHelper.setBlockStdOutput()
@@ -57,6 +69,11 @@ export default class APIHolder {
             return null
         }
 
+        if (!this.inputValidator.validateNodeOptions(options, NodeType.Circle)) {
+            this.apiBlocked = true
+            return
+        }
+
         node.updateOptions(options)
         if (options.animation)
             node.uploadAnimationObject(options.animation)
@@ -68,8 +85,12 @@ export default class APIHolder {
 
         if (!node) {
             this.outputHelper.setBlockStdOutput()
-
             return null
+        }
+
+        if (!this.inputValidator.validateNodeOptions(options, NodeType.Circle)) {
+            this.apiBlocked = true
+            return
         }
 
         node.updateOptions(options)
@@ -96,6 +117,11 @@ export default class APIHolder {
             return
         }
 
+        if (!this.inputValidator.validateConnOptions(options)) {
+            this.apiBlocked = true
+            return
+        }
+
         if (options.animation)
             conn.uploadAnimationObject(options.animation)
         await this.renderer.render()
@@ -105,6 +131,11 @@ export default class APIHolder {
         const conn = this.graphModel.addConnection(fromId, toId, options)
         if (!conn) {
             this.outputHelper.setBlockStdOutput()
+            return
+        }
+
+        if (!this.inputValidator.validateConnOptions(options)) {
+            this.apiBlocked = true
             return
         }
 
@@ -122,6 +153,11 @@ export default class APIHolder {
             return null
         }
 
+        if (!this.inputValidator.validateConnOptions(options)) {
+            this.apiBlocked = true
+            return
+        }
+
         if (options.animation)
             conn.uploadAnimationObject(options.animation)
         conn.updateOptions(options)
@@ -135,6 +171,11 @@ export default class APIHolder {
         if (!conn) {
             this.outputHelper.setBlockStdOutput()
             return null
+        }
+
+        if (!this.inputValidator.validateConnOptions(options)) {
+            this.apiBlocked = true
+            return
         }
 
         if (options.animation)
@@ -169,11 +210,11 @@ export default class APIHolder {
 
     public getProxyAPI(): APIObject {
         const proxyAPI: APIObject = {}
-
+        const thisThis = this
         for (const [name, func] of Object.entries(this.getAPI())) {
             const funcProxy = new Proxy(func, {
                 apply: function (target, thisArg, argumentsList) {
-                    if (!thisArg.apiBlocked)
+                    if (!thisThis.apiBlocked)
                         return target(...argumentsList)
                     else
                         return async () => { }

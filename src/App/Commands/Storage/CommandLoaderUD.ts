@@ -1,5 +1,5 @@
 import { Logger, LoggerLevel } from "../../../Logger/Logger"
-import { ValidTypes } from "../Validation/ValidTypes"
+import { ValidArgTypes } from "../Validation/ValidArgTypes"
 import { CommandsStruct } from "../../types"
 import path from 'path'
 import fs from 'fs'
@@ -122,7 +122,7 @@ export default class CommandLoaderUD {
             if (opt === 'name' || opt === 'mandatory') continue
 
             //@ts-ignore
-            if (!Object.values(ValidTypes).includes(argType)) {
+            if (!Object.values(ValidArgTypes).includes(argType)) {
                 this.logger.log(`Argument type for option '${opt}' is not valid (current: ${argType})!`, LoggerLevel.ERR)
                 return false
             }

@@ -1,4 +1,4 @@
-export enum ValidTypes {
+export enum ValidArgTypes {
     String = 'String',
     String2 = 'String2',
     Stringv = 'Stringv',

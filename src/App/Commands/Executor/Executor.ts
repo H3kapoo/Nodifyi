@@ -8,7 +8,6 @@ import IParserListener from "../Parser/IParserListener"
 const { getCurrentWindow } = require('@electron/remote')
 import APIHolder from "./APIHolder"
 import UndoRedo from "./UndoRedo"
-const { ipcRenderer } = require('electron')
 
 
 export default class Executor implements IParserListener, IReloadable {
