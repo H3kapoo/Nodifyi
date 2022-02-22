@@ -12,7 +12,7 @@ new Tabby('[data-tabs-right]')
 
 /* Split into 2 parts (area 1 & 2) */
 Split(['#subview-1', '#subview-2'], {
-    sizes: [65, 35],
+    sizes: [75, 25],
     direction: 'vertical'
 })
 

@@ -14,9 +14,15 @@ export default class CommandStore implements IReloadable {
     private loaderUD: CommandLoaderUD
 
     private commands: CommandsStruct
+    private cachedUdPath: string
 
     public initialize() {
         const udPath = Configuration.get().param('udPath') as string
+
+        if (udPath === this.cachedUdPath) {
+            this.logger.log(`Path didnt change. Nothing to do!`, LoggerLevel.DBG)
+            return true
+        }
 
         this.loaderBI = new CommandLoaderBI()
         this.loaderUD = new CommandLoaderUD()
@@ -35,6 +41,10 @@ export default class CommandStore implements IReloadable {
 
         if (!this.commands)
             return false
+
+        if (!this.cachedUdPath)
+            this.cachedUdPath = udPath
+
         return true
     }
 

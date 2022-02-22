@@ -1,79 +1,86 @@
 import { Logger, LoggerLevel } from "../../../Logger/Logger";
-import { ValidConnOptions, ValidCircleNodeOptions } from "../Validation/ValidOptions";
+import { ValidConnOptions, ValidNodeOptions, ValidAnimableConfOptions } from "../Validation/ValidOptions";
 import { NodeType } from "../../GraphModel/GraphNodeType"
 import { ValidOptionsTypes } from "../Validation/ValidOptionsTypes";
 import { AnyObjectOptions } from "../../types";
 import { parsers } from "./ValidOptionsParser";
 import TerminalTabOutputHelper from "../../Tabs/TerminalTabOutputHelper";
+import { Transitioners } from "../../Animation/Transitioners";
+
+interface nodeROAObject {
+    required: { [key in ValidNodeOptions]?: ValidOptionsTypes }
+    other: { [key in ValidNodeOptions]?: ValidOptionsTypes }
+    animable: { [key in Transitioners | ValidAnimableConfOptions]?: ValidOptionsTypes }
+}
+
+interface connROAObject {
+    required: { [key in ValidConnOptions]?: ValidOptionsTypes }
+    other: { [key in ValidConnOptions]?: ValidOptionsTypes }
+    animable: { [key in Transitioners | ValidAnimableConfOptions]?: ValidOptionsTypes }
+}
+
+interface jointValidity {
+    nodes: { [key in NodeType]?: nodeROAObject },
+    conns: { 'standardConn': connROAObject }
+}
+
 
 export default class InputValidator {
-    logger = new Logger('InternalValidator')
-    terminalHelper = new TerminalTabOutputHelper()
+    private logger = new Logger('InternalValidator')
+    private terminalHelper = new TerminalTabOutputHelper()
+    private generalValidity: jointValidity
 
     constructor() {
         this.terminalHelper.setOutputContext(this.logger.getContext())
+        this.generalValidity = this.getValidity()
     }
 
-    public validateNodeOptions(options: AnyObjectOptions, nodeType: NodeType): boolean {
-        const validity = this.getValidity().nodes[nodeType]
+    public validateNodeOptions(options: AnyObjectOptions, nodeType: NodeType = NodeType.Circle): boolean {
+        const validity = this.generalValidity.nodes[nodeType]
 
-        // for required
-        for (const required of validity.required) {
-            const optName: string = required[0]
-            const optType: string = required[1]
-
-            if (!options[optName]) {
-                this.logger.log(`Required internal value '${optName}' not present on node!`, LoggerLevel.WRN)
-                this.terminalHelper.printErr(`Required internal value '${optName}' not present on node!`)
+        // check required opts
+        for (const [reqOptName, reqOptType] of Object.entries(validity.required)) {
+            if (!options[reqOptName]) {
+                this.logger.log(`Required internal value '${reqOptName}' not present on node!`, LoggerLevel.WRN)
+                this.terminalHelper.printErr(`Required internal value '${reqOptName}' not present on node!`)
                 return false
             }
 
             try {
                 //@ts-ignore
-                parsers[optType](options[optName])
+                parsers[reqOptType](options[reqOptName])
             }
             catch (ex) {
                 //@ts-ignore
                 this.logger.log(ex.message, LoggerLevel.WRN)
                 //@ts-ignore
-                this.terminalHelper.printErr(`'${optName}' -> ` + ex.message + ' Check command logic!')
+                this.terminalHelper.printErr(`'${reqOptName}' -> ` + ex.message + ' Check command logic!')
                 return false
             }
         }
 
-        // for the rest
-        for (const other of validity.other) {
-            const optName: string = other[0]
-            const optType: string = other[1]
-
-            if (!options[optName])
+        // check non requried opts
+        for (const [reqOptName, reqOptType] of Object.entries(validity.other)) {
+            if (!options[reqOptName])
                 continue
-
             try {
                 //@ts-ignore
-                parsers[optType](options[optName])
+                parsers[reqOptType](options[reqOptName])
             }
             catch (ex) {
                 //@ts-ignore
                 this.logger.log(ex.message, LoggerLevel.WRN)
                 //@ts-ignore
-                this.terminalHelper.printErr(`'${optName}' -> ` + ex.message + ' Check command logic!')
+                this.terminalHelper.printErr(`'${reqOptName}' -> ` + ex.message + ' Check command logic!')
                 return false
             }
         }
 
-        // validate anim
+        // check animations also
         if (options.animation) {
-            const validityCombined = validity.required.concat(validity.other)
-
-            // for required
-            for (const opt of validityCombined) {
-                const optName: string = opt[0]
-                const optType: string = opt[1]
-
+            for (const [optName, optType] of Object.entries(validity.animable)) {
                 if (!options.animation[optName])
                     continue
-
                 try {
                     //@ts-ignore
                     parsers[optType](options.animation[optName])
@@ -87,69 +94,56 @@ export default class InputValidator {
                 }
             }
         }
+
         return true
     }
 
     public validateConnOptions(options: AnyObjectOptions): boolean {
-        const validity = this.getValidity().conns['connection']
+        const validity = this.generalValidity.conns['standardConn']
 
-        // for required
-        for (const required of validity.required) {
-            const optName: string = required[0]
-            const optType: string = required[1]
-
-            if (!options[optName]) {
-                this.logger.log(`Required internal value '${optName}' not present on connection!`, LoggerLevel.WRN)
-                this.terminalHelper.printErr(`Required internal value '${optName}' not present on connection!`)
+        // check required opts
+        for (const [reqOptName, reqOptType] of Object.entries(validity.required)) {
+            if (!options[reqOptName]) {
+                this.logger.log(`Required internal value '${reqOptName}' not present on connection!`, LoggerLevel.WRN)
+                this.terminalHelper.printErr(`Required internal value '${reqOptName}' not present on connection!`)
                 return false
             }
 
             try {
                 //@ts-ignore
-                parsers[optType](options[optName])
+                parsers[reqOptType](options[reqOptName])
             }
             catch (ex) {
                 //@ts-ignore
                 this.logger.log(ex.message, LoggerLevel.WRN)
                 //@ts-ignore
-                this.terminalHelper.printErr(`'${optName}' -> ` + ex.message + ' Check command logic!')
+                this.terminalHelper.printErr(`'${reqOptName}' -> ` + ex.message + ' Check command logic!')
                 return false
             }
         }
 
-        // for the rest
-        for (const other of validity.other) {
-            const optName: string = other[0]
-            const optType: string = other[1]
-
-            if (!options[optName])
+        // check non requried opts
+        for (const [reqOptName, reqOptType] of Object.entries(validity.other)) {
+            if (!options[reqOptName])
                 continue
-
             try {
                 //@ts-ignore
-                parsers[optType](options[optName])
+                parsers[reqOptType](options[reqOptName])
             }
             catch (ex) {
                 //@ts-ignore
                 this.logger.log(ex.message, LoggerLevel.WRN)
                 //@ts-ignore
-                this.terminalHelper.printErr(`'${optName}' -> ` + ex.message + ' Check command logic!')
+                this.terminalHelper.printErr(`'${reqOptName}' -> ` + ex.message + ' Check command logic!')
                 return false
             }
         }
 
-        // validate anim
+        // check animations also
         if (options.animation) {
-            const validityCombined = validity.required.concat(validity.other)
-
-            // for required
-            for (const opt of validityCombined) {
-                const optName: string = opt[0]
-                const optType: string = opt[1]
-
+            for (const [optName, optType] of Object.entries(validity.animable)) {
                 if (!options.animation[optName])
                     continue
-
                 try {
                     //@ts-ignore
                     parsers[optType](options.animation[optName])
@@ -163,46 +157,45 @@ export default class InputValidator {
                 }
             }
         }
+
         return true
     }
-
-    private getValidity() {
-        type ObjectOption = [
-            ValidConnOptions | ValidCircleNodeOptions, ValidOptionsTypes]
-
-        interface allValidityObject {
-            nodes: { [key: string]: validityObject },
-            conns: { [key: string]: validityObject }
+    public getValidity(): jointValidity {
+        const validity: jointValidity = {
+            nodes: {
+                [NodeType.Circle]: {
+                    required: {
+                        position: ValidOptionsTypes.AbsNumber2,
+                    },
+                    other: {
+                        color: ValidOptionsTypes.String,
+                        indexing: ValidOptionsTypes.Boolean,
+                    },
+                    animable: {
+                        position: ValidOptionsTypes.AbsNumber2,
+                        color: ValidOptionsTypes.String,
+                        duration: ValidOptionsTypes.AbsNumber
+                    }
+                }
+                // can add validity for another node type..
+            },
+            conns: {
+                'standardConn': {
+                    required: {},
+                    other: {
+                        elevation: ValidOptionsTypes.AbsNumber,
+                        color: ValidOptionsTypes.String,
+                        text: ValidOptionsTypes.String
+                    },
+                    animable: {
+                        duration: ValidOptionsTypes.AbsNumber,
+                        elevation: ValidOptionsTypes.Number,
+                        color: ValidOptionsTypes.String,
+                    }
+                }
+            }
         }
-
-        interface validityObject {
-            required: ObjectOption[],
-            other: ObjectOption[]
-        }
-
-        const allValidityObject: allValidityObject = {
-            nodes: {},
-            conns: {}
-        }
-
-        allValidityObject.nodes[NodeType.Circle] = {
-            required: [
-                [ValidCircleNodeOptions.position, ValidOptionsTypes.AbsNumber2]],
-            other: [
-                [ValidCircleNodeOptions.color, ValidOptionsTypes.String],
-                [ValidCircleNodeOptions.duration, ValidOptionsTypes.AbsNumber],
-                [ValidCircleNodeOptions.animation, ValidOptionsTypes.Object]
-            ]
-        }
-
-        allValidityObject.conns['connection'] = {
-            required: [],
-            other: [
-                [ValidCircleNodeOptions.color, ValidOptionsTypes.String],
-                [ValidCircleNodeOptions.duration, ValidOptionsTypes.AbsNumber]
-            ]
-        }
-
-        return allValidityObject
+        return validity
     }
+
 }

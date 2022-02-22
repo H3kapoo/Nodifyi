@@ -61,6 +61,8 @@ vsep.value = Configuration.get().param('backgroundVsep').toString()
 bgGrid.checked = Configuration.get().param('backgroundGridDraw') as boolean
 bgConstraint.checked = Configuration.get().param('backgroundConstraint') as boolean
 
+bgConstraint.disabled = hsep.disabled = vsep.disabled = !bgGrid.checked
+
 width.addEventListener('focusout', () => {
     if (!width.value) {
         logger.log('No value provided for width!', LoggerLevel.WRN)
@@ -97,6 +99,9 @@ bgConstraint.addEventListener('change', () => {
     hsep.value = bgConstraint.checked ? vsep.value : hsep.value
 })
 bgGrid.addEventListener('change', () => {
+    bgConstraint.disabled = hsep.disabled = vsep.disabled = !bgGrid.checked
+})
+bgGrid.addEventListener('focus', () => {
     bgConstraint.disabled = hsep.disabled = vsep.disabled = !bgGrid.checked
 })
 /* CANVAS PREFS WINDOW END */

@@ -79,6 +79,13 @@ export function getBezierPoints(
     return { start: lineStart, control: [cpPos[0], cpPos[1]], end: lineEnd }
 }
 
+export function getBezierPointAtStep(t: number, startPos: Vec2d, controlPos: Vec2d, endPos: Vec2d): Vec2d {
+    return [
+        controlPos[0] + (1 - t) * (1 - t) * (startPos[0] - controlPos[0]) + t * t * (endPos[0] - controlPos[0]),
+        controlPos[1] + (1 - t) * (1 - t) * (startPos[1] - controlPos[1]) + t * t * (endPos[1] - controlPos[1])
+    ]
+}
+
 export function add2d(p: Vec2d, q: Vec2d): Vec2d {
     return [p[0] + q[0], p[1] + q[1]]
 }

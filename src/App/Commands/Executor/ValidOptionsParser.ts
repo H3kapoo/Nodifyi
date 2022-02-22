@@ -44,9 +44,12 @@ export const parsers = {
         if (typeof argument[0] !== 'number' || typeof argument[1] !== 'number')
             throw Error(`'${argument}' should be an array of two numbers!`)
     },
-
     Object(argument: Object) {
         if (typeof argument !== 'object')
             throw Error(`${argument} is not an object!`)
+    },
+    Boolean(argument: boolean) {
+        if (typeof argument !== 'boolean')
+            throw Error(`${argument} is not a bool!`)
     }
 }

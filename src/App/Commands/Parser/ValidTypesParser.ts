@@ -129,6 +129,14 @@ export const parsers = {
             result.push(this.Number2(splitted[i]))
         return result
     },
+    Boolean(argument: string): boolean {
+        if (argument.trim() === 'true')
+            return true
+        if (argument.trim() === 'false')
+            return false
+        throw Error(`'${argument}' -> is not a boolean!`)
+    },
+
     checkForTrailingComma(argument: string) {
         if (argument.length === 0)
             throw Error('Argument length is 0 for one of the options and that is invalid! ')

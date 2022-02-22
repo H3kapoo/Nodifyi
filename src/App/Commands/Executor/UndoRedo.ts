@@ -16,6 +16,8 @@ export default class UndoRedo implements IReloadable {
     graphHistory: GraphCombined[]
     historyOffset: number
     maxHistoryRecords: number
+    blockMemorize: boolean
+    beforeExecState: GraphCombined
 
     constructor(graphModel: GraphModel, renderer: Renderer, apiHolder: APIHolder) {
         this.graphModel = graphModel
@@ -24,6 +26,7 @@ export default class UndoRedo implements IReloadable {
         this.graphHistory = []
         this.historyOffset = 0
         this.maxHistoryRecords = 10
+        this.blockMemorize = false
         this.memorize()
         ipcRenderer.on('UNDO_ACTION', () => this.undoAction())
         ipcRenderer.on('REDO_ACTION', () => this.redoAction())
@@ -34,11 +37,26 @@ export default class UndoRedo implements IReloadable {
             this.logger.log('Max history achieved, removing from beggining', LoggerLevel.WRN)
             this.graphHistory.shift()
         }
+
+        if (this.blockMemorize) {
+            this.logger.log(`Memoization blocked by previous render interrupt`, LoggerLevel.DBG)
+            this.blockMemorize = false
+            return
+        }
+
         this.graphHistory.push(this.graphModel.getCombinedCopy())
         this.historyOffset = this.graphHistory.length - 1
+        console.log('pushed, current history=', this.historyOffset);
+        console.log(this.graphHistory.length);
+        console.log(this.graphHistory);
+    }
+
+    public memorizeBeforeExec() {
+        this.beforeExecState = this.graphModel.getCombinedCopy()
     }
 
     private undoAction() {
+
         if (this.historyOffset <= 0) {
             this.logger.log('Cannot undo anymore, offset min reached', LoggerLevel.WRN)
             return
@@ -48,11 +66,17 @@ export default class UndoRedo implements IReloadable {
         if (this.renderer.isBusyDrawing()) {
             this.logger.log('Is rendering also, so interrupt', LoggerLevel.DBG)
             this.apiHolder.setAPIBlocked(true)
+            this.blockMemorize = true
             this.renderer.interruptRender()
+            this.graphModel.setCombined(this.beforeExecState)
+            this.renderer.render(false)
+            return
         }
 
         this.historyOffset--
         this.graphModel.setCombined(this.graphHistory[this.historyOffset])
+        this.logger.log(`Undone to index ${this.historyOffset}`)
+
         this.renderer.render(false)
     }
 
@@ -63,6 +87,8 @@ export default class UndoRedo implements IReloadable {
         }
         this.historyOffset++
         this.graphModel.setCombined(this.graphHistory[this.historyOffset])
+        this.logger.log(`Undone to index ${this.historyOffset}`)
+
         this.renderer.render(false)
     }
 
@@ -72,7 +98,7 @@ export default class UndoRedo implements IReloadable {
         this.graphHistory = []
         this.historyOffset = 0
         this.maxHistoryRecords = 10
-        this.memorize()
+        // this.memorize()
         this.logger.log('Successfully hard reloaded!', LoggerLevel.DBG)
     }
 }

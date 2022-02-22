@@ -1,4 +1,4 @@
-import { GraphNodeBaseOptions, Vec2d, ConnectionPoints, ConnectionOptions, AnimationOptions } from "../types"
+import { GraphNodeBaseOptions, Vec2d, ConnectionPoints, ConnectionOptions, AnimationOptions, AnyConnectionOptions } from "../types"
 import GraphNodeBase from "./GraphNodeBase"
 import * as utils from '../Renderer/RendererUtils'
 import Animator from "../Animation/Animator"
@@ -16,7 +16,7 @@ export default class Connection {
     private fromNode: GraphNodeBase
     private toNode: GraphNodeBase
 
-    private options: ConnectionOptions
+    private options: AnyConnectionOptions
     private animator: Animator
 
     constructor(fromNode: GraphNodeBase, toNode: GraphNodeBase, options: ConnectionOptions) {
@@ -53,6 +53,18 @@ export default class Connection {
         ctx.quadraticCurveTo(connPoints.control[0], connPoints.control[1], connPoints.end[0], connPoints.end[1])
         ctx.strokeStyle = connColor
         ctx.stroke()
+
+        if (this.options.text) {
+            ctx.strokeStyle = "black"
+            ctx.font = '2em Courier New'
+            ctx.fillStyle = "#00000066"
+            ctx.textAlign = "center"
+            ctx.textBaseline = "middle"
+            ctx.lineWidth = 2 // hardcoded
+            const pnt: Vec2d = utils.getBezierPointAtStep(0.5, connPoints.start, connPoints.control, connPoints.end)
+            ctx.fillText(this.options.text, pnt[0], pnt[1])
+            ctx.strokeText(this.options.text, pnt[0], pnt[1])
+        }
     }
 
     public getUniqueId() { return this.uniqueId }

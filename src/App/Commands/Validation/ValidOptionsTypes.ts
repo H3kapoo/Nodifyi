@@ -5,5 +5,6 @@ export enum ValidOptionsTypes {
     Number = 'Number',
     Number2 = 'Number2',
     Object = 'Object',
-    NotRequired = 'NotRequired'
+    NotRequired = 'NotRequired',
+    Boolean = 'Boolean'
 }

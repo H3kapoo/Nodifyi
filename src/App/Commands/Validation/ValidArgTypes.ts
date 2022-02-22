@@ -14,5 +14,6 @@ export enum ValidArgTypes {
     Numberv = 'Numberv',
     Numbervs = 'Numbervs',
     Number2vs = 'Number2vs',
-    NotRequired = 'NotRequired'
+    NotRequired = 'NotRequired',
+    Boolean = 'Boolean'
 }

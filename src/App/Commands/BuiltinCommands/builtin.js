@@ -5,13 +5,20 @@ module.exports = {
             "name": 'cn',
             "mandatory": ["pos"],
             "pos": "AbsNumber2vs",
+            "index": "Boolean"
         },
         async logic(parsedData, api) {
             for (const pos of parsedData.pos)
                 api.createNodeSync({
-                    position: [300, 400]
+                    position: pos,
+                    indexing: parsedData.index ?? false,
                 })
             api.doOutput('Created nodes!')
+            // api.doOutput(`-- 'cn' Help Page --`)
+            // api.doOutput(`- Purpose: To create nodes`)
+            // api.doOutput(`- Options Available: `)
+            // api.doOutput(`- pos:AbsNumber2vs -> group of positions`)
+            // api.doOutput(`- index:Boolean -> show indexing above node `)
         }
     },
     "un":
@@ -27,7 +34,6 @@ module.exports = {
                 if (index < parsedData.pos.length)
                     api.updateNodeSync(id, { position: parsedData.pos[index] })
             api.doOutput('Updated nodes!')
-
         }
     },
     "dn":
@@ -48,11 +54,16 @@ module.exports = {
         "schema": {
             "name": 'cc',
             "mandatory": ["id"],
+            "text": "String",
+            "elev": "Number",
             "id": "AbsNumber2vs",
         },
         async logic(parsedData, api) {
             for (const id of parsedData.id)
-                api.createConnectionSync(id[0], id[1], {})
+                api.createConnectionSync(id[0], id[1], {
+                    text: parsedData.text ?? '',
+                    // elevation: parsedData.elevation ?? 0
+                })
             api.doOutput('Created connections!')
         }
     },
@@ -114,11 +125,11 @@ module.exports = {
 
             //TO FIX: trying to create conns on startPos === endPos
             for (let i = 0; i < ids.length - 1; i++) {
-                api.createConnection(ids[i], ids[i + 1], {
+                await api.createConnection(ids[i], ids[i + 1], {
                     elevation: 0,
                     animation: {
                         elevation: ids[i] % 2 ? 50 : -50,
-                        duration: 200
+                        duration: 400
                     }
                 })
             }
@@ -176,12 +187,12 @@ module.exports = {
             const pts = radialPoints(parsedData.pos, parsedData.radius || 300, 20)
             const nodeIds = []
             for (const pt of pts) {
-                const id = api.createNodeSync({
+                const id = await api.createNode({
                     position: pt,
                     color: '#00000000',
                     animation: {
                         color: '#000000ff',
-                        duration: -3
+                        duration: 200
                     }
                 })
                 nodeIds.push(id)
@@ -192,13 +203,13 @@ module.exports = {
             for (let i = 0; i < nodeIds.length; i += skip) {
                 for (let j = i; j < nodeIds.length; j += skip) {
                     if (i != j) {
-                        api.createConnectionSync(nodeIds[i], nodeIds[j], {
+                        await api.createConnection(nodeIds[i], nodeIds[j], {
                             elevation: 200,
-                            color: '#00000000',
+                            color: '#000000ff',
                             animation: {
                                 elevation: 0,
-                                color: '#000000ff',
-                                duration: 5000
+                                // color: '#000000ff',
+                                duration: 200
                             }
                         })
                     }

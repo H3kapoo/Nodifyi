@@ -134,7 +134,7 @@ export default class GraphModel implements IReloadable {
         return true
     }
 
-    /* Maybe deprecate this two functions in Renderer.ts*/
+    /* Maybe deprecate this two functions in Renderer.ts and use get combined*/
     public getModel() { return this.model }
 
     public getConnections() { return this.connections }
@@ -157,8 +157,8 @@ export default class GraphModel implements IReloadable {
     }
 
     public setCombined(combined: GraphCombined) {
-        this.model = combined.nodes
-        this.connections = combined.conns
+        this.model = { ...combined.nodes }
+        this.connections = { ...combined.conns }
     }
 
     public getJson(): Object {
