@@ -41,7 +41,7 @@ export default class Executor implements IParserListener, IReloadable {
 
         for (const parsedInput of parsedInputs) {
             try {
-                this.undoRedo.memorizeBeforeExec() // what if me memo first?
+                this.undoRedo.memorizeBeforeExec()
                 if (!this.renderer.isBusyDrawing()) {
                     this.setProjectDirty()
                     await this.commands[parsedInput.commandName]
@@ -51,7 +51,7 @@ export default class Executor implements IParserListener, IReloadable {
                     this.logger.log('Canvas is busy drawing right now!', LoggerLevel.WRN)
                     this.terminalHelper.printErr(`Can't execute command right now! Canvas is busy drawing!`)
                 }
-                this.undoRedo.memorize() // and after?
+                this.undoRedo.memorize()
             }
             //TODO: Catch syntax errors here from the user side and process them
             catch (err) {

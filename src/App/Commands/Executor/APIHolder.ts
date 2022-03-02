@@ -62,16 +62,16 @@ export default class APIHolder {
     }
 
     private async updateNode(id: GraphNodeId, options: AnyGraphNodeOptions): Promise<void> {
+        if (!this.inputValidator.validateNodeOptions(options, NodeType.Circle, false)) {
+            this.apiBlocked = true
+            return
+        }
+
         const node = this.graphModel.findNode(id)
 
         if (!node) {
             this.outputHelper.setBlockStdOutput()
             return null
-        }
-
-        if (!this.inputValidator.validateNodeOptions(options, NodeType.Circle)) {
-            this.apiBlocked = true
-            return
         }
 
         node.updateOptions(options)
@@ -81,16 +81,16 @@ export default class APIHolder {
     }
 
     private updateNodeSync(id: GraphNodeId, options: AnyGraphNodeOptions): void {
+        if (!this.inputValidator.validateNodeOptions(options, NodeType.Circle, false)) {
+            this.apiBlocked = true
+            return
+        }
+
         const node = this.graphModel.findNode(id)
 
         if (!node) {
             this.outputHelper.setBlockStdOutput()
             return null
-        }
-
-        if (!this.inputValidator.validateNodeOptions(options, NodeType.Circle)) {
-            this.apiBlocked = true
-            return
         }
 
         node.updateOptions(options)
@@ -111,14 +111,14 @@ export default class APIHolder {
     private async createConnection(
         fromId: GraphNodeId, toId: GraphNodeId, options: AnyConnectionOptions): Promise<void> {
 
-        const conn = this.graphModel.addConnection(fromId, toId, options)
-        if (!conn) {
-            this.outputHelper.setBlockStdOutput()
+        if (!this.inputValidator.validateConnOptions(options)) {
+            this.apiBlocked = true
             return
         }
 
-        if (!this.inputValidator.validateConnOptions(options)) {
-            this.apiBlocked = true
+        const conn = this.graphModel.addConnection(fromId, toId, options)
+        if (!conn) {
+            this.outputHelper.setBlockStdOutput()
             return
         }
 
@@ -128,14 +128,14 @@ export default class APIHolder {
     }
 
     private createConnectionSync(fromId: GraphNodeId, toId: GraphNodeId, options: AnyConnectionOptions) {
-        const conn = this.graphModel.addConnection(fromId, toId, options)
-        if (!conn) {
-            this.outputHelper.setBlockStdOutput()
+        if (!this.inputValidator.validateConnOptions(options)) {
+            this.apiBlocked = true
             return
         }
 
-        if (!this.inputValidator.validateConnOptions(options)) {
-            this.apiBlocked = true
+        const conn = this.graphModel.addConnection(fromId, toId, options)
+        if (!conn) {
+            this.outputHelper.setBlockStdOutput()
             return
         }
 
@@ -147,15 +147,15 @@ export default class APIHolder {
     private async updateConnection(
         fromId: GraphNodeId, toId: GraphNodeId, options: AnyConnectionOptions): Promise<void> {
 
+        if (!this.inputValidator.validateConnOptions(options, false)) {
+            this.apiBlocked = true
+            return
+        }
+
         const conn = this.graphModel.findConnection(fromId, toId)
         if (!conn) {
             this.outputHelper.setBlockStdOutput()
             return null
-        }
-
-        if (!this.inputValidator.validateConnOptions(options)) {
-            this.apiBlocked = true
-            return
         }
 
         if (options.animation)
@@ -167,15 +167,15 @@ export default class APIHolder {
     private updateConnectionSync(
         fromId: GraphNodeId, toId: GraphNodeId, options: AnyConnectionOptions): void {
 
+        if (!this.inputValidator.validateConnOptions(options, false)) {
+            this.apiBlocked = true
+            return
+        }
+
         const conn = this.graphModel.findConnection(fromId, toId)
         if (!conn) {
             this.outputHelper.setBlockStdOutput()
             return null
-        }
-
-        if (!this.inputValidator.validateConnOptions(options)) {
-            this.apiBlocked = true
-            return
         }
 
         if (options.animation)

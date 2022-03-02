@@ -6,7 +6,8 @@ import Animator from "../Animation/Animator"
 
 enum ConnectionDefaults {
     COLOR = '#000000ff',
-    ELEVATION = 100
+    ELEVATION = 100,
+    TEXT_ELEVATION = 30
 }
 
 export default class Connection {
@@ -39,9 +40,6 @@ export default class Connection {
         const nodeEndRadius: number = toNodeOpts.radius
 
         const connColor: string = this.options.color || ConnectionDefaults.COLOR
-        //TODO: When start=end pos, it breaks
-        //TODO: Remove hack .001
-        //POTENTIAL FIX: In validation if elev===0 => elev = .001
         const connElevation: number = this.options.elevation + (.001) || ConnectionDefaults.ELEVATION
 
         const connPoints: ConnectionPoints =
@@ -54,17 +52,50 @@ export default class Connection {
         ctx.strokeStyle = connColor
         ctx.stroke()
 
-        if (this.options.text) {
-            ctx.strokeStyle = "black"
-            ctx.font = '2em Courier New'
-            ctx.fillStyle = "#00000066"
-            ctx.textAlign = "center"
-            ctx.textBaseline = "middle"
-            ctx.lineWidth = 2 // hardcoded
-            const pnt: Vec2d = utils.getBezierPointAtStep(0.5, connPoints.start, connPoints.control, connPoints.end)
-            ctx.fillText(this.options.text, pnt[0], pnt[1])
-            ctx.strokeText(this.options.text, pnt[0], pnt[1])
+        if (this.options.directed) {
+            const arrowPnts = utils.getArrowPoints(connPoints.end, connPoints.control)
+            ctx.beginPath()
+            ctx.fillStyle = connColor
+            ctx.moveTo(arrowPnts.start[0], arrowPnts.start[1])
+            ctx.lineTo(arrowPnts.control[0], arrowPnts.control[1])
+            ctx.lineTo(arrowPnts.end[0], arrowPnts.end[1])
+            ctx.fill()
         }
+
+        if (this.options.text)
+            this.handleTextRendering(ctx, connPoints)
+    }
+
+    public handleTextRendering(ctx: CanvasRenderingContext2D, bezierPoints: ConnectionPoints) {
+        const textColor: string = this.options.textColor || ConnectionDefaults.COLOR
+        const textElevation: number = this.options.textElevation + (.001) || ConnectionDefaults.TEXT_ELEVATION
+
+        ctx.strokeStyle = textColor
+        ctx.font = '1em Courier New'
+        ctx.textAlign = "center"
+        ctx.textBaseline = "middle"
+        ctx.lineWidth = 0.5 // hardcoded
+        const pnt: Vec2d =
+            utils.getBezierPointsText(bezierPoints.start, bezierPoints.control, bezierPoints.end, textElevation)
+
+        // cn pos 400,500 && cn pos 600,700 && cc id 2,1 text ceva
+        // shall text follow nodes angle or not;  fixed = yes
+        if (!this.options.fixedTextRotation) {
+            ctx.strokeText(this.options.text, pnt[0], pnt[1])
+            return
+        }
+
+        let angleRads = utils.getAngleBetweenVectorsRads(bezierPoints.start, bezierPoints.end)
+
+        // if goes under -90 , clamp it to 0 deg
+        if (angleRads * 180 / Math.PI <= -90)
+            angleRads = 0
+
+        ctx.save()
+        ctx.translate(pnt[0], pnt[1])
+        ctx.rotate(angleRads)
+        ctx.strokeText(this.options.text, 0, 0)
+        ctx.restore()
     }
 
     public getUniqueId() { return this.uniqueId }

@@ -5,20 +5,20 @@ module.exports = {
             "name": 'cn',
             "mandatory": ["pos"],
             "pos": "AbsNumber2vs",
-            "index": "Boolean"
+            "index": "Boolean",
+            "rad": "AbsNumber",
+            "sc": "Boolean",
+            "st": "Stringv",
+            "symb": "String"
         },
         async logic(parsedData, api) {
             for (const pos of parsedData.pos)
                 api.createNodeSync({
                     position: pos,
-                    indexing: parsedData.index ?? false,
+                    indexing: true,
+                    text: parsedData.symb ?? ''
                 })
             api.doOutput('Created nodes!')
-            // api.doOutput(`-- 'cn' Help Page --`)
-            // api.doOutput(`- Purpose: To create nodes`)
-            // api.doOutput(`- Options Available: `)
-            // api.doOutput(`- pos:AbsNumber2vs -> group of positions`)
-            // api.doOutput(`- index:Boolean -> show indexing above node `)
         }
     },
     "un":
@@ -27,12 +27,14 @@ module.exports = {
             "name": 'un',
             "mandatory": ["id", "pos"],
             "id": "AbsNumberv",
+            "ang": "Numberv",
             "pos": "AbsNumber2vs"
         },
         async logic(parsedData, api) {
             for (const [index, id] of parsedData.id.entries())
-                if (index < parsedData.pos.length)
+                if (index < parsedData.pos.length) {
                     api.updateNodeSync(id, { position: parsedData.pos[index] })
+                }
             api.doOutput('Updated nodes!')
         }
     },
@@ -54,15 +56,18 @@ module.exports = {
         "schema": {
             "name": 'cc',
             "mandatory": ["id"],
-            "text": "String",
+            "text": "Stringv",
             "elev": "Number",
             "id": "AbsNumber2vs",
         },
         async logic(parsedData, api) {
             for (const id of parsedData.id)
                 api.createConnectionSync(id[0], id[1], {
-                    text: parsedData.text ?? '',
-                    // elevation: parsedData.elevation ?? 0
+                    text: parsedData.text ? parsedData.text.join(',') : '',
+                    fixedTextRotation: false,
+                    elevation: 200,
+                    textColor: '#000000',
+                    directed: false,
                 })
             api.doOutput('Created connections!')
         }
@@ -117,7 +122,7 @@ module.exports = {
                     color: '#00000000',
                     animation: {
                         color: '#000000ff',
-                        duration: 100
+                        duration: 500
                     }
                 })
                 ids.push(id)
@@ -189,11 +194,7 @@ module.exports = {
             for (const pt of pts) {
                 const id = await api.createNode({
                     position: pt,
-                    color: '#00000000',
-                    animation: {
-                        color: '#000000ff',
-                        duration: 200
-                    }
+                    color: '#000000ff',
                 })
                 nodeIds.push(id)
             }
@@ -203,13 +204,13 @@ module.exports = {
             for (let i = 0; i < nodeIds.length; i += skip) {
                 for (let j = i; j < nodeIds.length; j += skip) {
                     if (i != j) {
-                        await api.createConnection(nodeIds[i], nodeIds[j], {
+                        api.createConnection(nodeIds[i], nodeIds[j], {
                             elevation: 200,
                             color: '#000000ff',
                             animation: {
                                 elevation: 0,
-                                // color: '#000000ff',
-                                duration: 200
+                                easing: 'easeOutElastic',
+                                duration: 2000
                             }
                         })
                     }

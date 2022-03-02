@@ -170,7 +170,7 @@ export default class GraphModel implements IReloadable {
         for (const [id, node] of Object.entries(this.model)) {
             modelToSave.nodes[node.graphNode.getUniqueId()] = {
                 type: node.graphNode.getType(),
-                options: this.exceptAnimations(node.graphNode.getOptions()),
+                options: { ...this.exceptAnimations(node.graphNode.getOptions()) },
                 inIds: Array.from(node.inIds),
                 outIds: Array.from(node.outIds),
             }

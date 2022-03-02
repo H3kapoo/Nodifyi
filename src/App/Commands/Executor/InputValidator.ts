@@ -35,30 +35,34 @@ export default class InputValidator {
         this.generalValidity = this.getValidity()
     }
 
-    public validateNodeOptions(options: AnyObjectOptions, nodeType: NodeType = NodeType.Circle): boolean {
+    public validateNodeOptions(options: AnyObjectOptions, nodeType: NodeType, isCreating: boolean = true): boolean {
         const validity = this.generalValidity.nodes[nodeType]
 
-        // check required opts
-        for (const [reqOptName, reqOptType] of Object.entries(validity.required)) {
-            if (!options[reqOptName]) {
-                this.logger.log(`Required internal value '${reqOptName}' not present on node!`, LoggerLevel.WRN)
-                this.terminalHelper.printErr(`Required internal value '${reqOptName}' not present on node!`)
-                return false
-            }
+        //TODO: this should be reversed, check options not all options that exist!!!
 
-            try {
-                //@ts-ignore
-                parsers[reqOptType](options[reqOptName])
-            }
-            catch (ex) {
-                //@ts-ignore
-                this.logger.log(ex.message, LoggerLevel.WRN)
-                //@ts-ignore
-                this.terminalHelper.printErr(`'${reqOptName}' -> ` + ex.message + ' Check command logic!')
-                return false
+        // check required opts
+        // we shall check this options only at creation
+        if (isCreating) {
+            for (const [reqOptName, reqOptType] of Object.entries(validity.required)) {
+                if (!options[reqOptName]) {
+                    this.logger.log(`Required internal value '${reqOptName}' not present on node!`, LoggerLevel.WRN)
+                    this.terminalHelper.printErr(`Required internal value '${reqOptName}' not present on node!`)
+                    return false
+                }
+
+                try {
+                    //@ts-ignore
+                    parsers[reqOptType](options[reqOptName])
+                }
+                catch (ex) {
+                    //@ts-ignore
+                    this.logger.log(ex.message, LoggerLevel.WRN)
+                    //@ts-ignore
+                    this.terminalHelper.printErr(`'${reqOptName}' -> ` + ex.message + ' Check command logic!')
+                    return false
+                }
             }
         }
-
         // check non requried opts
         for (const [reqOptName, reqOptType] of Object.entries(validity.other)) {
             if (!options[reqOptName])
@@ -94,34 +98,34 @@ export default class InputValidator {
                 }
             }
         }
-
         return true
     }
 
-    public validateConnOptions(options: AnyObjectOptions): boolean {
+    public validateConnOptions(options: AnyObjectOptions, isCreating: boolean = true): boolean {
         const validity = this.generalValidity.conns['standardConn']
 
         // check required opts
-        for (const [reqOptName, reqOptType] of Object.entries(validity.required)) {
-            if (!options[reqOptName]) {
-                this.logger.log(`Required internal value '${reqOptName}' not present on connection!`, LoggerLevel.WRN)
-                this.terminalHelper.printErr(`Required internal value '${reqOptName}' not present on connection!`)
-                return false
-            }
+        if (isCreating) {
+            for (const [reqOptName, reqOptType] of Object.entries(validity.required)) {
+                if (!options[reqOptName]) {
+                    this.logger.log(`Required internal value '${reqOptName}' not present on connection!`, LoggerLevel.WRN)
+                    this.terminalHelper.printErr(`Required internal value '${reqOptName}' not present on connection!`)
+                    return false
+                }
 
-            try {
-                //@ts-ignore
-                parsers[reqOptType](options[reqOptName])
-            }
-            catch (ex) {
-                //@ts-ignore
-                this.logger.log(ex.message, LoggerLevel.WRN)
-                //@ts-ignore
-                this.terminalHelper.printErr(`'${reqOptName}' -> ` + ex.message + ' Check command logic!')
-                return false
+                try {
+                    //@ts-ignore
+                    parsers[reqOptType](options[reqOptName])
+                }
+                catch (ex) {
+                    //@ts-ignore
+                    this.logger.log(ex.message, LoggerLevel.WRN)
+                    //@ts-ignore
+                    this.terminalHelper.printErr(`'${reqOptName}' -> ` + ex.message + ' Check command logic!')
+                    return false
+                }
             }
         }
-
         // check non requried opts
         for (const [reqOptName, reqOptType] of Object.entries(validity.other)) {
             if (!options[reqOptName])
@@ -160,6 +164,8 @@ export default class InputValidator {
 
         return true
     }
+
+    // Valid opts for nodes/conns are defined here!
     public getValidity(): jointValidity {
         const validity: jointValidity = {
             nodes: {
@@ -168,13 +174,23 @@ export default class InputValidator {
                         position: ValidOptionsTypes.AbsNumber2,
                     },
                     other: {
-                        color: ValidOptionsTypes.String,
+                        color: ValidOptionsTypes.Color,
                         indexing: ValidOptionsTypes.Boolean,
+                        text: ValidOptionsTypes.String,
+                        selfConnect: ValidOptionsTypes.Boolean,
+                        selfArrow: ValidOptionsTypes.Boolean,
+                        selfText: ValidOptionsTypes.String,
+                        selfAngle: ValidOptionsTypes.Number,
+                        selfElevation: ValidOptionsTypes.AbsNumber,
+                        selfApertureAngle: ValidOptionsTypes.Number,
+                        selfTextElevation: ValidOptionsTypes.Number,
+                        selfFixedTextRotation: ValidOptionsTypes.Boolean
                     },
                     animable: {
                         position: ValidOptionsTypes.AbsNumber2,
-                        color: ValidOptionsTypes.String,
-                        duration: ValidOptionsTypes.AbsNumber
+                        color: ValidOptionsTypes.Color,
+                        duration: ValidOptionsTypes.AbsNumber,
+                        easing: ValidOptionsTypes.Easing
                     }
                 }
                 // can add validity for another node type..
@@ -184,18 +200,22 @@ export default class InputValidator {
                     required: {},
                     other: {
                         elevation: ValidOptionsTypes.AbsNumber,
-                        color: ValidOptionsTypes.String,
-                        text: ValidOptionsTypes.String
+                        color: ValidOptionsTypes.Color,
+                        directed: ValidOptionsTypes.Boolean,
+                        text: ValidOptionsTypes.String,
+                        fixedTextRotation: ValidOptionsTypes.Boolean,
+                        textColor: ValidOptionsTypes.ColorNoAlpha,
+                        textElevation: ValidOptionsTypes.Number
                     },
                     animable: {
                         duration: ValidOptionsTypes.AbsNumber,
                         elevation: ValidOptionsTypes.Number,
-                        color: ValidOptionsTypes.String,
+                        color: ValidOptionsTypes.Color,
+                        easing: ValidOptionsTypes.Easing
                     }
                 }
             }
         }
         return validity
     }
-
 }

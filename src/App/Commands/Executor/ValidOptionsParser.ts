@@ -1,3 +1,5 @@
+import { Easers } from "../../Animation/Transitioners"
+
 export const parsers = {
     /* example: a */
     String(argument: string) {
@@ -51,5 +53,41 @@ export const parsers = {
     Boolean(argument: boolean) {
         if (typeof argument !== 'boolean')
             throw Error(`${argument} is not a bool!`)
-    }
+    },
+    /* example: #abcfffaa */
+    Color(argument: string) {
+        if (typeof argument !== 'string')
+            throw Error(`'${argument}' must be hexadecimal!`)
+
+        if (argument[0] !== '#')
+            throw Error(`'${argument}' must start with a '#'!`)
+        if (argument.length !== 9)
+            throw Error(`'${argument}' after # sign must be of length 8!`)
+
+        if (!(/#[0-9A-Fa-f]{8}/g.test(argument)))
+            throw Error(`'${argument}' must be hexadecimal!`)
+    },
+    /* example: #abcfff */
+    ColorNoAlpha(argument: string) {
+        if (typeof argument !== 'string')
+            throw Error(`'${argument}' must be hexadecimal!`)
+
+        if (argument[0] !== '#')
+            throw Error(`'${argument}' must start with a '#'!`)
+        if (argument.length !== 7)
+            throw Error(`'${argument}' after # sign must be of length 6!`)
+
+        if (!(/#[0-9A-Fa-f]{6}/g.test(argument)))
+            throw Error(`'${argument}' must be hexadecimal!`)
+    },
+    /* example: #EaseIn EaseOut etc */
+    Easing(argument: string) {
+        if (typeof argument !== 'string')
+            throw Error(`'${argument}' must be a string!`)
+        argument = argument.trim()
+
+        //@ts-ignore
+        if (!Object.values(Easers).includes(argument))
+            throw Error(`'${argument}' is not a valid easing function name!`)
+    },
 }

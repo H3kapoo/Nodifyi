@@ -2,7 +2,6 @@ import { Logger, LoggerLevel } from "../../../Logger/Logger";
 import IReloadable from "../../Configuration/IReloadable";
 import GraphModel from "../../GraphModel/GraphModel";
 import Renderer from "../../Renderer/Renderer";
-import { GraphCombined } from "../../types";
 import APIHolder from "./APIHolder";
 const { ipcRenderer } = require('electron')
 
@@ -13,11 +12,11 @@ export default class UndoRedo implements IReloadable {
     graphModel: GraphModel
     renderer: Renderer
     apiHolder: APIHolder
-    graphHistory: GraphCombined[]
+    graphHistory: Object[]
     historyOffset: number
     maxHistoryRecords: number
     blockMemorize: boolean
-    beforeExecState: GraphCombined
+    beforeExecState: Object
 
     constructor(graphModel: GraphModel, renderer: Renderer, apiHolder: APIHolder) {
         this.graphModel = graphModel
@@ -44,11 +43,8 @@ export default class UndoRedo implements IReloadable {
             return
         }
 
-        this.graphHistory.push(this.graphModel.getCombinedCopy())
+        this.graphHistory.push(this.graphModel.getJson())
         this.historyOffset = this.graphHistory.length - 1
-        console.log('pushed, current history=', this.historyOffset);
-        console.log(this.graphHistory.length);
-        console.log(this.graphHistory);
     }
 
     public memorizeBeforeExec() {
@@ -56,28 +52,25 @@ export default class UndoRedo implements IReloadable {
     }
 
     private undoAction() {
-
-        if (this.historyOffset <= 0) {
-            this.logger.log('Cannot undo anymore, offset min reached', LoggerLevel.WRN)
-            return
-        }
-
         // handle case if renderer is animating while trying to undo
         if (this.renderer.isBusyDrawing()) {
             this.logger.log('Is rendering also, so interrupt', LoggerLevel.DBG)
             this.apiHolder.setAPIBlocked(true)
             this.blockMemorize = true
             this.renderer.interruptRender()
-            this.graphModel.setCombined(this.beforeExecState)
+            this.graphModel.loadJson(this.beforeExecState)
             this.renderer.render(false)
+            return
+        }
+        if (this.historyOffset <= 0) {
+            this.logger.log('Cannot undo anymore, offset min reached', LoggerLevel.WRN)
             return
         }
 
         this.historyOffset--
-        this.graphModel.setCombined(this.graphHistory[this.historyOffset])
-        this.logger.log(`Undone to index ${this.historyOffset}`)
-
+        this.graphModel.loadJson(this.graphHistory[this.historyOffset])
         this.renderer.render(false)
+        this.logger.log(`Undone to index ${this.historyOffset}`)
     }
 
     private redoAction() {
@@ -86,10 +79,9 @@ export default class UndoRedo implements IReloadable {
             return
         }
         this.historyOffset++
-        this.graphModel.setCombined(this.graphHistory[this.historyOffset])
-        this.logger.log(`Undone to index ${this.historyOffset}`)
-
+        this.graphModel.loadJson(this.graphHistory[this.historyOffset])
         this.renderer.render(false)
+        this.logger.log(`Redone to index ${this.historyOffset}`)
     }
 
     public onConfReload() { }
@@ -98,7 +90,6 @@ export default class UndoRedo implements IReloadable {
         this.graphHistory = []
         this.historyOffset = 0
         this.maxHistoryRecords = 10
-        // this.memorize()
         this.logger.log('Successfully hard reloaded!', LoggerLevel.DBG)
     }
 }

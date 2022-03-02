@@ -1,11 +1,13 @@
 import { Color, Vec2d } from "../types";
 
+// Defines options that can be animated
 export enum Transitioners {
     position = 'position',
     color = 'color',
     elevation = 'elevation'
 }
 
+// Defines functions of easing
 export enum Easers {
     linear = 'linear',
     easeIn = 'easeIn',

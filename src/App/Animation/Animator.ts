@@ -9,12 +9,14 @@ export default class Animator {
     private returnableOptions: AnyObjectOptions
     private currentDuration: number
     private totalDuration: number
+    private easingFunc: Easers
     private t: number
 
     constructor(initialOptions: AnyObjectOptions, animationOptions: AnimationOptions) {
         this.animationOptions = animationOptions
         this.initialOptions = { ...initialOptions }
         this.returnableOptions = { ...initialOptions }
+        this.easingFunc = animationOptions.easing || Easers.linear
         this.totalDuration = this.animationOptions.duration
         this.animationDone = false
         this.currentDuration = 0
@@ -24,8 +26,9 @@ export default class Animator {
         if (!this.totalDuration || this.totalDuration < 0)
             this.totalDuration = 0.01
 
-        /* Delete anim conf option, cant be transitioned */
+        /* Delete anim conf option, can't be transitioned */
         delete this.animationOptions.duration
+        delete this.animationOptions.easing
     }
 
     public update(delta: number) {
@@ -48,7 +51,7 @@ export default class Animator {
             const startVal = this.initialOptions[animOpt]
             const endVal = this.animationOptions[animOpt]
             this.returnableOptions[animOpt] =
-                transitioners[animOpt as Transitioners](startVal, endVal, this.t, Easers.easeIn)
+                transitioners[animOpt as Transitioners](startVal, endVal, this.t, this.easingFunc)
         }
         return this.returnableOptions
     }

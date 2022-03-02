@@ -2,35 +2,37 @@
 
 import { ConnectionPoints, Vec2d, Vec3d } from "../types"
 
-/* TO BE UNCOVERED */
-// export function getArrowPoints(lineEndPos, cpPos, elevation = 15) {
-//     //calc direction of arrow
-//     let dirToEnd = sub(lineEndPos, cpPos)
+export function getArrowPoints(lineEndPos: Vec2d, cpPos: Vec2d, elevation: number = 15): ConnectionPoints {
+    //calc direction of arrow
+    let dirToEnd = subtract2d(lineEndPos, cpPos)
 
-//     //calc elevation point
-//     let angleDirToEnd = angleFromVec(dirToEnd)
+    //calc elevation point
+    let angleDirToEnd = angleFromVec(dirToEnd)
 
-//     let ePos = [0, 0]
-//     ePos[0] = Math.cos(angleDirToEnd - Math.PI) * elevation + lineEndPos[0]
-//     ePos[1] = Math.sin(angleDirToEnd - Math.PI) * elevation + lineEndPos[1]
+    let ePos: Vec2d = [0, 0]
+    ePos[0] = Math.cos(angleDirToEnd - Math.PI) * elevation + lineEndPos[0]
+    ePos[1] = Math.sin(angleDirToEnd - Math.PI) * elevation + lineEndPos[1]
 
-//     //calc triangle base elev px away from line
-//     let dirToEnd01 = norm(dirToEnd)
-//     let forwardVec = [0, 0, 1]
-//     let backwardVec = [0, 0, -1]
+    //calc triangle base elev px away from line
+    let dirToEnd01 = normalize(dirToEnd)
+    let forwardVec: Vec3d = [0, 0, 1]
+    let backwardVec: Vec3d = [0, 0, -1]
 
-//     let dir3dToEndPos = [dirToEnd01[0], dirToEnd01[1], 0]
-//     let p2 = cross(dir3dToEndPos, forwardVec)
-//     p2 = scalarMult3d(p2, elevation)
-//     p2 = add2d(p2, ePos)
+    let dir3dToEndPos: Vec3d = [dirToEnd01[0], dirToEnd01[1], 0]
+    let p2: Vec3d = crossProduct(dir3dToEndPos, forwardVec)
+    p2 = scalarMult3d(p2, elevation)
+    let p22: Vec2d = [p2[0], p2[1]]
+    p22 = add2d(p22, ePos)
 
-//     let p3 = cross(dir3dToEndPos, backwardVec)
-//     p3 = scalarMult3d(p3, elevation)
-//     p3 = add2d(p3, ePos)
+    let p3 = crossProduct(dir3dToEndPos, backwardVec)
+    p3 = scalarMult3d(p3, elevation)
+    let p32: Vec2d = [p3[0], p3[1]]
+    p32 = add2d(p32, ePos)
 
-//     return { 'p1': lineEndPos, p2, p3 }
-// }
+    return { start: lineEndPos, control: p22, end: p32 }
+}
 
+// quadratic
 export function getBezierPoints(
     connStartPos: Vec2d, connEndPos: Vec2d,
     nodeStartRadius: number, nodeEndRadius: number, connElevation: number): ConnectionPoints {
@@ -43,7 +45,7 @@ export function getBezierPoints(
     /* Calculate middle point */
     const middlePos: Vec2d = getMiddlePoint(connStartPos, connEndPos)
 
-    /* Calculate _|_ vector and control poibt */
+    /* Calculate _|_ vector and control point */
     const vecToDestPos: Vec2d = subtract2d(connEndPos, connStartPos)
     const vecToDestPos01: Vec2d = normalize(vecToDestPos)
     const forwardVec: Vec3d = [0, 0, 1]
@@ -79,11 +81,58 @@ export function getBezierPoints(
     return { start: lineStart, control: [cpPos[0], cpPos[1]], end: lineEnd }
 }
 
+export function getBezierPointsText(connStartPos: Vec2d, controlPoint: Vec2d, connEndPos: Vec2d,
+    connElevation: number): Vec2d {
+
+    /* If start and end is the same, it should not be handled */
+    if (JSON.stringify(connStartPos) == JSON.stringify(connEndPos)) {
+        return [0, 0]
+    }
+
+    /* Calculate middle point */
+    const middlePos: Vec2d = getBezierPointAtStep(0.5, connStartPos, controlPoint, connEndPos)
+
+    const dirToControl: Vec2d = normalize(subtract2d(controlPoint, middlePos))
+    const newPos = add2d(scalarMult2d(dirToControl, connElevation), middlePos)
+
+    return newPos
+}
+
+export function getBezierCubicPointText(center: Vec2d,
+    startPos: Vec2d, controlPos1: Vec2d, controlPos2: Vec2d, endPos: Vec2d, elevation: number) {
+    const pntOnCurve: Vec2d = getBezierPointAtStepCubic(0.5, startPos, controlPos1, controlPos2, endPos)
+    const dir: Vec2d = normalize(subtract2d(pntOnCurve, center))
+    return add2d(scalarMult2d(dir, elevation), pntOnCurve)
+}
+
+export function getBezierPointAtStepCubic(
+    t: number, startPos: Vec2d, controlPos1: Vec2d, controlPos2: Vec2d, endPos: Vec2d): Vec2d {
+    const oneMinusT = 1 - t
+    const oneMinusTT = oneMinusT * oneMinusT
+    const oneMinusTTT = oneMinusT * oneMinusTT
+    return [
+        oneMinusTTT * startPos[0] + 3 * oneMinusTT * t * controlPos1[0] + 3 * oneMinusT * t * t * controlPos2[0] + t * t * t * endPos[0],
+        oneMinusTTT * startPos[1] + 3 * oneMinusTT * t * controlPos1[1] + 3 * oneMinusT * t * t * controlPos2[1] + t * t * t * endPos[1]
+    ]
+}
+
+// quadratic
 export function getBezierPointAtStep(t: number, startPos: Vec2d, controlPos: Vec2d, endPos: Vec2d): Vec2d {
     return [
         controlPos[0] + (1 - t) * (1 - t) * (startPos[0] - controlPos[0]) + t * t * (endPos[0] - controlPos[0]),
         controlPos[1] + (1 - t) * (1 - t) * (startPos[1] - controlPos[1]) + t * t * (endPos[1] - controlPos[1])
     ]
+}
+
+export function getAngleBetweenVectorsRads(vec1: Vec2d, vec2: Vec2d): number {
+    return angleFromVec(subtract2d(vec2, vec1))
+}
+
+export function degToRad(degrees: number) {
+    return degrees * (Math.PI / 180);
+}
+export function radToDeg(rads: number) {
+    return rads * (180 / Math.PI);
 }
 
 export function add2d(p: Vec2d, q: Vec2d): Vec2d {

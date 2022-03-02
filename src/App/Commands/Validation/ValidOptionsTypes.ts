@@ -1,3 +1,4 @@
+// Types for the available options that can live on node/conns
 export enum ValidOptionsTypes {
     String = 'String',
     AbsNumber = 'AbsNumber',
@@ -6,5 +7,8 @@ export enum ValidOptionsTypes {
     Number2 = 'Number2',
     Object = 'Object',
     NotRequired = 'NotRequired',
-    Boolean = 'Boolean'
+    Boolean = 'Boolean',
+    Color = 'Color',
+    ColorNoAlpha = 'ColorNoAlpha',
+    Easing = 'Easing'
 }
