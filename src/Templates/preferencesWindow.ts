@@ -2,12 +2,13 @@ import { Logger, LoggerLevel } from '../Logger/Logger'
 //@ts-ignore
 import Tabby from 'tabbyjs'
 const { ipcRenderer } = require('electron')
-const { getCurrentWindow } = require('@electron/remote')
 import './preferencesWindowTabby.css'
 import './preferencesWindow.css'
 import Configuration from '../App/Configuration/Configuration'
 import path from 'path'
 import os from 'os'
+const { dialog, getCurrentWindow } = require('@electron/remote')
+
 
 /* Load conf */
 const confPath = path.join(os.homedir(), '.defaultConf.json')
@@ -22,6 +23,7 @@ const tabsIds = [
     'canvas-prefs-tab',
     'commands-prefs-tab',
     'exporting-prefs-tab',
+    'terminal-prefs-tab',
 ]
 
 /* Hide other tabs besides the first one */
@@ -106,6 +108,27 @@ bgGrid.addEventListener('focus', () => {
 })
 /* CANVAS PREFS WINDOW END */
 
+/* COMMANDS PREFS WINDOW BEING */
+const udPathElement = <HTMLInputElement>document.getElementById('udPath')
+
+udPathElement.value = Configuration.get().param('udPath').toString()
+udPathElement.addEventListener('click', () => {
+    //TODO:
+    dialog.showOpenDialog(getCurrentWindow(), {
+        properties: ['openDirectory']
+    }).then((result: any) => {
+        console.log(result.filePaths)
+        if (!result.filePaths.length && !result.filePaths[0]) {
+            logger.log('No folder was selected', LoggerLevel.WRN)
+            return
+        }
+        udPathElement.value = result.filePaths[0]
+
+    }).catch((err: any) => { console.log(err) })
+
+})
+/* COMMANDS PREFS WINDOW END */
+
 /* EXPORTING PREFS WINDOW BEING */
 const delayElement = <HTMLInputElement>document.getElementById('delay')
 const skipFramesElement = <HTMLInputElement>document.getElementById('skip_frames')
@@ -129,6 +152,25 @@ skipFramesElement.addEventListener('focusout', () => {
 })
 /* EXPORTING PREFS WINDOW END */
 
+/* TERMINAL PREFS WINDOW BEING */
+const pretextElement = <HTMLInputElement>document.getElementById('pretext')
+
+pretextElement.value = Configuration.get().param('beginTerminalText').toString()
+
+pretextElement.addEventListener('focusout', () => {
+    if (!pretextElement.value) {
+        logger.log('No value provided for pretext!', LoggerLevel.WRN)
+        pretextElement.value = Configuration.get().param('beginTerminalText').toString()
+    }
+
+    if (pretextElement.value.length < 3 || pretextElement.value.length > 20) {
+        logger.log('Pretext too short or too long!', LoggerLevel.WRN)
+        pretextElement.value = Configuration.get().param('beginTerminalText').toString()
+    }
+})
+/* TERMINAL PREFS WINDOW END */
+
+
 finalSubmit.addEventListener('click', () => {
     ipcRenderer.send('PREFS_UPDATE', {
         canvasWidth: parseInt(width.value),
@@ -138,11 +180,13 @@ finalSubmit.addEventListener('click', () => {
         backgroundHsep: parseInt(hsep.value),
         backgroundVsep: parseInt(vsep.value),
         backgroundConstraint: bgConstraint.checked,
-        backgroundGridDraw: bgGrid.checked
+        backgroundGridDraw: bgGrid.checked,
+        beginTerminalText: pretextElement.value,
+        udPath: udPathElement.value
     })
 
     /* This will close the prefs window */
-    getCurrentWindow().close()
+    // getCurrentWindow().close()
 })
 
 function clamp(min: number, max: number, value: number) {

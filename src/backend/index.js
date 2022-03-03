@@ -57,6 +57,11 @@ const quick = new MenuItem({
     label: 'Quick',
     submenu: [
         {
+            label: 'Toggle indexing',
+            accelerator: 'Shift+I',
+            click: () => { mainWindow.webContents.send('TOGGLE_INDEXING') }
+        },
+        {
             label: 'Reload commands',
             accelerator: 'Shift+R',
             click: () => { mainWindow.webContents.send('RELOAD_COMMANDS') }

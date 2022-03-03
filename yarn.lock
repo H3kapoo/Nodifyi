@@ -378,6 +378,11 @@
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.50.tgz#1e0caa9364d3fccd2931c3ed96fdbeaa5d4cca83"
   integrity sha512-C6N5s2ZFtuZRj54k2/zyRhNDjJwwcViAM3Nbm8zjBpbqAdZ00mr0CFxvSKeO8Y/e03WVFLpQMdHYVfUd6SB+Hw==
 
+"@types/fabric@^4.5.7":
+  version "4.5.7"
+  resolved "https://registry.yarnpkg.com/@types/fabric/-/fabric-4.5.7.tgz#d15a7a8f597cd9d40d9e17b8f3f58351c4f1379f"
+  integrity sha512-GkILNUXudoHWlOgiZRlQAU/u/HOQqB6YK6tRLIGtbCIRad9CLFpFyb6ys62FZawPZ/lSq7wLeRvfqOOt2X2BTQ==
+
 "@types/fluent-ffmpeg@^2.1.20":
   version "2.1.20"
   resolved "https://registry.yarnpkg.com/@types/fluent-ffmpeg/-/fluent-ffmpeg-2.1.20.tgz#3b5f42fc8263761d58284fa46ee6759a64ce54ac"
@@ -1051,6 +1056,11 @@ caniuse-lite@^1.0.30001286:
   version "1.0.30001299"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001299.tgz#d753bf6444ed401eb503cbbe17aa3e1451b5a68c"
   integrity sha512-iujN4+x7QzqA2NCSrS5VUy+4gLmRd4xv6vbBBsmfVqTx8bLAD8097euLqQgKxSVLvxjSDcvF1T/i9ocgnUFexw==
+
+canvas2svg@^1.0.16:
+  version "1.0.16"
+  resolved "https://registry.yarnpkg.com/canvas2svg/-/canvas2svg-1.0.16.tgz#0814c53bbab7c3406e7387279cdf257fe4f6f2bd"
+  integrity sha1-CBTFO7q3w0Buc4cnnN8lf+T28r0=
 
 canvas@^2.2.0, canvas@^2.8.0, canvas@^2.9.0:
   version "2.9.0"
@@ -1936,6 +1946,14 @@ extract-zip@^2.0.0:
     yauzl "^2.10.0"
   optionalDependencies:
     "@types/yauzl" "^2.9.1"
+
+fabric@^5.2.1:
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/fabric/-/fabric-5.2.1.tgz#40cdc8712d939f3b6bded55ac40e716f2a67e013"
+  integrity sha512-Irltx4i+aLccWgdQj2Uvrwh/XulDAqqYMZ1bI13fAtmlxl4ggobo0t7VVYy3Ob4YEB0sCeJZKE8ExZgGo/amkw==
+  optionalDependencies:
+    canvas "^2.8.0"
+    jsdom "^19.0.0"
 
 fast-deep-equal@^3.1.1:
   version "3.1.3"

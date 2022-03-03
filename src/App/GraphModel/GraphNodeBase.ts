@@ -1,6 +1,7 @@
 import Animator from "../Animation/Animator";
 import { AnimationOptions, AnyGraphNodeOptions, CircleNodeOptions, GraphNodeBaseOptions } from "../types"
 import { NodeType } from "./GraphNodeType";
+const { ipcRenderer } = require('electron')
 
 
 export default abstract class GraphNodeBase {
@@ -11,7 +12,9 @@ export default abstract class GraphNodeBase {
     protected options: AnyGraphNodeOptions
 
     /* To give the node an unique id */
-    protected initialize() { this.uniqueId = GraphNodeBase.idGiver++; this.indexing = false }
+    protected initialize() {
+        this.uniqueId = GraphNodeBase.idGiver++; this.indexing = false
+    }
 
     /* To basically render the node */
     public abstract render(ctx: CanvasRenderingContext2D): void

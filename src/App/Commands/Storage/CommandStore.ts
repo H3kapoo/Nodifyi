@@ -14,15 +14,9 @@ export default class CommandStore implements IReloadable {
     private loaderUD: CommandLoaderUD
 
     private commands: CommandsStruct
-    private cachedUdPath: string
 
     public initialize() {
         const udPath = Configuration.get().param('udPath') as string
-
-        if (udPath === this.cachedUdPath) {
-            this.logger.log(`Path didnt change. Nothing to do!`, LoggerLevel.DBG)
-            return true
-        }
 
         this.loaderBI = new CommandLoaderBI()
         this.loaderUD = new CommandLoaderUD()
@@ -33,18 +27,14 @@ export default class CommandStore implements IReloadable {
         }
 
         if (!this.loaderUD.initialize(udPath)) {
-            this.logger.log(`Fatal error! User-defined commands error overflow!`, LoggerLevel.FATAL)
-            return false
+            this.logger.log(`Fatal error! User-defined commands error overflow!`, LoggerLevel.ERR)
+            return true
         }
 
         this.commands = this.mergeSources(this.loaderBI.getCommands(), this.loaderUD.getCommands())
 
         if (!this.commands)
             return false
-
-        if (!this.cachedUdPath)
-            this.cachedUdPath = udPath
-
         return true
     }
 

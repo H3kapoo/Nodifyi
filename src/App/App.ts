@@ -10,6 +10,7 @@ import Executor from "./Commands/Executor/Executor"
 import CommandStore from "./Commands/Storage/CommandStore"
 import SaveLoadFacade from "./SaveLoad/SaveLoadFacade"
 import ExportManager from "./Exporting/ExportManager"
+import { GraphNodeSet } from "./types"
 const { ipcRenderer } = require('electron')
 
 
@@ -88,6 +89,9 @@ export default class App {
         /* Preferences might affect every reloadable, so update them all */
         ipcRenderer.on('PREFS_UPDATE', (evt: any, val: any) => {
             Configuration.get().updateCurrentConf(val)
+            // This shall be differentiated
+            this.parser.updateCommands(this.commandStore.getCommands())
+            this.executor.updateCommands(this.commandStore.getCommands())
             this.renderer.render(false)
         })
 
@@ -96,6 +100,16 @@ export default class App {
             Configuration.get().reloadOnly(this.commandStore)
             this.parser.updateCommands(this.commandStore.getCommands())
             this.executor.updateCommands(this.commandStore.getCommands())
+        })
+
+        /* Toggle if indexing shall be present on nodes, not the best place to put it..*/
+        ipcRenderer.on('TOGGLE_INDEXING', () => {
+            const nodes: GraphNodeSet = this.graphModel.getModel()
+            for (const [id, node] of Object.entries(nodes)) {
+                //@ts-ignore
+                node.graphNode.toggleHeadsUpIndexing()
+            }
+            this.renderer.render(false)
         })
 
         /* Start-app render trigger */

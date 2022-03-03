@@ -139,23 +139,6 @@ export default class GraphModel implements IReloadable {
 
     public getConnections() { return this.connections }
 
-    public getCombined(): GraphCombined {
-        return { nodes: this.model, conns: this.connections }
-    }
-
-    public getCombinedCopy(): GraphCombined {
-        const model: GraphNodeSet = {}
-
-        for (const [id, node] of Object.entries(this.model)) {
-            model[node.graphNode.getUniqueId()] = {
-                graphNode: node.graphNode,
-                inIds: node.inIds,
-                outIds: node.outIds
-            }
-        }
-        return { nodes: model, conns: { ...this.connections } }
-    }
-
     public setCombined(combined: GraphCombined) {
         this.model = { ...combined.nodes }
         this.connections = { ...combined.conns }

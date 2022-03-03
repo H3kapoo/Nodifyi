@@ -44,6 +44,7 @@ export default class Executor implements IParserListener, IReloadable {
                 this.undoRedo.memorizeBeforeExec()
                 if (!this.renderer.isBusyDrawing()) {
                     this.setProjectDirty()
+
                     await this.commands[parsedInput.commandName]
                         .logic(parsedInput.options, this.API.getProxyAPI())
                 }

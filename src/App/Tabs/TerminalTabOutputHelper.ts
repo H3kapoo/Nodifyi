@@ -39,4 +39,9 @@ export default class TerminalTabOutputHelper {
 
         document.getElementById('command-line-base').appendChild(outputDiv)
     }
+
+    public clearTerminal(): void {
+        const div = document.getElementById('command-line-base')
+        while (div.firstChild) { div.removeChild(div.firstChild) }
+    }
 }

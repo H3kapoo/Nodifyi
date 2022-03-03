@@ -1,4 +1,4 @@
-import { AnimationOptions, AnyGraphNodeOptions, CircleNodeOptions, ConnectionPoints, Vec2d } from "../types"
+import { CircleNodeOptions, ConnectionPoints, Vec2d } from "../types"
 import * as utils from '../Renderer/RendererUtils'
 import { NodeType } from "./GraphNodeType"
 import GraphNodeBase from "./GraphNodeBase"
@@ -11,7 +11,9 @@ enum CircleNodeDefaults {
     SELF_CONN_ANGLE = 90,
     SELF_CONN_APERTURE_ANGLE = 36,
     SELF_CONN_TEXT_ELEVATION = 30,
-    SELF_CONN_ELEVATION = 30
+    SELF_CONN_ELEVATION = 30,
+    START_CONN_ANGLE = 180,
+    START_CONN_LENGTH = 50
 }
 
 export default class CircleNode extends GraphNodeBase {
@@ -36,8 +38,9 @@ export default class CircleNode extends GraphNodeBase {
         context.stroke()
 
         if (this.options.selfConnect) this.renderSelfConnection(context)
-        if (this.options.indexing) { this.renderHeadsUpIndexing(context) }
+        if (this.indexing) { this.renderHeadsUpIndexing(context) }
         if (this.options.text) { this.renderInsideText(context) }
+        if (this.options.startConn) { this.renderStartConnection(context) }
     }
 
     private renderSelfConnection(context: CanvasRenderingContext2D) {
@@ -112,6 +115,38 @@ export default class CircleNode extends GraphNodeBase {
             context.strokeText(this.options.selfText, 0, 0)
             context.restore()
         }
+    }
+
+    private renderStartConnection(context: CanvasRenderingContext2D) {
+        const position: Vec2d = this.options.position
+        const color: string = this.options.color
+        const radius: number = this.options.radius
+        const startConnLength = this.options.startConnLength + (0.001) || CircleNodeDefaults.START_CONN_LENGTH
+
+        let startConnAngle = this.options.startConnAngle + (0.001) || CircleNodeDefaults.START_CONN_ANGLE
+        startConnAngle = utils.degToRad(-startConnAngle)
+
+        const intPnt: Vec2d = [
+            Math.cos(startConnAngle) * radius + position[0],
+            Math.sin(startConnAngle) * radius + position[1]]
+        const extPnt: Vec2d = [
+            Math.cos(startConnAngle) * (radius + startConnLength) + position[0],
+            Math.sin(startConnAngle) * (radius + startConnLength) + position[1]]
+        context.beginPath()
+        context.strokeStyle = color
+        context.lineWidth = 4
+        context.moveTo(intPnt[0], intPnt[1])
+        context.lineTo(extPnt[0], extPnt[1])
+        context.stroke()
+
+        // render arrow
+        const arrowPnts = utils.getArrowPoints(intPnt, extPnt)
+        context.beginPath()
+        context.fillStyle = color
+        context.moveTo(arrowPnts.start[0], arrowPnts.start[1])
+        context.lineTo(arrowPnts.control[0], arrowPnts.control[1])
+        context.lineTo(arrowPnts.end[0], arrowPnts.end[1])
+        context.fill()
     }
 
     private renderHeadsUpIndexing(context: CanvasRenderingContext2D) {

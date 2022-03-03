@@ -38,8 +38,6 @@ export default class InputValidator {
     public validateNodeOptions(options: AnyObjectOptions, nodeType: NodeType, isCreating: boolean = true): boolean {
         const validity = this.generalValidity.nodes[nodeType]
 
-        //TODO: this should be reversed, check options not all options that exist!!!
-
         // check required opts
         // we shall check this options only at creation
         if (isCreating) {
@@ -175,8 +173,10 @@ export default class InputValidator {
                     },
                     other: {
                         color: ValidOptionsTypes.Color,
-                        indexing: ValidOptionsTypes.Boolean,
                         text: ValidOptionsTypes.String,
+                        startConn: ValidOptionsTypes.Boolean,
+                        startConnAngle: ValidOptionsTypes.Number,
+                        startConnLength: ValidOptionsTypes.AbsNumber,
                         selfConnect: ValidOptionsTypes.Boolean,
                         selfArrow: ValidOptionsTypes.Boolean,
                         selfText: ValidOptionsTypes.String,

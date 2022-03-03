@@ -36,7 +36,7 @@ body{
     display: flex;
     flex-direction: column;
 }
-#canvas-prefs-tab, #exporting-prefs-tab{
+#canvas-prefs-tab, #exporting-prefs-tab, #terminal-prefs-tab, #commands-prefs-tab{
     padding-left: 10px;
     padding-right: 10px;
     border-top: 1px rgb(138, 138, 138) solid;
@@ -84,18 +84,21 @@ a{
 hr{
     margin-top: 10px;
 }
-#exporting-gif-wrapper, #canvas-wrapper, #canvas-bg-wrapper{
+#exporting-gif-wrapper, #canvas-wrapper, #canvas-bg-wrapper, #terminal-termopts-wrapper,
+#commands-wrapper{
     width: 100%;
     height: auto;
     display: flex;
     flex-direction: column;
 }
 
-#exporting-gif-title,#canvas-title,#canvas-bg-title{
+#exporting-gif-title,#canvas-title, #canvas-bg-title, #terminal-termopts-title,
+#commands-title{
     margin: 10px 0px;
 }
 
-#exporting-gif-opts, #canvas-opts, #canvas-bg-opts{
+#exporting-gif-opts, #canvas-opts, #canvas-bg-opts, #terminal-termopts-opts,
+#commands-opts{
     display: grid;
     grid-template-columns: 1fr 3fr;
     grid-template-rows: 1fr 1fr;
@@ -103,7 +106,14 @@ hr{
 
 #delay, #skip_frames,
 #width, #height,
-#hsep, #vsep{
+#hsep, #vsep,
+#pretext{
     width: 200px;
+    margin: 3px 0px;
+}
+
+#udPath{
+    text-align: left; 
+    width: 300px;
     margin: 3px 0px;
 }

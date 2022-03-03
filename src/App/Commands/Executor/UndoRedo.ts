@@ -48,7 +48,7 @@ export default class UndoRedo implements IReloadable {
     }
 
     public memorizeBeforeExec() {
-        this.beforeExecState = this.graphModel.getCombinedCopy()
+        this.beforeExecState = this.graphModel.getJson()
     }
 
     private undoAction() {

@@ -16,8 +16,12 @@ export default class CommandLoaderUD {
 
         const cmdPaths: string[] = this.getCommandPaths(directoryPath)
 
-        if (!cmdPaths)
-            return false
+        // if it fails here fetching stuff from the folder, it shall continue normally
+        // but there ill be no user defined commands available, user shall be notified
+        if (!cmdPaths) {
+            this.logger.log(`User defined commands could not be loaded from directory.Continuing without them!`, LoggerLevel.WRN)
+            return true
+        }
 
         for (const cmdPath of cmdPaths) {
             const object = this.getObject(cmdPath)
@@ -31,7 +35,7 @@ export default class CommandLoaderUD {
             //@ts-ignore
             if (commandsFaker[object.schema.name]) {
                 //@ts-ignore
-                this.logger.log(`User defined command '${object.schema.name}' already exists!`, LoggerLevel.FATAL)
+                this.logger.log(`User defined command '${object.schema.name}' already exists!`, LoggerLevel.ERR)
                 return false
             }
 
@@ -46,6 +50,16 @@ export default class CommandLoaderUD {
     private getCommandPaths(directoryPath: string): string[] {
         try {
             const cmdPaths = fs.readdirSync(directoryPath).map(e => directoryPath + path.sep + e)
+
+            // added now
+            for (const cmdPath of cmdPaths) {
+                const i = cmdPath.length
+                if (i >= 3)
+                    if (cmdPath[i - 3] !== '.' && cmdPath[i - 2] !== 'j' && cmdPath[i - 1] !== 's') {
+                        this.logger.log(`Commands folder should only contain valid JS files!Not a valid JS file ${cmdPath}`, LoggerLevel.ERR)
+                        return null
+                    }
+            }
             return cmdPaths
         } catch (error) {
             this.logger.log(`Could not find user-defined commands folder! Looking at ${directoryPath}`, LoggerLevel.ERR)
@@ -130,5 +144,5 @@ export default class CommandLoaderUD {
         return true
     }
 
-    public getCommands(): CommandsStruct { return this.commands ?? null }
+    public getCommands(): CommandsStruct { return this.commands ?? {} }
 }

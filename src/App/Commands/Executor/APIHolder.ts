@@ -5,7 +5,7 @@ import Renderer from "../../Renderer/Renderer";
 import TerminalTabOutputHelper from "../../Tabs/TerminalTabOutputHelper";
 import {
     AnyConnectionOptions, AnyGraphNodeOptions,
-    APIObject, CircleNodeOptions, GraphNodeId
+    APIObject, CircleNodeOptions, GraphNodeId, GraphNodeSet
 } from "../../types";
 import InputValidator from "./InputValidator";
 
@@ -28,6 +28,10 @@ export default class APIHolder {
 
     private output(message: string) {
         this.outputHelper.printStd(message)
+    }
+
+    private clear() {
+        this.outputHelper.clearTerminal()
     }
 
     private async createNode(options: AnyGraphNodeOptions): Promise<number> {
@@ -204,7 +208,8 @@ export default class APIHolder {
             'updateConnection': this.updateConnection.bind(this),
             'updateConnectionSync': this.updateConnectionSync.bind(this),
             'deleteConnectionSync': this.deleteConnectionSync.bind(this),
-            'doOutput': this.output.bind(this)
+            'doOutput': this.output.bind(this),
+            'clear': this.clear.bind(this)
         }
     }
 

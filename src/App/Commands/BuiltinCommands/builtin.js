@@ -1,4 +1,14 @@
 module.exports = {
+    "clear":
+    {
+        "schema": {
+            "name": 'clear',
+            "mandatory": [],
+        },
+        async logic(_, api) {
+            api.clear()
+        }
+    },
     "cn":
     {
         "schema": {
@@ -15,7 +25,9 @@ module.exports = {
             for (const pos of parsedData.pos)
                 api.createNodeSync({
                     position: pos,
-                    indexing: true,
+                    startConn: true,
+                    startConnLength: 100,
+                    startConnAngle: 40,
                     text: parsedData.symb ?? ''
                 })
             api.doOutput('Created nodes!')
@@ -65,9 +77,9 @@ module.exports = {
                 api.createConnectionSync(id[0], id[1], {
                     text: parsedData.text ? parsedData.text.join(',') : '',
                     fixedTextRotation: false,
-                    elevation: 200,
+                    elevation: 20,
                     textColor: '#000000',
-                    directed: false,
+                    directed: true,
                 })
             api.doOutput('Created connections!')
         }

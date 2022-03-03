@@ -29,11 +29,10 @@ export default class TerminalTab implements IReloadable {
             return false
         }
 
-        this.terminalPrefix = Configuration.get().param('beginTerminalText') as string // this.config.strings('beginTerminalText')
+        this.terminalPrefix = Configuration.get().param('beginTerminalText') as string
         this.terminalDOM.innerText = this.terminalPrefix
         this.initializeListeners()
         this.terminalDOM.addEventListener('keyup', e => this.notifier(e))
-
         return true
     }
 
@@ -155,7 +154,10 @@ export default class TerminalTab implements IReloadable {
     }
 
     onConfReload(): void {
-
+        this.terminalPrefix = Configuration.get().param('beginTerminalText') as string
+        this.terminalDOM.innerText = this.terminalPrefix
+        this.logger.log(`${this.logger.getContext()} conf reloaded successfully!`, LoggerLevel.DBG)
+        utils.setEndOfContenteditable(this.terminalDOM)
     }
     onHardReload(): void {
 

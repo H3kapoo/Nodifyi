@@ -11,7 +11,6 @@ root = {
         let rminIds = []
         let rmaxIds = []
         parsedData.pos = [400, 500]
-
         for (const pos of radialPoints(parsedData.pos, 200, 3))
             rminIds.push(await api.createNodeSync({
                 position: parsedData.pos,

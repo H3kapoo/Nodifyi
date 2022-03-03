@@ -1,6 +1,5 @@
 import Connection from "./GraphModel/Connection";
 import GraphNodeBase from "./GraphModel/GraphNodeBase";
-
 type ArgTypeParseResult = string | number | string[] | string[][] | number[] | number[][] | null
 
 type Color = String
