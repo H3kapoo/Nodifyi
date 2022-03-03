@@ -1,8 +1,8 @@
-import ScrollBooster from "scrollbooster"
-import { Logger, LoggerLevel } from "../../Logger/Logger"
-import Configuration from "../Configuration/Configuration"
-import IReloadable from "../Configuration/IReloadable"
-import fabric from 'fabric'
+import ScrollBooster from "scrollbooster";
+import { Logger, LoggerLevel } from "../../Logger/Logger";
+import Configuration from "../Configuration/Configuration";
+import IReloadable from "../Configuration/IReloadable";
+
 
 enum CanvasDimensions {
     MIN_WIDTH = 300,
@@ -15,12 +15,10 @@ enum CanvasDimensions {
 export default class CanvasTab implements IReloadable {
     private logger = new Logger('CanvasTab')
 
-    private canvasDOM: fabric.fabric.Canvas
+    private canvasDOM: HTMLCanvasElement
 
     public initialize() {
-        this.canvasDOM = new fabric.fabric.Canvas('canvas', { isDrawingMode: true })
-
-        // this.canvasDOM = document.getElementById('canvas') as HTMLCanvasElement
+        this.canvasDOM = document.getElementById('canvas') as HTMLCanvasElement
 
         if (!this.canvasDOM) {
             this.logger.log(`Failed to grab canvasDOM with id 'canvas'!`, LoggerLevel.ERR)
