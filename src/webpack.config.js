@@ -15,7 +15,8 @@ module.exports = {
         preferencesWindow: path.resolve(__dirname, 'Templates/preferencesWindow.ts'),
         fatalWindow: path.resolve(__dirname, 'Templates/fatalWindow.ts'),
         gifProcessingWindow: path.resolve(__dirname, 'Templates/gifProcessingWindow.ts'),
-        saveCloudlyWindow: path.resolve(__dirname, 'Templates/saveCloudlyWindow.ts')
+        saveCloudlyWindow: path.resolve(__dirname, 'Templates/saveCloudlyWindow.ts'),
+        loadCloudlyWindow: path.resolve(__dirname, 'Templates/loadCloudlyWindow.ts')
     },
     output: {
         filename: '[name].js',
@@ -56,6 +57,11 @@ module.exports = {
             filename: 'saveCloudlyWindow.html',
             template: path.resolve(__dirname, "Templates/saveCloudlyWindow.html"),
             chunks: ['saveCloudlyWindow']
+        }),
+        new HtmlWebpackPlugin({
+            filename: 'loadCloudlyWindow.html',
+            template: path.resolve(__dirname, "Templates/loadCloudlyWindow.html"),
+            chunks: ['loadCloudlyWindow']
         }),
     ],
     optimization: {

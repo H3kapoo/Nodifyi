@@ -77,7 +77,7 @@ module.exports = {
                 api.createConnectionSync(id[0], id[1], {
                     text: parsedData.text ? parsedData.text.join(',') : '',
                     fixedTextRotation: false,
-                    elevation: 20,
+                    elevation: 0,
                     textColor: '#000000',
                     directed: true,
                 })

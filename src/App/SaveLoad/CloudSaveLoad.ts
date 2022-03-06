@@ -13,7 +13,7 @@ export default class CloudSaveLoad implements IReloadable {
     private graphModel: GraphModel
     private renderer: Renderer
     private connectionURI: string
-    private allSaveNames: string[]
+    private allSaveNames: string[] = []
     private dbName = 'Nodify'
     private collectionName = 'NodifySaved'
 
@@ -39,56 +39,37 @@ export default class CloudSaveLoad implements IReloadable {
     }
 
     public async save() {
-        // const collection = await this.tryToConnect()
+        const collection = await this.tryToConnect()
+        if (!collection) {
+            this.logger.log('Failed to connect to mongo, bail out!', LoggerLevel.WRN)
+            return
+        }
 
-        // // await collection.insertOne(
-        // //     {
-        // //         name: 'SomeName',
-        // //         data: this.graphModel.getJson()
-        // //     }
-        // // )
-        // this.allSaveNames = []
-        // const c = await collection.find({})
-        // const allData = await c.toArray()
-
-        // allData.forEach(e => this.allSaveNames.push(e.name))
-        // console.log(this.allSaveNames);
+        this.allSaveNames = []
+        const allSaves = await collection.find({})
+        const allData = await allSaves.toArray()
+        allData.forEach(e => this.allSaveNames.push(e.name))
 
         ipcRenderer.send('DISPATCH_OPEN_CLOUD_SAVE', { 'names': this.allSaveNames })
-
-        // FETCH ALL SAVE NAMES
-        // SHOW 'INPUT SAVE NAME DIALOG' passing the names of saves along
-        // ^ in this dialog say that file exists and will be overriten
-
-        // shall open a dialog to input the name of save file
-        // shall check if another file with this name is present, if say, say that
-        // shall push data to mongo db an close the dialog on succes, on fail show fail screen
-
-        // IF NO DETAILS ARE PRESENT FOR CONNECTION TO DB, FAIL
     }
 
     private async finalizeSave(data: any) {
-        console.log('lulz');
-
         const collection = await this.tryToConnect()
 
         if (this.allSaveNames.includes(data.name)) {
-            // update entry
             await collection.updateOne({ "name": { "$regex": data.name } }, {
                 $set: { data: this.graphModel.getJson() }
             })
-            // show updated dialog
-            console.log('updated entry');
-
+            this.logger.log(`Save '${data.name}' has been updated!`)
+            this.showMsgDialog(`Save '${data.name}' has been updated!`)
         }
         else {
-            // create new entry
             await collection.insertOne({
                 name: data.name,
                 data: this.graphModel.getJson()
             })
-            // show created dialog
-            console.log('created entry');
+            this.logger.log(`Save '${data.name}' has been created!`)
+            this.showMsgDialog(`Save '${data.name}' has been created!`)
         }
     }
 
@@ -98,10 +79,12 @@ export default class CloudSaveLoad implements IReloadable {
             this.logger.log('Failed to connect to mongo, bail out!', LoggerLevel.WRN)
             return
         }
+        this.allSaveNames = []
+        const allSaves = await collection.find({})
+        const allData = await allSaves.toArray()
+        allData.forEach(e => this.allSaveNames.push(e.name))
 
-        const name = 'LOl'
-        const obj = await collection.findOne({ 'name': 'LOl' })
-        console.log(obj);
+        ipcRenderer.send('DISPATCH_OPEN_CLOUD_LOAD', { 'names': this.allSaveNames })
 
         // shall open a dialog with a list of available saves
         // on save click, try to load it into canvas
@@ -111,7 +94,23 @@ export default class CloudSaveLoad implements IReloadable {
     }
 
     private async finalizeLoad(data: any) {
+        const collection = await this.tryToConnect()
+        if (!collection) {
+            this.logger.log('Failed to connect to mongo, bail out!', LoggerLevel.WRN)
+            return
+        }
+        const loadedObj = await collection.findOne({ 'name': data.name })
 
+        if (!loadedObj) {
+            this.logger.log(`Something went wrong trying to fetch '${data.name}!`)
+            this.showMsgDialog(`Something went wrong trying to fetch '${data.name}!`)
+        }
+
+        this.graphModel.loadJson(loadedObj.data)
+        await this.renderer.render(false)
+        this.logger.log(`Loaded '${data.name}!`)
+        this.setWindowTitle(data.name)
+        this.showMsgDialog(`Loaded '${data.name}!`)
     }
 
     private async tryToConnect(): Promise<Collection> {
@@ -139,7 +138,6 @@ export default class CloudSaveLoad implements IReloadable {
 
         try {
             collection = await client.db(this.dbName).collection(this.collectionName)
-
         } catch (err) {
             // show pop-up message
             this.logger.log('Failed to save to mongoDB. Retry later!', LoggerLevel.WRN)
@@ -147,6 +145,19 @@ export default class CloudSaveLoad implements IReloadable {
         }
         return collection
     }
+
+    private showMsgDialog(msg: string) {
+        dialog.showMessageBoxSync(getCurrentWindow(), {
+            title: 'Database Info',
+            message: msg,
+            buttons: ["Ok"],
+        })
+    }
+
+    private setWindowTitle(title: string) {
+        getCurrentWindow().setTitle('Nodify | ' + title)
+    }
+
 
     public onConfReload(): void {
         // when conf updates, cross check the cached credentials with the potentially new ones
