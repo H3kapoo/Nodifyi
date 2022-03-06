@@ -17,10 +17,12 @@ try {
 let mainWindow = null
 let fatalModalWindow = null
 let gifProcessingWindow = null
+let saveCloudlyWindow = null
 let indexHtmlLoc = '../Webpacked/index.html'
 let prefsWindowHtmlLoc = '../Webpacked/preferencesWindow.html'
 let fatalWindowHtmlLoc = '../Webpacked/fatalWindow.html'
 let gifProcessingWindowHtmlLoc = '../Webpacked/gifProcessingWindow.html'
+let saveCloudlyWindowHtmlLoc = '../Webpacked/saveCloudlyWindow.html'
 
 const menu = new Menu()
 
@@ -102,6 +104,16 @@ const fileMenu = new MenuItem({
             label: 'Load',
             accelerator: 'Shift+L',
             click: () => { mainWindow.webContents.send('LOAD_LOCALLY') }
+        },
+        {
+            label: 'Save Cloudly',
+            accelerator: 'Shift+K',
+            click: () => { mainWindow.webContents.send('SAVE_CLOUDLY') }
+        },
+        {
+            label: 'Load Cloudly',
+            accelerator: 'Shift+J',
+            click: () => { mainWindow.webContents.send('LOAD_CLOUDLY') }
         }]
 })
 
@@ -116,6 +128,9 @@ ipcMain.on('GIF_PROCESSING_MESSAGE', (e, v) => gifProcessingWindow.webContents.s
 ipcMain.on('GIF_PROCESSING_CLOSE', (e, v) => gifProcessingWindow.close())
 ipcMain.on('FATAL_ERROR', (e, v) => openFatalModal(v))
 ipcMain.on('TOGGLE_SAVE_BTN', (e, v) => menu.getMenuItemById('save-btn-id').enabled = v.value)
+ipcMain.on('DISPATCH_OPEN_CLOUD_SAVE', (e, v) => openSaveCloudlyModalAndSendData(v))
+ipcMain.on('DISPATCH_FINALIZE_SAVE', (e, v) => mainWindow.webContents.send('FINALIZE_SAVE', v))
+
 
 /* Create window */
 app.whenReady().then(() => {
@@ -203,6 +218,29 @@ function openPrefsModal() {
     // childWindow.setMenu(null)
     require("@electron/remote/main").enable(childWindow.webContents)
     childWindow.once("ready-to-show", () => { childWindow.show() })
+}
+
+function openSaveCloudlyModalAndSendData(val) {
+    saveCloudlyWindow = new BrowserWindow({
+        width: 800,
+        height: 600,
+        modal: true,
+        show: false,
+        // frame: false,
+        parent: mainWindow,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+            enableRemoteModule: true,
+        },
+    });
+
+    saveCloudlyWindow.loadFile(path.join(__dirname, saveCloudlyWindowHtmlLoc))
+    require("@electron/remote/main").enable(saveCloudlyWindow.webContents)
+    saveCloudlyWindow.once("ready-to-show", () => {
+        saveCloudlyWindow.show()
+        saveCloudlyWindow.webContents.send('DISPATCH_CLOUD_SAVE', val)
+    })
 }
 
 function createWindow() {

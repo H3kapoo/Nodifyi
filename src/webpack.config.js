@@ -14,7 +14,8 @@ module.exports = {
         frontEnd: path.resolve(__dirname, 'index.ts'),
         preferencesWindow: path.resolve(__dirname, 'Templates/preferencesWindow.ts'),
         fatalWindow: path.resolve(__dirname, 'Templates/fatalWindow.ts'),
-        gifProcessingWindow: path.resolve(__dirname, 'Templates/gifProcessingWindow.ts')
+        gifProcessingWindow: path.resolve(__dirname, 'Templates/gifProcessingWindow.ts'),
+        saveCloudlyWindow: path.resolve(__dirname, 'Templates/saveCloudlyWindow.ts')
     },
     output: {
         filename: '[name].js',
@@ -51,6 +52,11 @@ module.exports = {
             template: path.resolve(__dirname, "Templates/gifProcessingWindow.html"),
             chunks: ['gifProcessingWindow']
         }),
+        new HtmlWebpackPlugin({
+            filename: 'saveCloudlyWindow.html',
+            template: path.resolve(__dirname, "Templates/saveCloudlyWindow.html"),
+            chunks: ['saveCloudlyWindow']
+        }),
     ],
     optimization: {
         minimize: false
@@ -65,7 +71,6 @@ module.exports = {
                 test: /\.tsx?$/,
                 use: 'ts-loader',
                 exclude: [/node_modules/],
-
             }
         ],
     },

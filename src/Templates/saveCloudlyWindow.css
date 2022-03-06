@@ -1,0 +1,33 @@
+@font-face {
+    font-family: "mainFont";
+    src: url("../App/Styles/JetBrainsMono-Regular.ttf");
+}
+
+*{
+    font-family: "mainFont";
+    padding: 0;
+    margin: 0;
+    box-sizing:border-box;
+}
+body{
+    background-color: rgb(240, 240, 240);
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#title{
+    margin-bottom: 20px;
+}
+
+#container{
+    width: 100%;
+    margin: 0 20px;
+}
+
+input{
+    width: 100%;
+}

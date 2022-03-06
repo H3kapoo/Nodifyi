@@ -5,11 +5,13 @@ const { dialog, getCurrentWindow } = require('@electron/remote')
 import { writeFileSync, readFileSync } from "fs"
 import Renderer from "../Renderer/Renderer"
 import IReloadable from "../Configuration/IReloadable"
+import CloudSaveLoad from "./CloudSaveLoad"
 
 
 export default class SaveLoadFacade {
 
     private logger = new Logger('SaveLoadFacade')
+    private cloudSaveLoad: CloudSaveLoad
     private graphModel: GraphModel
     private renderer: Renderer
     private fileExt = '.nod'
@@ -18,6 +20,7 @@ export default class SaveLoadFacade {
     private hardReloadables: IReloadable[]
 
     public initialize(graphModel: GraphModel, renderer: Renderer) {
+        this.cloudSaveLoad = new CloudSaveLoad(graphModel, renderer)
         this.graphModel = graphModel
         this.renderer = renderer
         this.currentlyWorkingPath = undefined
@@ -26,7 +29,7 @@ export default class SaveLoadFacade {
         ipcRenderer.on('NEW_PROJECT', () => this.newProject())
         ipcRenderer.on('SAVE_LOCALLY', () => this.saveLocally())
         ipcRenderer.on('SAVEAS_LOCALLY', () => this.saveAsLocally())
-        ipcRenderer.on('SAVE_CLOULDLY', () => this.saveCloudly())
+        ipcRenderer.on('SAVE_CLOUDLY', () => this.saveCloudly())
         ipcRenderer.on('LOAD_LOCALLY', () => this.loadLocally())
         ipcRenderer.on('LOAD_CLOUDLY', () => this.loadCloudly())
 
@@ -123,12 +126,12 @@ export default class SaveLoadFacade {
             this.logger.log('Trying to load from locally but nothing selected!', LoggerLevel.WRN)
     }
 
-    private saveCloudly() {
-        //TODO:
+    private async saveCloudly() {
+        await this.cloudSaveLoad.save()
     }
 
-    private loadCloudly() {
-        //TODO:
+    private async loadCloudly() {
+        await this.cloudSaveLoad.load()
     }
 
     private setWindowTitle(title: string) {

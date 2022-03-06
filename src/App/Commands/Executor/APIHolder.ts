@@ -1,5 +1,7 @@
 import CircleNode from "../../GraphModel/CircleNode";
+import Connection from "../../GraphModel/Connection";
 import GraphModel from "../../GraphModel/GraphModel";
+import GraphNodeBase from "../../GraphModel/GraphNodeBase";
 import { NodeType } from "../../GraphModel/GraphNodeType";
 import Renderer from "../../Renderer/Renderer";
 import TerminalTabOutputHelper from "../../Tabs/TerminalTabOutputHelper";
@@ -32,6 +34,23 @@ export default class APIHolder {
 
     private clear() {
         this.outputHelper.clearTerminal()
+    }
+
+    private getNodeProps(nodeId: number) {
+        this.outputHelper.setBlockErrOutput() // in case it doesnt find the node, this shall be handled in the cmd logic
+        const node: GraphNodeBase = this.graphModel.findNode(nodeId)
+
+        if (!node)
+            return null
+        return { ...node.getOptions() }
+    }
+
+    private getConnectionProps(nodeFromId: number, nodeToId: number) {
+        this.outputHelper.setBlockErrOutput() // in case it doesnt find the node, this shall be handled in the cmd logic
+        const conn: Connection = this.graphModel.findConnection(nodeFromId, nodeToId)
+        if (!conn)
+            return null
+        return { ...conn.getOptions() }
     }
 
     private async createNode(options: AnyGraphNodeOptions): Promise<number> {
@@ -209,7 +228,9 @@ export default class APIHolder {
             'updateConnectionSync': this.updateConnectionSync.bind(this),
             'deleteConnectionSync': this.deleteConnectionSync.bind(this),
             'doOutput': this.output.bind(this),
-            'clear': this.clear.bind(this)
+            'clear': this.clear.bind(this),
+            'getNodeProps': this.getNodeProps.bind(this),
+            'getConnectionProps': this.getConnectionProps.bind(this)
         }
     }
 

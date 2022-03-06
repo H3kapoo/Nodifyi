@@ -5,15 +5,18 @@ import { sanitizeInput } from "./TerminalUtils"
 export default class TerminalTabOutputHelper {
 
     private context: string
-    private isError: boolean = false
+    private static isBlockStd: boolean = false
+    private static isBlockErr: boolean = false
 
     public setOutputContext(context: string) { this.context = `[${context}]` }
 
-    public setBlockStdOutput() { this.isError = true }
+    public setBlockStdOutput() { TerminalTabOutputHelper.isBlockStd = true }
+
+    public setBlockErrOutput() { TerminalTabOutputHelper.isBlockErr = true }
 
     public printStd(msg: string) {
-        if (this.isError) {
-            this.isError = false
+        if (TerminalTabOutputHelper.isBlockStd) {
+            TerminalTabOutputHelper.isBlockStd = false
             return
         }
 
@@ -29,6 +32,11 @@ export default class TerminalTabOutputHelper {
     }
 
     public printErr(msg: string) {
+        if (TerminalTabOutputHelper.isBlockErr) {
+            TerminalTabOutputHelper.isBlockErr = false
+            return
+        }
+
         const outputDiv = document.createElement("div")
         const contextDOM = `<span id='cmd-err-text-prep'>${this.context}</span>`
         const sanitized = sanitizeInput(msg)

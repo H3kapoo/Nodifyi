@@ -76,6 +76,7 @@ export default class App {
         /* Subscribe for when something gets parsed */
         this.parser.subscribeOnParsed(this.executor)
 
+        //TODO: BIG BIG TODO, MOVE THOSE IN THEIR OWN CLASSES, NO NEED FOR THEM HERE IN THE OPEN
         /* Subscribe modules that are affected by conf reload */
         Configuration.get().subscribeReloadable(this.commandStore)
         Configuration.get().subscribeReloadable(this.tabsLoader)
