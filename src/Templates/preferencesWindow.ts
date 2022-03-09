@@ -24,6 +24,8 @@ const tabsIds = [
     'commands-prefs-tab',
     'exporting-prefs-tab',
     'terminal-prefs-tab',
+    'database-prefs-tab',
+    'sharing-prefs-tab'
 ]
 
 /* Hide other tabs besides the first one */
@@ -170,6 +172,58 @@ pretextElement.addEventListener('focusout', () => {
 })
 /* TERMINAL PREFS WINDOW END */
 
+/* DATABASE PREFS WINDOW BEING */
+const dbUriElement = <HTMLInputElement>document.getElementById('dbUri')
+const dbUriUncoverElement = <HTMLInputElement>document.getElementById('dbUriUncover')
+
+dbUriElement.value = Configuration.get().param('dbConnectionURI').toString() ?? ''
+
+dbUriElement.addEventListener('focusout', () => {
+    if (!dbUriElement.value) {
+        logger.log('No value provided for dbString! Fetching the config string', LoggerLevel.WRN)
+        dbUriElement.value = Configuration.get().param('dbConnectionURI').toString()
+    }
+
+    if (dbUriElement.value.length < 3 || dbUriElement.value.length > 200) {
+        logger.log('dbString too short or too long!', LoggerLevel.WRN)
+        dbUriElement.value = Configuration.get().param('dbConnectionURI').toString()
+    }
+})
+
+dbUriUncoverElement.addEventListener('change', () => {
+    if (dbUriUncoverElement.checked)
+        dbUriElement.type = 'password'
+    else
+        dbUriElement.type = 'text'
+})
+/* DATABASE PREFS WINDOW END */
+
+/* SHARING PREFS WINDOW BEING */
+// const dbUriElement = <HTMLInputElement>document.getElementById('dbUri')
+// const dbUriUncoverElement = <HTMLInputElement>document.getElementById('dbUriUncover')
+
+// dbUriElement.value = Configuration.get().param('dbConnectionURI').toString() ?? ''
+
+// dbUriElement.addEventListener('focusout', () => {
+//     if (!dbUriElement.value) {
+//         logger.log('No value provided for dbString! Fetching the config string', LoggerLevel.WRN)
+//         dbUriElement.value = Configuration.get().param('dbConnectionURI').toString()
+//     }
+
+//     if (dbUriElement.value.length < 3 || dbUriElement.value.length > 200) {
+//         logger.log('dbString too short or too long!', LoggerLevel.WRN)
+//         dbUriElement.value = Configuration.get().param('dbConnectionURI').toString()
+//     }
+// })
+
+// dbUriUncoverElement.addEventListener('change', () => {
+//     if (dbUriUncoverElement.checked)
+//         dbUriElement.type = 'password'
+//     else
+//         dbUriElement.type = 'text'
+// })
+/* SHARING PREFS WINDOW END */
+
 
 finalSubmit.addEventListener('click', () => {
     ipcRenderer.send('PREFS_UPDATE', {
@@ -182,7 +236,8 @@ finalSubmit.addEventListener('click', () => {
         backgroundConstraint: bgConstraint.checked,
         backgroundGridDraw: bgGrid.checked,
         beginTerminalText: pretextElement.value,
-        udPath: udPathElement.value
+        udPath: udPathElement.value,
+        dbConnectionURI: dbUriElement.value
     })
 
     /* This will close the prefs window */

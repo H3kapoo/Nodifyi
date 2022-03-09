@@ -25,11 +25,11 @@ export default class CommandStore implements IReloadable {
             this.logger.log(`Fatal error! Built-in commands error overflow!`, LoggerLevel.FATAL)
             return false
         }
-
-        if (!this.loaderUD.initialize(udPath)) {
-            this.logger.log(`Fatal error! User-defined commands error overflow!`, LoggerLevel.ERR)
-            return true
-        }
+        if (udPath !== 'not_set')
+            if (!this.loaderUD.initialize(udPath)) {
+                this.logger.log(`Fatal error! User-defined commands error overflow!`, LoggerLevel.ERR)
+                return true
+            }
 
         this.commands = this.mergeSources(this.loaderBI.getCommands(), this.loaderUD.getCommands())
 

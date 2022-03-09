@@ -12,6 +12,8 @@ const loadBtnElement = document.getElementById('loadBtn')
 const cancelBtnElement = document.getElementById('cancelBtn')
 
 const nameBaseElement = document.getElementById('nameBase')
+const noEntriesElement = document.getElementById('noEntries')
+
 let selectedLi: HTMLLIElement = null
 
 loadBtnElement.addEventListener('click', () => {
@@ -32,16 +34,26 @@ ipcRenderer.on('DISPATCH_CLOUD_LOAD', (evt: any, data: any) => {
         liElement.innerText = saveName
 
         liElement.addEventListener('click', () => {
+            if (selectedLi)
+                selectedLi.style.backgroundColor = 'rgb(240, 240, 240)'
             selectedLi = liElement
+            liElement.style.backgroundColor = '#40ff00'
         })
 
         liElement.addEventListener('mouseenter', () => {
-            liElement.style.backgroundColor = 'red'
+            liElement.style.backgroundColor = '#40ff00'
+            if (selectedLi != liElement)
+                liElement.style.backgroundColor = '#bfbfbf'
         })
         liElement.addEventListener('mouseleave', () => {
-            if (selectedLi !== liElement)
-                liElement.style.backgroundColor = 'rgb(240, 240, 240)'
+            liElement.style.backgroundColor = 'rgb(240, 240, 240)'
+            if (selectedLi === liElement)
+                liElement.style.backgroundColor = '#40ff00'
+
         })
         nameBaseElement.appendChild(liElement)
     });
+
+    if (saveNames.length)
+        noEntriesElement.style.display = 'none'
 })

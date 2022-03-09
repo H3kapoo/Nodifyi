@@ -11,5 +11,8 @@
     "udPath": "/home/hekapoo/Documents/_Licence/nodify2/src/App/Commands/UserDefinedDummy",
     "gif_delay": 1000,
     "frame_skip": 1,
-    "dbConnectionURI": "mongodb+srv://hekapoo:mariuca123@cluster0.cjjgc.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+    "dbConnectionURI": "not_set",
+    "emailTargetsPath": "/home/hekapoo/Documents/_Licence/nodify2/src/App/Sharing/dummyList.txt",
+    "emailSenderEmail": "not_set",
+    "emailSenderPass": "not_set"
 }

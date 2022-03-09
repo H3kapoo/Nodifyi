@@ -117,6 +117,11 @@ const fileMenu = new MenuItem({
             label: 'Load Cloudly',
             accelerator: 'Shift+J',
             click: () => { mainWindow.webContents.send('LOAD_CLOUDLY') }
+        },
+        {
+            label: 'Share Email',
+            accelerator: 'Shift+F',
+            click: () => { mainWindow.webContents.send('SEND_MAIL') }
         }]
 })
 
@@ -250,11 +255,11 @@ function openSaveCloudlyModalAndSendData(val) {
 
 function openLoadCloudlyModalAndSendData(val) {
     loadCloudlyWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
+        width: 400,
+        height: 00,
         modal: true,
         show: false,
-        // frame: false,
+        frame: false,
         parent: mainWindow,
         webPreferences: {
             nodeIntegration: true,

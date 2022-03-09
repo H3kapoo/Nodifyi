@@ -44,7 +44,6 @@ export default class GIFExporter implements IRendererListener, IReloadable {
     private async handleCapture() {
         /* toggle capturing state */
         this.isCapturingEnabled = !this.isCapturingEnabled
-        console.log('ce', this.isCapturingEnabled);
 
         if (this.isCapturingEnabled) {
             const response = dialog.showMessageBoxSync(getCurrentWindow(), {
@@ -139,9 +138,9 @@ export default class GIFExporter implements IRendererListener, IReloadable {
                 rmSync(tempFolder, { recursive: true })
                 return
             }
-            rename(join(tempFolder, `output.gif`), pathToSave, (e) => console.log(e))
+            rename(join(tempFolder, `output.gif`), pathToSave, (e) => { })
             rmSync(tempFolder, { recursive: true })
-        }).catch((err: any) => { console.log(err) })
+        }).catch((err: any) => { })
     }
 
     private toProcessWindow(msg: string) {

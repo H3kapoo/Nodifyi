@@ -169,7 +169,7 @@ export default class InputValidator {
             nodes: {
                 [NodeType.Circle]: {
                     required: {
-                        position: ValidOptionsTypes.AbsNumber2,
+                        position: ValidOptionsTypes.Number2,
                     },
                     other: {
                         color: ValidOptionsTypes.Color,

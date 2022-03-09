@@ -14,7 +14,7 @@ module.exports = {
         "schema": {
             "name": 'cn',
             "mandatory": ["pos"],
-            "pos": "AbsNumber2vs",
+            "pos": "Number2vs",
             "index": "Boolean",
             "rad": "AbsNumber",
             "sc": "Boolean",
@@ -77,7 +77,7 @@ module.exports = {
                 api.createConnectionSync(id[0], id[1], {
                     text: parsedData.text ? parsedData.text.join(',') : '',
                     fixedTextRotation: false,
-                    elevation: 0,
+                    elevation: 200,
                     textColor: '#000000',
                     directed: true,
                 })

@@ -36,7 +36,8 @@ body{
     display: flex;
     flex-direction: column;
 }
-#canvas-prefs-tab, #exporting-prefs-tab, #terminal-prefs-tab, #commands-prefs-tab{
+#canvas-prefs-tab, #exporting-prefs-tab, #terminal-prefs-tab, #commands-prefs-tab,
+#database-prefs-tab{
     padding-left: 10px;
     padding-right: 10px;
     border-top: 1px rgb(138, 138, 138) solid;
@@ -85,7 +86,7 @@ hr{
     margin-top: 10px;
 }
 #exporting-gif-wrapper, #canvas-wrapper, #canvas-bg-wrapper, #terminal-termopts-wrapper,
-#commands-wrapper{
+#commands-wrapper, #database-wrapper{
     width: 100%;
     height: auto;
     display: flex;
@@ -93,12 +94,12 @@ hr{
 }
 
 #exporting-gif-title,#canvas-title, #canvas-bg-title, #terminal-termopts-title,
-#commands-title{
+#commands-title, #database-title{
     margin: 10px 0px;
 }
 
 #exporting-gif-opts, #canvas-opts, #canvas-bg-opts, #terminal-termopts-opts,
-#commands-opts{
+#commands-opts, #database-opts{
     display: grid;
     grid-template-columns: 1fr 3fr;
     grid-template-rows: 1fr 1fr;
@@ -112,7 +113,7 @@ hr{
     margin: 3px 0px;
 }
 
-#udPath{
+#udPath, #dbUri{
     text-align: left; 
     width: 300px;
     margin: 3px 0px;

@@ -85,12 +85,6 @@ export default class CloudSaveLoad implements IReloadable {
         allData.forEach(e => this.allSaveNames.push(e.name))
 
         ipcRenderer.send('DISPATCH_OPEN_CLOUD_LOAD', { 'names': this.allSaveNames })
-
-        // shall open a dialog with a list of available saves
-        // on save click, try to load it into canvas
-        // on fail shall show fail dialog
-
-        // IF NO DETAILS ARE PRESENT FOR CONNECTION TO DB, FAIL
     }
 
     private async finalizeLoad(data: any) {
@@ -155,9 +149,8 @@ export default class CloudSaveLoad implements IReloadable {
     }
 
     private setWindowTitle(title: string) {
-        getCurrentWindow().setTitle('Nodify | ' + title)
+        getCurrentWindow().setTitle('Nodify | ' + title + '.nod')
     }
-
 
     public onConfReload(): void {
         // when conf updates, cross check the cached credentials with the potentially new ones
