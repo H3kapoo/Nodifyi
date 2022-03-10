@@ -37,7 +37,7 @@ body{
     flex-direction: column;
 }
 #canvas-prefs-tab, #exporting-prefs-tab, #terminal-prefs-tab, #commands-prefs-tab,
-#database-prefs-tab{
+#database-prefs-tab, #sharing-prefs-tab{
     padding-left: 10px;
     padding-right: 10px;
     border-top: 1px rgb(138, 138, 138) solid;
@@ -85,8 +85,9 @@ a{
 hr{
     margin-top: 10px;
 }
+
 #exporting-gif-wrapper, #canvas-wrapper, #canvas-bg-wrapper, #terminal-termopts-wrapper,
-#commands-wrapper, #database-wrapper{
+#commands-wrapper, #database-wrapper, #sharing-wrapper{
     width: 100%;
     height: auto;
     display: flex;
@@ -94,12 +95,12 @@ hr{
 }
 
 #exporting-gif-title,#canvas-title, #canvas-bg-title, #terminal-termopts-title,
-#commands-title, #database-title{
+#commands-title, #database-title, #sharing-title, #sharing-data-title{
     margin: 10px 0px;
 }
 
 #exporting-gif-opts, #canvas-opts, #canvas-bg-opts, #terminal-termopts-opts,
-#commands-opts, #database-opts{
+#commands-opts, #database-opts, #sharing-opts, #sharing-data-opts{
     display: grid;
     grid-template-columns: 1fr 3fr;
     grid-template-rows: 1fr 1fr;
@@ -108,9 +109,17 @@ hr{
 #delay, #skip_frames,
 #width, #height,
 #hsep, #vsep,
-#pretext{
+#pretext, #senderEmail,
+#senderPass, #senderFrom,
+#senderSubject{
     width: 200px;
     margin: 3px 0px;
+}
+
+#senderPassCover, #projFile, #imgFile{
+    margin: auto 0;
+    align-items: center;
+    justify-content: center;
 }
 
 #udPath, #dbUri{

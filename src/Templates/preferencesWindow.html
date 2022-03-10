@@ -90,7 +90,7 @@
                     <div id="database-opts">
                         <label>Connection URI</label>
                         <input id="dbUri" type="text" placeholder="Connection Uri.." />
-                        <label>Cover URI</label>
+                        <label>Cover URI?</label>
                         <input id="dbUriUncover" type="checkbox" />
                     </div>
                 </div>
@@ -99,12 +99,29 @@
             <!-- sharing -->
             <div id='sharing-prefs-tab'>
                 <div id="sharing-wrapper">
-                    <h2 id="sharing-title">Sharing</h2>
+                    <h2 id="sharing-title">Sharing Basic</h2>
                     <div id="sharing-opts">
-                        <label>Connection URI</label>
-                        <input id="dbUri" type="text" placeholder="Connection Uri.." />
-                        <label>Cover URI</label>
-                        <input id="dbUriUncover" type="checkbox" />
+                        <label>Sender Email</label>
+                        <input id="senderEmail" type="email" placeholder="Email.." />
+                        <label>Sender Password</label>
+                        <input id="senderPass" type="text" placeholder="Pass.." />
+                        <label>Cover Password?</label>
+                        <input id="senderPassCover" type="checkbox" />
+                        <hr />
+                        <hr />
+                    </div>
+                    <h2 id="sharing-data-title">Sharing Data</h2>
+                    <div id="sharing-data-opts">
+                        <label>From</label>
+                        <input id="senderFrom" type="text" placeholder="From.." />
+                        <label>Subject</label>
+                        <input id="senderSubject" type="text" placeholder="Subject.." />
+                        <label>Include project file</label>
+                        <input id="projFile" type="checkbox" checked="true" />
+                        <label>Include image file</label>
+                        <input id="imgFile" type="checkbox" checked="true" />
+                        <label>Targets Path</label>
+                        <input id="senderTargets" type="text" placeholder="Path.." />
                     </div>
                 </div>
             </div>

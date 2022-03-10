@@ -115,11 +115,9 @@ const udPathElement = <HTMLInputElement>document.getElementById('udPath')
 
 udPathElement.value = Configuration.get().param('udPath').toString()
 udPathElement.addEventListener('click', () => {
-    //TODO:
     dialog.showOpenDialog(getCurrentWindow(), {
         properties: ['openDirectory']
     }).then((result: any) => {
-        console.log(result.filePaths)
         if (!result.filePaths.length && !result.filePaths[0]) {
             logger.log('No folder was selected', LoggerLevel.WRN)
             return
@@ -176,56 +174,136 @@ pretextElement.addEventListener('focusout', () => {
 const dbUriElement = <HTMLInputElement>document.getElementById('dbUri')
 const dbUriUncoverElement = <HTMLInputElement>document.getElementById('dbUriUncover')
 
-dbUriElement.value = Configuration.get().param('dbConnectionURI').toString() ?? ''
+dbUriElement.value = Configuration.get().param('dbConnectionURI').toString()
+dbUriElement.value = dbUriElement.value !== "not_set" ? dbUriElement.value : 'not_set'
+
+dbUriUncoverElement.checked = Configuration.get().param('dbConnectionURI_cov') as boolean
+toggleDbCover()
 
 dbUriElement.addEventListener('focusout', () => {
     if (!dbUriElement.value) {
         logger.log('No value provided for dbString! Fetching the config string', LoggerLevel.WRN)
-        dbUriElement.value = Configuration.get().param('dbConnectionURI').toString()
+        dbUriElement.value = "not_set"
     }
 
     if (dbUriElement.value.length < 3 || dbUriElement.value.length > 200) {
         logger.log('dbString too short or too long!', LoggerLevel.WRN)
-        dbUriElement.value = Configuration.get().param('dbConnectionURI').toString()
+        dbUriElement.value = "not_set"
     }
 })
 
 dbUriUncoverElement.addEventListener('change', () => {
+    toggleDbCover()
+})
+
+function toggleDbCover() {
     if (dbUriUncoverElement.checked)
         dbUriElement.type = 'password'
     else
         dbUriElement.type = 'text'
-})
+}
+
 /* DATABASE PREFS WINDOW END */
 
 /* SHARING PREFS WINDOW BEING */
-// const dbUriElement = <HTMLInputElement>document.getElementById('dbUri')
-// const dbUriUncoverElement = <HTMLInputElement>document.getElementById('dbUriUncover')
+const senderEmailElement = <HTMLInputElement>document.getElementById('senderEmail')
+const senderPassElement = <HTMLInputElement>document.getElementById('senderPass')
+const senderPassCoverElement = <HTMLInputElement>document.getElementById('senderPassCover')
+const senderTargetsElement = <HTMLInputElement>document.getElementById('senderTargets')
+const senderFromElement = <HTMLInputElement>document.getElementById('senderFrom')
+const senderSubjectElement = <HTMLInputElement>document.getElementById('senderSubject')
+const projFileElement = <HTMLInputElement>document.getElementById('projFile')
+const imgFileElement = <HTMLInputElement>document.getElementById('imgFile')
 
-// dbUriElement.value = Configuration.get().param('dbConnectionURI').toString() ?? ''
+senderEmailElement.value = Configuration.get().param('emailSenderEmail').toString()
+senderEmailElement.value = senderEmailElement.value !== "not_set" ? senderEmailElement.value : 'not_set'
 
-// dbUriElement.addEventListener('focusout', () => {
-//     if (!dbUriElement.value) {
-//         logger.log('No value provided for dbString! Fetching the config string', LoggerLevel.WRN)
-//         dbUriElement.value = Configuration.get().param('dbConnectionURI').toString()
-//     }
+senderPassElement.value = Configuration.get().param('emailSenderPass').toString()
+senderPassElement.value = senderPassElement.value !== "not_set" ? senderPassElement.value : 'not_set'
 
-//     if (dbUriElement.value.length < 3 || dbUriElement.value.length > 200) {
-//         logger.log('dbString too short or too long!', LoggerLevel.WRN)
-//         dbUriElement.value = Configuration.get().param('dbConnectionURI').toString()
-//     }
-// })
+senderTargetsElement.value = Configuration.get().param('emailTargetsPath').toString()
+senderTargetsElement.value = senderTargetsElement.value !== "not_set" ? senderTargetsElement.value : 'not_set'
 
-// dbUriUncoverElement.addEventListener('change', () => {
-//     if (dbUriUncoverElement.checked)
-//         dbUriElement.type = 'password'
-//     else
-//         dbUriElement.type = 'text'
-// })
+senderFromElement.value = Configuration.get().param('shareFrom').toString()
+senderFromElement.value = senderFromElement.value !== "not_set" ? senderFromElement.value : 'not_set'
+
+senderSubjectElement.value = Configuration.get().param('shareSubject').toString()
+senderSubjectElement.value = senderSubjectElement.value !== "not_set" ? senderSubjectElement.value : 'not_set'
+
+
+senderPassCoverElement.checked = Configuration.get().param('emailSenderPass_cov') as boolean
+projFileElement.checked = Configuration.get().param('shareProjCached') as boolean
+imgFileElement.checked = Configuration.get().param('shareImgCached') as boolean
+toggleSharePassCover()
+
+senderEmailElement.addEventListener('focusout', () => {
+    if (!senderEmailElement.value) {
+        logger.log('No value provided for senderEmail! Fetching the config string', LoggerLevel.WRN)
+        senderEmailElement.value = "not_set"
+    }
+
+    if (senderEmailElement.value.length < 3 || senderEmailElement.value.length > 200) {
+        logger.log('senderEmail too short or too long!', LoggerLevel.WRN)
+        senderEmailElement.value = "not_set"
+    }
+})
+
+senderPassElement.addEventListener('focusout', () => {
+    if (!senderPassElement.value) {
+        logger.log('No value provided for senderPass! Fetching the config string', LoggerLevel.WRN)
+        senderPassElement.value = "not_set"
+    }
+
+    if (senderPassElement.value.length < 3 || senderPassElement.value.length > 200) {
+        logger.log('senderPass too short or too long!', LoggerLevel.WRN)
+        senderPassElement.value = "not_set"
+    }
+})
+
+senderTargetsElement.addEventListener('click', () => {
+    dialog.showOpenDialog(getCurrentWindow(), {
+        properties: ['openFile'],
+        filters: [
+            { name: 'NodifySave', extensions: '.txt' }
+        ]
+    }).then((result: any) => {
+        if (!result.filePaths.length && !result.filePaths[0]) {
+            logger.log('No txt file was selected', LoggerLevel.WRN)
+            return
+        }
+        senderTargetsElement.value = result.filePaths[0]
+
+    }).catch((err: any) => { console.log(err) })
+})
+
+senderPassCoverElement.addEventListener('change', () => {
+    toggleSharePassCover()
+})
+
+function toggleSharePassCover() {
+    if (senderPassCoverElement.checked)
+        senderPassElement.type = 'password'
+    else
+        senderPassElement.type = 'text'
+}
 /* SHARING PREFS WINDOW END */
 
 
 finalSubmit.addEventListener('click', () => {
+
+    const regex = new RegExp(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
+    if (!regex.test(senderEmailElement.value) && senderEmailElement.value !== "not_set") {
+        logger.log('senderEmail is not a valid email!', LoggerLevel.WRN)
+        dialog.showMessageBoxSync(getCurrentWindow(), {
+            title: 'Sharing Warning',
+            message: "senderEmail is not a valid email!",
+            buttons: ["Ok"]
+        })
+        return
+    }
+    console.log('lol');
+
+
     ipcRenderer.send('PREFS_UPDATE', {
         canvasWidth: parseInt(width.value),
         canvasHeight: parseInt(height.value),
@@ -237,7 +315,15 @@ finalSubmit.addEventListener('click', () => {
         backgroundGridDraw: bgGrid.checked,
         beginTerminalText: pretextElement.value,
         udPath: udPathElement.value,
-        dbConnectionURI: dbUriElement.value
+        dbConnectionURI: dbUriElement.value,
+        dbConnectionURI_cov: dbUriUncoverElement.checked,
+        emailSenderEmail: senderEmailElement.value,
+        emailSenderPass: senderPassElement.value,
+        emailTargetsPath: senderTargetsElement.value,
+        shareSubject: senderSubjectElement.value,
+        shareFrom: senderFromElement.value,
+        shareImgCached: imgFileElement.checked,
+        shareProjCached: projFileElement.checked
     })
 
     /* This will close the prefs window */
