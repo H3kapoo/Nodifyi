@@ -37,6 +37,14 @@ export default class GraphModel implements IReloadable {
         return null
     }
 
+    public getAllDataForNode(id: GraphNodeId): GraphNodeSet {
+        if (this.model[id])
+            return this.model[id]
+        this.logger.log(`Node ${id} was not found!`, LoggerLevel.WRN)
+        this.terminalHelper.printErr(`Node ${id} was not found!`)
+        return null
+    }
+
     public rmNode(id: GraphNodeId) {
         if (!this.model[id]) {
             this.logger.log(`Could not delete invisible node id ${id}!`, LoggerLevel.WRN)

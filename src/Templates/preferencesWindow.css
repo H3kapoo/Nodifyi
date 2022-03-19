@@ -63,13 +63,25 @@ input{
     text-align: center;
 }
 
-#apply{
-    width: 100%;
-    padding-bottom: 10px;
-}
+
 #final_submit{
-    width: 100%;
+    width: 30%;
     height: 40px;
+    margin: auto;
+}
+
+#close_btn{
+    width: 30%;
+    height: 40px;
+    margin: auto;
+}
+
+#buttons{
+    padding-bottom: 10px;
+    width: 100%;
+    display: flex;
+    /* align-items: center; */
+    justify-content: space-around;
 }
 
 #names-of-them{

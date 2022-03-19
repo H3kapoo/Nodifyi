@@ -36,6 +36,42 @@ export default class APIHolder {
         this.outputHelper.clearTerminal()
     }
 
+    private getAllNodesConnectedTo(nodeId: number): number[] {
+        const srcNode: GraphNodeSet = this.graphModel.getAllDataForNode(nodeId)
+        if (!srcNode) {
+            this.outputHelper.setBlockStdOutput()
+            return null
+        }
+        //BFS happening here
+        let nodeIds: Set<number> = new Set()
+        nodeIds.add(nodeId)
+        let queue: number[] = [nodeId] // plays the role of queue
+
+        while (queue.length) {
+            const curr = queue.shift()
+            // console.log(curr);
+
+            // this assumes the node already exists anyway
+            const currNode: GraphNodeSet = this.graphModel.getAllDataForNode(curr)
+            //@ts-ignore
+            const outIds: number[] = currNode.outIds
+            //@ts-ignore
+            const inIds: number[] = currNode.inIds
+            const neighbours: number[] = []
+            outIds.forEach(e => neighbours.push(e))
+            inIds.forEach(e => neighbours.push(e))
+            // console.log(`Nei of ${curr} ${neighbours}`);
+
+            for (const neighbour of neighbours)
+                if (!nodeIds.has(neighbour)) {
+                    nodeIds.add(neighbour)
+                    queue.push(neighbour)
+                }
+        }
+
+        return Array.from(nodeIds)
+    }
+
     private getNodeProps(nodeId: number) {
         this.outputHelper.setBlockErrOutput() // in case it doesnt find the node, this shall be handled in the cmd logic
         const node: GraphNodeBase = this.graphModel.findNode(nodeId)
@@ -134,6 +170,11 @@ export default class APIHolder {
     private async createConnection(
         fromId: GraphNodeId, toId: GraphNodeId, options: AnyConnectionOptions): Promise<void> {
 
+        if (fromId === toId) {
+            this.outputHelper.printErr('Self connection is an option only!')
+            return
+        }
+
         if (!this.inputValidator.validateConnOptions(options)) {
             this.apiBlocked = true
             return
@@ -151,6 +192,12 @@ export default class APIHolder {
     }
 
     private createConnectionSync(fromId: GraphNodeId, toId: GraphNodeId, options: AnyConnectionOptions) {
+        if (fromId === toId) {
+            this.outputHelper.printErr('Self connection is an option only!')
+            this.outputHelper.setBlockStdOutput()
+            return
+        }
+
         if (!this.inputValidator.validateConnOptions(options)) {
             this.apiBlocked = true
             return
@@ -230,7 +277,8 @@ export default class APIHolder {
             'doOutput': this.output.bind(this),
             'clear': this.clear.bind(this),
             'getNodeProps': this.getNodeProps.bind(this),
-            'getConnectionProps': this.getConnectionProps.bind(this)
+            'getConnectionProps': this.getConnectionProps.bind(this),
+            'getAllNodesConnectedTo': this.getAllNodesConnectedTo.bind(this)
         }
     }
 

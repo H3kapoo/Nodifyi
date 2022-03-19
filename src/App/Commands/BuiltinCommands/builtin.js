@@ -112,6 +112,30 @@ module.exports = {
             api.doOutput('Deleted connections!')
         }
     },
+    "move":
+    {
+        "schema": {
+            "name": 'move',
+            "mandatory": ["id"],
+            "id": "AbsNumber",
+            "pos": "Number2",
+        },
+        async logic(parsedData, api) {
+            const nodesId = api.getAllNodesConnectedTo(parsedData.id)
+            console.log(nodesId);
+            for (const nodeId of nodesId)
+
+                //TODO: Nu verifica din cauza la isCreating din inputValidator, trebuie facut cumva
+                console.log(api.getNodeProps(nodeId).position2 + parsedData.pos);
+            // api.updateNodeSync(nodeId, {
+            //     position: api.getNodeProps(nodeId).position2 + parsedData.pos
+            // })
+
+            function getPos(nodeId) {
+
+            }
+        }
+    },
     1: {
         "schema": {
             "name": 'delnode',
@@ -169,8 +193,6 @@ module.exports = {
             "ids": "AbsNumber2"
         },
         async logic(parsedData, api) {
-            //TODO: In validity checking, add 'ff' if alpha not specified
-            //                            add x2 + alpha is only format: #XXX
             const n1 = await api.createNode({
                 position: [300, 300],
                 color: '#ff111100',
@@ -201,7 +223,7 @@ module.exports = {
             "skip": "AbsNumber"
         },
         async logic(parsedData, api) {
-            const pts = radialPoints(parsedData.pos, parsedData.radius || 300, 20)
+            const pts = radialPoints(parsedData.pos, parsedData.radius || 300, 10)
             const nodeIds = []
             for (const pt of pts) {
                 const id = await api.createNode({

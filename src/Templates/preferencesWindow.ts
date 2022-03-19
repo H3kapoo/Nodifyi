@@ -19,6 +19,8 @@ new Tabby('[data-tabs-prefs]')
 const logger = new Logger('PreferencesWindow', LoggerLevel.ERR)
 
 const finalSubmit = document.getElementById('final_submit')
+const closeBtn = document.getElementById('close_btn')
+
 const tabsIds = [
     'canvas-prefs-tab',
     'commands-prefs-tab',
@@ -288,6 +290,10 @@ function toggleSharePassCover() {
 }
 /* SHARING PREFS WINDOW END */
 
+closeBtn.addEventListener('click', () => {
+    /* This will close the prefs window */
+    getCurrentWindow().close()
+})
 
 finalSubmit.addEventListener('click', () => {
 
@@ -301,8 +307,6 @@ finalSubmit.addEventListener('click', () => {
         })
         return
     }
-    console.log('lol');
-
 
     ipcRenderer.send('PREFS_UPDATE', {
         canvasWidth: parseInt(width.value),
@@ -327,7 +331,7 @@ finalSubmit.addEventListener('click', () => {
     })
 
     /* This will close the prefs window */
-    // getCurrentWindow().close()
+    getCurrentWindow().close()
 })
 
 function clamp(min: number, max: number, value: number) {

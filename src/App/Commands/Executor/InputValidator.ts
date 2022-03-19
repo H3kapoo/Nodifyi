@@ -187,7 +187,7 @@ export default class InputValidator {
                         selfFixedTextRotation: ValidOptionsTypes.Boolean
                     },
                     animable: {
-                        position: ValidOptionsTypes.AbsNumber2,
+                        position: ValidOptionsTypes.Number2,
                         color: ValidOptionsTypes.Color,
                         duration: ValidOptionsTypes.AbsNumber,
                         easing: ValidOptionsTypes.Easing

@@ -30,60 +30,6 @@ let loadCloudlyWindowHtmlLoc = '../Webpacked/loadCloudlyWindow.html'
 const menu = new Menu()
 
 /*App Menu*/
-const debugMenu = new MenuItem({
-    label: 'Extras',
-    submenu: [
-        {
-            label: 'Export PNG',
-            accelerator: 'Shift+P',
-            click: () => { mainWindow.webContents.send('TOGGLE_EXPORT_PNG') }
-        },
-        {
-            label: 'Toggle GIF Capture',
-            accelerator: 'Shift+G',
-            click: () => { mainWindow.webContents.send('TOGGLE_CAPUTRE_GIF') }
-        },
-        {
-            label: 'Preferences',
-            accelerator: 'Shift+P',
-            click: () => { openPrefsModal() }
-        },
-        {
-            label: 'Debug console',
-            accelerator: 'Ctrl+Shift+I',
-            click: (item, focusedWindow) => {
-                mainWindow.webContents.openDevTools()
-                focusedWindow.toggleDevTools()
-            }
-        }]
-})
-
-const quick = new MenuItem({
-    label: 'Quick',
-    submenu: [
-        {
-            label: 'Toggle indexing',
-            accelerator: 'Shift+I',
-            click: () => { mainWindow.webContents.send('TOGGLE_INDEXING') }
-        },
-        {
-            label: 'Reload commands',
-            accelerator: 'Shift+R',
-            click: () => { mainWindow.webContents.send('RELOAD_COMMANDS') }
-        },
-        {
-            label: 'Undo',
-            accelerator: 'Ctrl+,',
-            click: () => { mainWindow.webContents.send('UNDO_ACTION') }
-        },
-        {
-            label: 'Redo',
-            accelerator: 'Ctrl+.',
-            click: () => { mainWindow.webContents.send('REDO_ACTION') }
-        }
-    ]
-})
-
 const fileMenu = new MenuItem({
     label: 'File',
     submenu: [
@@ -104,29 +50,109 @@ const fileMenu = new MenuItem({
             click: () => { mainWindow.webContents.send('SAVEAS_LOCALLY') }
         },
         {
-            label: 'Load',
+            label: 'Load File..',
             accelerator: 'Shift+L',
             click: () => { mainWindow.webContents.send('LOAD_LOCALLY') }
+        }]
+})
+
+const editMenu = new MenuItem({
+    label: 'Edit',
+    submenu: [
+        {
+            label: 'Toggle Node Indexing',
+            accelerator: 'Shift+I',
+            click: () => { mainWindow.webContents.send('TOGGLE_INDEXING') },
+        },
+        ,
+        {
+            label: 'Undo',
+            accelerator: 'Ctrl+,',
+            click: () => { mainWindow.webContents.send('UNDO_ACTION') }
         },
         {
-            label: 'Save Cloudly',
-            accelerator: 'Shift+K',
-            click: () => { mainWindow.webContents.send('SAVE_CLOUDLY') }
+            label: 'Redo',
+            accelerator: 'Ctrl+.',
+            click: () => { mainWindow.webContents.send('REDO_ACTION') }
         },
         {
-            label: 'Load Cloudly',
+            label: 'Reload Commands',
+            accelerator: 'Shift+R',
+            click: () => { mainWindow.webContents.send('RELOAD_COMMANDS') }
+        },
+        {
+            label: 'Preferences',
+            accelerator: 'Shift+I',
+            click: () => { openPrefsModal() }
+        }]
+})
+
+const exportMenu = new MenuItem({
+    label: 'Export',
+    submenu: [
+        {
+            label: 'Export As PNG',
+            accelerator: 'Shift+P',
+            click: () => { mainWindow.webContents.send('TOGGLE_EXPORT_PNG') }
+        },
+        {
+            label: 'Export As JPEG',
+            accelerator: 'Shift+J',
+            click: () => { mainWindow.webContents.send('TOGGLE_EXPORT_PNG') }
+        },
+        {
+            label: 'Toggle GIF Capture',
+            accelerator: 'Shift+G',
+            click: () => { mainWindow.webContents.send('TOGGLE_CAPUTRE_GIF') }
+        }
+    ]
+})
+
+const shareMenu = new MenuItem({
+    label: 'Share',
+    submenu: [
+        {
+            label: 'Email To Targets',
+            accelerator: 'Shift+F',
+            click: () => { mainWindow.webContents.send('SEND_MAIL') }
+        }
+    ]
+})
+
+const cloudMenu = new MenuItem({
+    label: 'Cloud',
+    submenu: [
+        {
+            label: 'Load From Cloud',
             accelerator: 'Shift+J',
             click: () => { mainWindow.webContents.send('LOAD_CLOUDLY') }
         },
         {
-            label: 'Share Email',
-            accelerator: 'Shift+F',
-            click: () => { mainWindow.webContents.send('SEND_MAIL') }
+            label: 'Save To Cloud',
+            accelerator: 'Shift+K',
+            click: () => { mainWindow.webContents.send('SAVE_CLOUDLY') }
+        },
+    ]
+})
+
+const debugMenu = new MenuItem({
+    label: 'Debug',
+    submenu: [
+        {
+            label: 'Debug console',
+            accelerator: 'Ctrl+Shift+I',
+            click: (item, focusedWindow) => {
+                mainWindow.webContents.openDevTools()
+                focusedWindow.toggleDevTools()
+            }
         }]
 })
 
 menu.append(fileMenu)
-menu.append(quick)
+menu.append(editMenu)
+menu.append(exportMenu)
+menu.append(shareMenu)
+menu.append(cloudMenu)
 menu.append(debugMenu)
 Menu.setApplicationMenu(menu)
 
@@ -140,7 +166,6 @@ ipcMain.on('DISPATCH_OPEN_CLOUD_SAVE', (e, v) => openSaveCloudlyModalAndSendData
 ipcMain.on('FINALIZE_SAVE', (e, v) => mainWindow.webContents.send('FINALIZE_SAVE', v))
 ipcMain.on('DISPATCH_OPEN_CLOUD_LOAD', (e, v) => openLoadCloudlyModalAndSendData(v))
 ipcMain.on('FINALIZE_LOAD', (e, v) => mainWindow.webContents.send('FINALIZE_LOAD', v))
-
 
 /* Create window */
 app.whenReady().then(() => {
@@ -216,6 +241,7 @@ function openPrefsModal() {
         height: 700,
         modal: true,
         show: false,
+        frame: false,
         parent: mainWindow,
         webPreferences: {
             nodeIntegration: true,
@@ -225,7 +251,7 @@ function openPrefsModal() {
     });
 
     childWindow.loadFile(path.join(__dirname, prefsWindowHtmlLoc))
-    // childWindow.setMenu(null)
+    childWindow.setMenu(null)
     require("@electron/remote/main").enable(childWindow.webContents)
     childWindow.once("ready-to-show", () => { childWindow.show() })
 }

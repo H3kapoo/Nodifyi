@@ -5,7 +5,7 @@ import Renderer from "../../Renderer/Renderer"
 import TerminalTabOutputHelper from "../../Tabs/TerminalTabOutputHelper"
 import { CommandsStruct, ParsedInput } from "../../types"
 import IParserListener from "../Parser/IParserListener"
-const { getCurrentWindow } = require('@electron/remote')
+const { dialog, getCurrentWindow } = require('@electron/remote')
 import APIHolder from "./APIHolder"
 import UndoRedo from "./UndoRedo"
 
@@ -44,7 +44,6 @@ export default class Executor implements IParserListener, IReloadable {
                 this.undoRedo.memorizeBeforeExec()
                 if (!this.renderer.isBusyDrawing()) {
                     this.setProjectDirty()
-
                     await this.commands[parsedInput.commandName]
                         .logic(parsedInput.options, this.API.getProxyAPI())
                 }
@@ -54,9 +53,10 @@ export default class Executor implements IParserListener, IReloadable {
                 }
                 this.undoRedo.memorize()
             }
-            //TODO: Catch syntax errors here from the user side and process them
             catch (err) {
-                console.log(err)
+                this.showDialogMsg(
+                    `Logic error occured while running command '${parsedInput.commandName}':\n ${err.toString()}\nPlease check your logic behaviour!`)
+                this.logger.log(err)
             }
         }
         return true
@@ -71,6 +71,14 @@ export default class Executor implements IParserListener, IReloadable {
         if (windowTitle[windowTitle.length - 1] === '*')
             return
         getCurrentWindow().setTitle(windowTitle + '*')
+    }
+
+    private showDialogMsg(msg: string) {
+        dialog.showMessageBoxSync(getCurrentWindow(), {
+            title: 'Custom Commands Notification',
+            message: msg,
+            buttons: ["OK"],
+        })
     }
 
     public onConfReload() { }

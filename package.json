@@ -14,6 +14,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@electron/remote": "^2.0.7",
     "@types/chai": "^4.3.0",
     "@types/fabric": "^4.5.7",
     "@types/fluent-ffmpeg": "^2.1.20",
@@ -42,7 +43,6 @@
     "webpack-cli": "^4.9.1"
   },
   "devDependencies": {
-    "@electron/remote": "^2.0.1",
     "@testdeck/mocha": "^0.2.0",
     "@types/electron": "^1.6.10",
     "@types/jsdom": "^16.2.14",

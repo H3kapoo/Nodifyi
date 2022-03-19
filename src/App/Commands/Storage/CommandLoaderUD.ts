@@ -1,6 +1,7 @@
 import { Logger, LoggerLevel } from "../../../Logger/Logger"
 import { ValidArgTypes } from "../Validation/ValidArgTypes"
 import { CommandsStruct } from "../../types"
+const { dialog, getCurrentWindow } = require('@electron/remote')
 import path from 'path'
 import fs from 'fs'
 
@@ -20,12 +21,14 @@ export default class CommandLoaderUD {
         // but there ill be no user defined commands available, user shall be notified
         if (!cmdPaths) {
             this.logger.log(`User defined commands could not be loaded from directory.Continuing without them!`, LoggerLevel.WRN)
+            this.showDialogMsg(`User defined commands could not be loaded from directory.Continuing without them!`)
             return true
         }
 
         for (const cmdPath of cmdPaths) {
             const object = this.getObject(cmdPath)
 
+            // currently it will not load any cmds if at least one is failed
             if (!object)
                 return false
 
@@ -36,6 +39,8 @@ export default class CommandLoaderUD {
             if (commandsFaker[object.schema.name]) {
                 //@ts-ignore
                 this.logger.log(`User defined command '${object.schema.name}' already exists!`, LoggerLevel.ERR)
+                //@ts-ignore
+                this.showDialogMsg(`Definition of command name '${object.schema.name}' already exists! Please delete the dupe!`)
                 return false
             }
 
@@ -57,6 +62,8 @@ export default class CommandLoaderUD {
                 if (i >= 3)
                     if (cmdPath[i - 3] !== '.' && cmdPath[i - 2] !== 'j' && cmdPath[i - 1] !== 's') {
                         this.logger.log(`Commands folder should only contain valid JS files!Not a valid JS file ${cmdPath}`, LoggerLevel.ERR)
+                        this.showDialogMsg(`Commands folder should only contain valid JS files! \
+                         ${cmdPath} is not a valid JS file!`)
                         return null
                     }
             }
@@ -74,11 +81,13 @@ export default class CommandLoaderUD {
             rawObject = fs.readFileSync(cmdPath).toString()
         } catch (err) {
             this.logger.log(`Command defined at ${cmdPath} could not be read!`, LoggerLevel.ERR)
+            this.showDialogMsg(`Command defined at ${cmdPath} could not be read!`)
             return null
         }
 
         if (!rawObject.indexOf('{')) {
             this.logger.log(`Command defined at ${cmdPath} has wrong format, missing opening '{' !`, LoggerLevel.ERR)
+            this.showDialogMsg(`Command defined at ${cmdPath} has wrong format, missing opening '{' !`)
             return null
         }
 
@@ -86,6 +95,7 @@ export default class CommandLoaderUD {
 
         if (!rawObject.lastIndexOf('}')) {
             this.logger.log(`Command defined at ${cmdPath} has wrong format, missing closing '}' !`, LoggerLevel.ERR)
+            this.showDialogMsg(`Command defined at ${cmdPath} has wrong format, missing closing '}' !`)
             return null
         }
 
@@ -97,6 +107,7 @@ export default class CommandLoaderUD {
             object = eval(`new Object( ${rawObject})`)
         } catch (err) {
             this.logger.log(`Command defined at ${cmdPath} object could not be parsed!`, LoggerLevel.ERR)
+            this.showDialogMsg(`Command defined at ${cmdPath} object could not be parsed! Check for misspelling or typos!`)
             return null
         }
         return object
@@ -145,4 +156,12 @@ export default class CommandLoaderUD {
     }
 
     public getCommands(): CommandsStruct { return this.commands ?? {} }
+
+    private showDialogMsg(msg: string) {
+        dialog.showMessageBoxSync(getCurrentWindow(), {
+            title: 'Custom Commands Notification',
+            message: msg,
+            buttons: ["OK"],
+        })
+    }
 }
