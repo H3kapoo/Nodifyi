@@ -20,7 +20,7 @@ export default class Executor implements IParserListener, IReloadable {
     private undoRedo: UndoRedo
 
     public initialize(graphModel: GraphModel, renderer: Renderer, commands: CommandsStruct) {
-        this.API = new APIHolder(graphModel, renderer)
+        this.API = new APIHolder(graphModel, renderer, commands)
         this.terminalHelper = new TerminalTabOutputHelper()
         this.renderer = renderer
         this.commands = commands

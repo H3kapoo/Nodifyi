@@ -1,1 +1,1 @@
-{"nodes":{"1":{"type":"Circle","options":{"position":[300,400],"indexing":false,"radius":30,"selfConnect":true,"selfArrow":true,"selfAngle":185,"selfFixedTextRotation":true,"selfText":"ceva text aci","color":"#000000ff"},"inIds":[],"outIds":[]}},"conns":{}}
+{"nodes":{"1":{"type":"Circle","options":{"position":[300,400],"radius":30,"color":"#000000ff","text":"B","startConn":true},"inIds":[],"outIds":[]}},"conns":{}}

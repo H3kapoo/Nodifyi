@@ -13,12 +13,13 @@
     "frame_skip": 1,
     "dbConnectionURI": "not_set",
     "dbConnectionURI_cov": true,
-    "emailTargetsPath": "/home/hekapoo/Documents/_Licence/nodify2/src/App/Sharing/dummyList.txt",
+    "emailTargetsPath": "not_set",
     "emailSenderEmail": "not_set",
     "emailSenderPass": "not_set",
     "emailSenderPass_cov": true,
     "shareImgCached": true,
     "shareProjCached": true,
     "shareFrom": "not_set",
-    "shareSubject": "not_set"
+    "shareSubject": "not_set",
+    "rightSideTerminal": false
 }

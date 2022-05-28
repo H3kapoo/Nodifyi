@@ -22,6 +22,7 @@ const finalSubmit = document.getElementById('final_submit')
 const closeBtn = document.getElementById('close_btn')
 
 const tabsIds = [
+    'appearance-prefs-tab',
     'canvas-prefs-tab',
     'commands-prefs-tab',
     'exporting-prefs-tab',
@@ -51,6 +52,12 @@ document.addEventListener('tabby', (event) => {
     //@ts-ignore
     document.getElementById(currentTabId).style.display = 'flex'
 })
+
+/* APPEARANCE PREFS WINDOW BEING */
+const rSideTermElem = <HTMLInputElement>document.getElementById('right_terminal')
+rSideTermElem.checked = Configuration.get().param('rightSideTerminal') as boolean
+/* APPEARANCE PREFS WINDOW BEING */
+
 
 /* CANVAS PREFS WINDOW BEING */
 const width = <HTMLInputElement>document.getElementById('width')
@@ -327,7 +334,8 @@ finalSubmit.addEventListener('click', () => {
         shareSubject: senderSubjectElement.value,
         shareFrom: senderFromElement.value,
         shareImgCached: imgFileElement.checked,
-        shareProjCached: projFileElement.checked
+        shareProjCached: projFileElement.checked,
+        rightSideTerminal: rSideTermElem.checked
     })
 
     /* This will close the prefs window */

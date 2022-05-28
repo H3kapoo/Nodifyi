@@ -150,7 +150,7 @@ export default class ShareManager implements IReloadable {
         }
 
         if (this.emailSubjectString === "not_set") {
-            this.logger.log("'emailFromString' is not set. Using defaults", LoggerLevel.WRN)
+            this.logger.log("'emailSubjectString' is not set. Using defaults", LoggerLevel.WRN)
             this.emailSubjectString = 'NodifyApp - Subject Default'
         }
         this.shallIncludeImg = Configuration.get().param('shareImgCached') as boolean

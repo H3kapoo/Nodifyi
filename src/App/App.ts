@@ -10,8 +10,8 @@ import Executor from "./Commands/Executor/Executor"
 import CommandStore from "./Commands/Storage/CommandStore"
 import SaveLoadFacade from "./SaveLoad/SaveLoadFacade"
 import ExportManager from "./Exporting/ExportManager"
-import { GraphNodeSet } from "./types"
 import ShareManager from "./Sharing/ShareManager"
+import GraphNodeBase from "./GraphModel/GraphNodeBase"
 const { ipcRenderer } = require('electron')
 
 
@@ -109,13 +109,19 @@ export default class App {
 
         /* Toggle if indexing shall be present on nodes, not the best place to put it..*/
         ipcRenderer.on('TOGGLE_INDEXING', () => {
-            const nodes: GraphNodeSet = this.graphModel.getModel()
-            for (const [id, node] of Object.entries(nodes)) {
-                //@ts-ignore
-                node.graphNode.toggleHeadsUpIndexing()
-            }
+            GraphNodeBase.toggleHeadsUpIndexing()
             this.renderer.render(false)
         })
+
+        // /* Quick change of UI pos, TO BE REMOVED: works*/
+        // ipcRenderer.on('UPDATE_UI', () => {
+        //     this.splitInstance.destroy()
+        //     this.splitInstance = Split(['#subview-1', '#subview-2'], {
+        //         sizes: [50, 50],
+        //         direction: 'horizontal'
+        //     })
+        //     document.getElementById('application-container').style.flexDirection = 'row'
+        // })
 
         /* Start-app render trigger */
         this.renderer.render(false)

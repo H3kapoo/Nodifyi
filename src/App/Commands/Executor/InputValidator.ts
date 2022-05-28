@@ -36,7 +36,17 @@ export default class InputValidator {
     }
 
     public validateNodeOptions(options: AnyObjectOptions, nodeType: NodeType, isCreating: boolean = true): boolean {
+
         const validity = this.generalValidity.nodes[nodeType]
+
+        if (!validity) {
+            this.logger.log(`Node type ${nodeType} not found!`, LoggerLevel.WRN)
+            return false
+        }
+
+        // filter if entry is undefined or null, 
+        options = Object.fromEntries(
+            Object.entries({ ...options }).filter(([key, value]) => value !== undefined))
 
         // check required opts
         // we shall check this options only at creation
@@ -61,8 +71,8 @@ export default class InputValidator {
                 }
             }
         }
-        // check non requried opts
-        for (const [reqOptName, reqOptType] of Object.entries(validity.other)) {
+        // check non requried opts + req (that wont cause option required here), hack for now
+        for (const [reqOptName, reqOptType] of Object.entries({ ...validity.required, ...validity.other })) {
             if (!options[reqOptName])
                 continue
             try {
@@ -124,8 +134,9 @@ export default class InputValidator {
                 }
             }
         }
-        // check non requried opts
-        for (const [reqOptName, reqOptType] of Object.entries(validity.other)) {
+
+        // check non requried opts + req (that wont cause option required here), hack for now
+        for (const [reqOptName, reqOptType] of Object.entries({ ...validity.required, ...validity.other })) {
             if (!options[reqOptName])
                 continue
             try {
@@ -174,6 +185,7 @@ export default class InputValidator {
                     other: {
                         color: ValidOptionsTypes.Color,
                         text: ValidOptionsTypes.String,
+                        radius: ValidOptionsTypes.AbsNumber,
                         startConn: ValidOptionsTypes.Boolean,
                         startConnAngle: ValidOptionsTypes.Number,
                         startConnLength: ValidOptionsTypes.AbsNumber,

@@ -7,14 +7,12 @@ const { ipcRenderer } = require('electron')
 export default abstract class GraphNodeBase {
     static idGiver = 1
     protected uniqueId: number
-    protected indexing: boolean
+    protected static indexing: boolean = false
     protected animator: Animator
     protected options: AnyGraphNodeOptions
 
     /* To give the node an unique id */
-    protected initialize() {
-        this.uniqueId = GraphNodeBase.idGiver++; this.indexing = false
-    }
+    protected initialize() { this.uniqueId = GraphNodeBase.idGiver++; }
 
     /* To basically render the node */
     public abstract render(ctx: CanvasRenderingContext2D): void
@@ -68,14 +66,14 @@ export default abstract class GraphNodeBase {
             this.options[opt] = val
     }
 
-    public toggleHeadsUpIndexing() { this.indexing = !this.indexing }
-
-    public getIndexingState() { return this.indexing }
+    public static toggleHeadsUpIndexing() { GraphNodeBase.indexing = !GraphNodeBase.indexing }
 
     public getUniqueId() { return this.uniqueId }
 
     /* To get the current options on the node */
-    public getOptions(): GraphNodeBaseOptions { return this.options }
+    public getOptions(): GraphNodeBaseOptions {
+        return this.options
+    }
 
     /** TESTS ONLY , maybe deprecated, who needs tests:)) */
     public static testOnlyResetIdGiver() { GraphNodeBase.idGiver = 0 }

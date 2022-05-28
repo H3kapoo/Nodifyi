@@ -10,10 +10,4 @@ import '../src/App/Styles/index.css'
 new Tabby('[data-tabs-left]')
 new Tabby('[data-tabs-right]')
 
-/* Split into 2 parts (area 1 & 2) */
-Split(['#subview-1', '#subview-2'], {
-    sizes: [75, 25],
-    direction: 'vertical'
-})
-
 const app = new App()

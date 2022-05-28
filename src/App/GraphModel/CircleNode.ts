@@ -7,11 +7,10 @@ import GraphNodeBase from "./GraphNodeBase"
 enum CircleNodeDefaults {
     COLOR = '#000000ff',
     RADIUS = 30,
-    SELF_CONN_ELEV = 100,
     SELF_CONN_ANGLE = 90,
     SELF_CONN_APERTURE_ANGLE = 36,
     SELF_CONN_TEXT_ELEVATION = 30,
-    SELF_CONN_ELEVATION = 30,
+    SELF_CONN_ELEVATION = 100,
     START_CONN_ANGLE = 180,
     START_CONN_LENGTH = 50
 }
@@ -21,9 +20,14 @@ export default class CircleNode extends GraphNodeBase {
     constructor(options: CircleNodeOptions) {
         super()
         this.initialize()
-        this.options = options
-        this.options.color = this.options.color ?? CircleNodeDefaults.COLOR
-        this.options.radius = this.options.radius ?? CircleNodeDefaults.RADIUS
+        this.options = {}
+        this.options.radius = CircleNodeDefaults.RADIUS
+        this.options.color = CircleNodeDefaults.COLOR
+
+        for (const [opt, val] of Object.entries(options))
+            //@ts-ignore
+            this.options[opt] = val
+
     }
 
     public render(context: CanvasRenderingContext2D) {
@@ -31,6 +35,7 @@ export default class CircleNode extends GraphNodeBase {
         const position: Vec2d = this.options.position
         const color: string = this.options.color
         const radius: number = this.options.radius
+
         context.beginPath()
         context.arc(position[0], position[1], radius, 0, 2 * Math.PI)
         context.lineWidth = 4
@@ -38,18 +43,20 @@ export default class CircleNode extends GraphNodeBase {
         context.stroke()
 
         if (this.options.selfConnect) this.renderSelfConnection(context)
-        if (this.indexing) { this.renderHeadsUpIndexing(context) }
+        if (GraphNodeBase.indexing) { this.renderHeadsUpIndexing(context) }
         if (this.options.text) { this.renderInsideText(context) }
         if (this.options.startConn) { this.renderStartConnection(context) }
     }
 
     private renderSelfConnection(context: CanvasRenderingContext2D) {
         const position: Vec2d = this.options.position
-        const color: string = this.options.color
-        const radius: number = this.options.radius
+        const color: string = this.options.color || CircleNodeDefaults.COLOR
+        const radius: number = this.options.radius || CircleNodeDefaults.RADIUS
+        console.log('ceva');
 
         // draw self connection
-        const elev = this.options.selfTextElevation + (0.001) || CircleNodeDefaults.SELF_CONN_ELEVATION
+        const elev = this.options.selfElevation + (0.001) || CircleNodeDefaults.SELF_CONN_ELEVATION
+
         let angleFromUp = -this.options.selfAngle + (180.001) || CircleNodeDefaults.SELF_CONN_ANGLE
         angleFromUp = utils.degToRad(angleFromUp)
 
@@ -119,6 +126,7 @@ export default class CircleNode extends GraphNodeBase {
 
     private renderStartConnection(context: CanvasRenderingContext2D) {
         const position: Vec2d = this.options.position
+
         const color: string = this.options.color
         const radius: number = this.options.radius
         const startConnLength = this.options.startConnLength + (0.001) || CircleNodeDefaults.START_CONN_LENGTH
@@ -152,7 +160,6 @@ export default class CircleNode extends GraphNodeBase {
     private renderHeadsUpIndexing(context: CanvasRenderingContext2D) {
         const position: Vec2d = this.options.position
         const radius: number = this.options.radius
-
         context.font = '2em Courier New'
         context.textAlign = 'center'
         context.textBaseline = 'middle'

@@ -1,3 +1,24 @@
+/*
+
+POSSIBLE TEST CASES FOR POSSIBLE BASIC BUILT IN COMMANDS:
+- create nodes
+    make.node -pos x,y|x2,y2|.. -radius 30 -color ff00ffff
+    make.node -pos x,y|x2,y2|.. -apos x,y|x2,y2|.. -radius 30 -aradius 30 -color ff00ffff -acolor ff00ffff -ease easeIn -duration 2000
+
+- update nodes
+    update.node -id x,y,z,.. -radius 3 -others..
+    update.node -id x,y,z,.. -aradius 3 -aothers.. -duration 2000 -ease easeIn
+
+- delete nodes
+    update.delete -id x,y,z,..
+    //no anim
+
+- create conns
+    make.conn -id x,y|x2,y2 -text t1,t2
+- update conns
+- delete conns
+
+*/
 module.exports = {
     "clear":
     {
@@ -9,45 +30,103 @@ module.exports = {
             api.clear()
         }
     },
+    "list":
+    {
+        "schema": {
+            "name": 'list',
+            "mandatory": [],
+        },
+        async logic(_, api) {
+            api.listCommands()
+        }
+    },
     "cn":
     {
         "schema": {
             "name": 'cn',
             "mandatory": ["pos"],
             "pos": "Number2vs",
-            "index": "Boolean",
-            "rad": "AbsNumber",
-            "sc": "Boolean",
-            "st": "Stringv",
-            "symb": "String"
+            "radius": "AbsNumber",
+            "color": "String",
+            "text": "String",
+            "startConn": "Boolean",
+            "startConnAngle": "Number",
+            "startConnLength": "AbsNumber",
+            "selfConnect": "Boolean",
+            "selfArrow": "Boolean",
+            "selfText": "String",
+            "selfAngle": "Number",
+            "selfElevation": "AbsNumber",
+            "selfApertureAngle": "Number",
+            "selfTextElevation": "Number",
+            "selfFixedTextRotation": "Boolean"
         },
         async logic(parsedData, api) {
-            for (const pos of parsedData.pos)
-                api.createNodeSync({
+            for (const pos of parsedData.pos) {
+                api.createNodeSync('Circle', {
                     position: pos,
-                    startConn: true,
-                    startConnLength: 100,
-                    startConnAngle: 40,
-                    text: parsedData.symb ?? ''
+                    radius: parsedData.radius,
+                    color: parsedData.color,
+                    text: parsedData.text,
+                    startConn: parsedData.startConn,
+                    startConnAngle: parsedData.startConnAngle,
+                    startConnLength: parsedData.startConnLength,
+                    selfConnect: parsedData.selfConnect,
+                    selfArrow: parsedData.selfArrow,
+                    selfText: parsedData.selfText,
+                    selfAngle: parsedData.selfAngle,
+                    selfElevation: parsedData.selfElevation,
+                    selfApertureAngle: parsedData.selfApertureAngle,
+                    selfTextElevation: parsedData.selfTextElevation,
+                    selfFixedTextRotation: parsedData.selfFixedTextRotation
                 })
-            api.doOutput('Created nodes!')
+                api.doOutput(`Created node at position ${pos}!`)
+            }
         }
     },
     "un":
     {
         "schema": {
             "name": 'un',
-            "mandatory": ["id", "pos"],
+            "mandatory": ["id"],
             "id": "AbsNumberv",
-            "ang": "Numberv",
-            "pos": "AbsNumber2vs"
+            "pos": "AbsNumber2vs",
+            "radius": "Number",
+            "color": "String",
+            "text": "String",
+            "startConn": "Boolean",
+            "startConnAngle": "Number",
+            "startConnLength": "AbsNumber",
+            "selfConnect": "Boolean",
+            "selfArrow": "Boolean",
+            "selfText": "String",
+            "selfAngle": "Number",
+            "selfElevation": "AbsNumber",
+            "selfApertureAngle": "Number",
+            "selfTextElevation": "Number",
+            "selfFixedTextRotation": "Boolean"
         },
         async logic(parsedData, api) {
-            for (const [index, id] of parsedData.id.entries())
-                if (index < parsedData.pos.length) {
-                    api.updateNodeSync(id, { position: parsedData.pos[index] })
-                }
-            api.doOutput('Updated nodes!')
+            for (let index = 0; index < parsedData.id.length; index++) {
+                api.updateNodeSync(parsedData.id[index], {
+                    position: parsedData.pos ? parsedData.pos[index] : undefined,
+                    radius: parsedData.radius,
+                    color: parsedData.color,
+                    text: parsedData.text,
+                    startConn: parsedData.startConn,
+                    startConnAngle: parsedData.startConnAngle,
+                    startConnLength: parsedData.startConnLength,
+                    selfConnect: parsedData.selfConnect,
+                    selfArrow: parsedData.selfArrow,
+                    selfText: parsedData.selfText,
+                    selfAngle: parsedData.selfAngle,
+                    selfElevation: parsedData.selfElevation,
+                    selfApertureAngle: parsedData.selfApertureAngle,
+                    selfTextElevation: parsedData.selfTextElevation,
+                    selfFixedTextRotation: parsedData.selfFixedTextRotation
+                })
+            }
+            api.doOutput(`Updated nodes!`)
         }
     },
     "dn":
@@ -57,7 +136,7 @@ module.exports = {
             "mandatory": ["id"],
             "id": "AbsNumberv",
         },
-        async logic(parsedData, api) {
+        logic(parsedData, api) {
             for (const id of parsedData.id)
                 api.deleteNodeSync(id)
             api.doOutput('Deleted nodes!')
@@ -68,34 +147,55 @@ module.exports = {
         "schema": {
             "name": 'cc',
             "mandatory": ["id"],
-            "text": "Stringv",
-            "elev": "Number",
+            "elevation": "AbsNumber",
+            "color": "String",
+            "directed": "Boolean",
+            "text": "String",
+            "fixedTextRotation": "Boolean",
+            "textColor": "String",
+            "textElevation": "Number",
             "id": "AbsNumber2vs",
         },
         async logic(parsedData, api) {
             for (const id of parsedData.id)
                 api.createConnectionSync(id[0], id[1], {
-                    text: parsedData.text ? parsedData.text.join(',') : '',
-                    fixedTextRotation: false,
-                    elevation: 200,
-                    textColor: '#000000',
-                    directed: true,
+                    elevation: parsedData.elevation,
+                    color: parsedData.color,
+                    directed: parsedData.directed,
+                    text: parsedData.text,
+                    fixedTextRotation: parsedData.fixedTextRotation,
+                    textColor: parsedData.textColor,
+                    textElevation: parsedData.textElevation,
                 })
             api.doOutput('Created connections!')
+            // cn pos 400,500|800,600 && cc id 1,2 directed true
         }
     },
     "uc":
     {
         "schema": {
             "name": 'uc',
-            "mandatory": ["id", "elev"],
+            "mandatory": ["id"],
+            "elevation": "AbsNumber",
+            "color": "String",
+            "directed": "Boolean",
+            "text": "String",
+            "fixedTextRotation": "Boolean",
+            "textColor": "String",
+            "textElevation": "Number",
             "id": "AbsNumber2vs",
-            "elev": "AbsNumberv"
         },
         async logic(parsedData, api) {
-            for (const [index, id] of parsedData.id.entries())
-                if (index < parsedData.elev.length)
-                    api.updateConnectionSync(id[0], id[1], { elevation: parsedData.elev[index] })
+            for (const id of parsedData.id)
+                api.updateConnectionSync(id[0], id[1], {
+                    elevation: parsedData.elevation,
+                    color: parsedData.color,
+                    directed: parsedData.directed,
+                    text: parsedData.text,
+                    fixedTextRotation: parsedData.fixedTextRotation,
+                    textColor: parsedData.textColor,
+                    textElevation: parsedData.textElevation,
+                })
             api.doOutput('Updated connections!')
         }
     },
@@ -123,16 +223,27 @@ module.exports = {
         async logic(parsedData, api) {
             const nodesId = api.getAllNodesConnectedTo(parsedData.id)
             console.log(nodesId);
-            for (const nodeId of nodesId)
-
-                //TODO: Nu verifica din cauza la isCreating din inputValidator, trebuie facut cumva
-                console.log(api.getNodeProps(nodeId).position2 + parsedData.pos);
-            // api.updateNodeSync(nodeId, {
-            //     position: api.getNodeProps(nodeId).position2 + parsedData.pos
-            // })
-
-            function getPos(nodeId) {
-
+            for (const nodeId of nodesId) {
+                console.log(api.getNodeProps(nodeId).position + parsedData.pos);
+                api.updateNodeSync(nodeId, {
+                    position: [api.getNodeProps(nodeId).position[0] + parsedData.pos[0],
+                    api.getNodeProps(nodeId).position[1] + parsedData.pos[1]]
+                })
+            }
+        }
+    },
+    "gd":
+    {
+        "schema": {
+            "name": 'gd',
+            "mandatory": ["id"],
+            "id": "AbsNumber",
+        },
+        async logic(parsedData, api) {
+            const nodesId = api.getAllNodesConnectedTo(parsedData.id)
+            console.log(nodesId);
+            for (const nodeId of nodesId) {
+                api.deleteNodeSync(nodeId)
             }
         }
     },
@@ -153,18 +264,14 @@ module.exports = {
             ]
             let ids = []
             for (const pos of poss) {
-                const id = await api.createNode({
-                    position: pos,
-                    color: '#00000000',
-                    animation: {
-                        color: '#000000ff',
-                        duration: 500
-                    }
-                })
+                const id =
+                    api.createNodeSync('Circle', {
+                        position: pos,
+                        color: '#00000000'
+                    })
                 ids.push(id)
             }
 
-            //TO FIX: trying to create conns on startPos === endPos
             for (let i = 0; i < ids.length - 1; i++) {
                 await api.createConnection(ids[i], ids[i + 1], {
                     elevation: 0,
@@ -201,7 +308,7 @@ module.exports = {
                     duration: 500
                 }
             })
-            const n2 = await api.createNode({
+            const n2 = await api.createNode('Circle', {
                 position: [600, 600]
             })
 
@@ -226,7 +333,7 @@ module.exports = {
             const pts = radialPoints(parsedData.pos, parsedData.radius || 300, 10)
             const nodeIds = []
             for (const pt of pts) {
-                const id = await api.createNode({
+                const id = await api.createNode('Circle', {
                     position: pt,
                     color: '#000000ff',
                 })

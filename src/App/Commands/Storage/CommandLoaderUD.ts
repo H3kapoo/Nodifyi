@@ -59,13 +59,15 @@ export default class CommandLoaderUD {
             // added now
             for (const cmdPath of cmdPaths) {
                 const i = cmdPath.length
-                if (i >= 3)
-                    if (cmdPath[i - 3] !== '.' && cmdPath[i - 2] !== 'j' && cmdPath[i - 1] !== 's') {
-                        this.logger.log(`Commands folder should only contain valid JS files!Not a valid JS file ${cmdPath}`, LoggerLevel.ERR)
+
+                if (i >= 3) {
+                    if (cmdPath[i - 3] !== '.' || cmdPath[i - 2] !== 'j' || cmdPath[i - 1] !== 's') {
+                        this.logger.log(`Commands folder should only contain valid JS files! Not a valid JS file ${cmdPath}`, LoggerLevel.ERR)
                         this.showDialogMsg(`Commands folder should only contain valid JS files! \
                          ${cmdPath} is not a valid JS file!`)
                         return null
                     }
+                }
             }
             return cmdPaths
         } catch (error) {
@@ -118,6 +120,12 @@ export default class CommandLoaderUD {
         //@ts-ignore
         if (!object.schema) {
             this.logger.log(`Command defined at ${cmdPath} has no schema set!`, LoggerLevel.ERR)
+            return false
+        }
+
+        //@ts-ignore
+        if (!object.logic) {
+            this.logger.log(`Command defined at ${cmdPath} has no logic defined!`, LoggerLevel.ERR)
             return false
         }
 

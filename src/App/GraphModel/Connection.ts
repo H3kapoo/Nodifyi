@@ -33,6 +33,9 @@ export default class Connection {
         const fromNodeOpts: GraphNodeBaseOptions = this.fromNode.getOptions()
         const toNodeOpts: GraphNodeBaseOptions = this.toNode.getOptions()
 
+        if (this.fromNode == this.toNode)
+            return
+
         const connStartPos: Vec2d = fromNodeOpts.position
         const connEndPos: Vec2d = toNodeOpts.position
 
@@ -136,6 +139,8 @@ export default class Connection {
     }
 
     public updateOptions(options: ConnectionOptions) {
+        console.log('opts in conn ', options);
+
         for (const [opt, val] of Object.entries(options))
             //@ts-ignore
             this.options[opt] = val

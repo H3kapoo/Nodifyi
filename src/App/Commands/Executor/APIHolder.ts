@@ -7,7 +7,7 @@ import Renderer from "../../Renderer/Renderer";
 import TerminalTabOutputHelper from "../../Tabs/TerminalTabOutputHelper";
 import {
     AnyConnectionOptions, AnyGraphNodeOptions,
-    APIObject, CircleNodeOptions, GraphNodeId, GraphNodeSet
+    APIObject, CircleNodeOptions, CommandsStruct, GraphNodeId, GraphNodeSet
 } from "../../types";
 import InputValidator from "./InputValidator";
 
@@ -15,17 +15,26 @@ import InputValidator from "./InputValidator";
 export default class APIHolder {
     private graphModel: GraphModel
     private renderer: Renderer
+    private commands: CommandsStruct
     private outputHelper: TerminalTabOutputHelper
     private inputValidator: InputValidator
     private apiBlocked: boolean
 
-    constructor(graphModel: GraphModel, renderer: Renderer) {
+    constructor(graphModel: GraphModel, renderer: Renderer, commands: CommandsStruct) {
         this.graphModel = graphModel
         this.renderer = renderer
+        this.commands = commands
         this.inputValidator = new InputValidator()
         this.outputHelper = new TerminalTabOutputHelper()
         this.outputHelper.setOutputContext("Output")
         this.apiBlocked = false
+    }
+
+    private listCommands() {
+        let cmdList: string[] = []
+        for (const [key, _] of Object.entries(this.commands))
+            cmdList.push(key)
+        this.output(cmdList.join(', '))
     }
 
     private output(message: string) {
@@ -40,7 +49,7 @@ export default class APIHolder {
         const srcNode: GraphNodeSet = this.graphModel.getAllDataForNode(nodeId)
         if (!srcNode) {
             this.outputHelper.setBlockStdOutput()
-            return null
+            return Array.from([])
         }
         //BFS happening here
         let nodeIds: Set<number> = new Set()
@@ -60,7 +69,6 @@ export default class APIHolder {
             const neighbours: number[] = []
             outIds.forEach(e => neighbours.push(e))
             inIds.forEach(e => neighbours.push(e))
-            // console.log(`Nei of ${curr} ${neighbours}`);
 
             for (const neighbour of neighbours)
                 if (!nodeIds.has(neighbour)) {
@@ -89,11 +97,16 @@ export default class APIHolder {
         return { ...conn.getOptions() }
     }
 
-    private async createNode(options: AnyGraphNodeOptions): Promise<number> {
-        if (!this.inputValidator.validateNodeOptions(options, NodeType.Circle)) {
+    private async createNode(nodeType: NodeType, options: AnyGraphNodeOptions): Promise<number> {
+        if (!this.inputValidator.validateNodeOptions(options, nodeType)) {
             this.apiBlocked = true
             return
         }
+
+        // redundant for now
+        options = Object.fromEntries(
+            Object.entries({ ...options }).filter(([key, value]) => value !== undefined))
+
         const node = new CircleNode(options as CircleNodeOptions)
         if (!this.graphModel.addNode(node))
             this.outputHelper.setBlockStdOutput()
@@ -104,11 +117,15 @@ export default class APIHolder {
         return Promise.resolve(node.getUniqueId())
     }
 
-    private createNodeSync(options: AnyGraphNodeOptions): number {
-        if (!this.inputValidator.validateNodeOptions(options, NodeType.Circle)) {
+    private createNodeSync(nodeType: NodeType, options: AnyGraphNodeOptions): number {
+        if (!this.inputValidator.validateNodeOptions(options, nodeType)) {
             this.apiBlocked = true
             return
         }
+
+        // redundant for now
+        options = Object.fromEntries(
+            Object.entries({ ...options }).filter(([key, value]) => value !== undefined))
 
         const node = new CircleNode(options as CircleNodeOptions)
         if (!this.graphModel.addNode(node))
@@ -133,6 +150,10 @@ export default class APIHolder {
             return null
         }
 
+        // redundant for now
+        options = Object.fromEntries(
+            Object.entries({ ...options }).filter(([key, value]) => value !== undefined))
+
         node.updateOptions(options)
         if (options.animation)
             node.uploadAnimationObject(options.animation)
@@ -151,6 +172,10 @@ export default class APIHolder {
             this.outputHelper.setBlockStdOutput()
             return null
         }
+
+        // redundant for now
+        options = Object.fromEntries(
+            Object.entries({ ...options }).filter(([key, value]) => value !== undefined))
 
         node.updateOptions(options)
         if (options.animation)
@@ -193,7 +218,7 @@ export default class APIHolder {
 
     private createConnectionSync(fromId: GraphNodeId, toId: GraphNodeId, options: AnyConnectionOptions) {
         if (fromId === toId) {
-            this.outputHelper.printErr('Self connection is an option only!')
+            this.outputHelper.printErr('Self connection is a node option only!')
             this.outputHelper.setBlockStdOutput()
             return
         }
@@ -221,6 +246,9 @@ export default class APIHolder {
             this.apiBlocked = true
             return
         }
+        // redundant for now
+        options = Object.fromEntries(
+            Object.entries({ ...options }).filter(([key, value]) => value !== undefined))
 
         const conn = this.graphModel.findConnection(fromId, toId)
         if (!conn) {
@@ -241,6 +269,10 @@ export default class APIHolder {
             this.apiBlocked = true
             return
         }
+
+        // redundant for now
+        options = Object.fromEntries(
+            Object.entries({ ...options }).filter(([key, value]) => value !== undefined))
 
         const conn = this.graphModel.findConnection(fromId, toId)
         if (!conn) {
@@ -278,7 +310,8 @@ export default class APIHolder {
             'clear': this.clear.bind(this),
             'getNodeProps': this.getNodeProps.bind(this),
             'getConnectionProps': this.getConnectionProps.bind(this),
-            'getAllNodesConnectedTo': this.getAllNodesConnectedTo.bind(this)
+            'getAllNodesConnectedTo': this.getAllNodesConnectedTo.bind(this),
+            'listCommands': this.listCommands.bind(this)
         }
     }
 

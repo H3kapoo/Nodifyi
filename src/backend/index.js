@@ -258,8 +258,8 @@ function openPrefsModal() {
 
 function openSaveCloudlyModalAndSendData(val) {
     saveCloudlyWindow = new BrowserWindow({
-        width: 400,
-        height: 300,
+        width: 500,
+        height: 500,
         modal: true,
         show: false,
         frame: false,
@@ -281,8 +281,8 @@ function openSaveCloudlyModalAndSendData(val) {
 
 function openLoadCloudlyModalAndSendData(val) {
     loadCloudlyWindow = new BrowserWindow({
-        width: 400,
-        height: 00,
+        width: 500,
+        height: 500,
         modal: true,
         show: false,
         frame: false,

@@ -1,9 +1,10 @@
 export const parsers = {
     /* example: a */
     String(argument: string): string {
-        if (this.Stringv(argument).length === 1)
-            return this.Stringv(argument)[0]
-        throw Error(`String argument type doesn't accept multiple string values in: '${argument}' !`)
+        return argument // so that commas are valid for this type, not broken into tokens
+        // if (this.Stringv(argument).length === 1)
+        // return this.Stringv(argument)[0]
+        // throw Error(`String argument type doesn't accept multiple string values in: '${argument}' !`)
     },
     /* example: a,b */
     String2(argument: string): string[] {

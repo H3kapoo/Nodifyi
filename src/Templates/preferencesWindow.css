@@ -37,7 +37,7 @@ body{
     flex-direction: column;
 }
 #canvas-prefs-tab, #exporting-prefs-tab, #terminal-prefs-tab, #commands-prefs-tab,
-#database-prefs-tab, #sharing-prefs-tab{
+#database-prefs-tab, #sharing-prefs-tab, #appearance-prefs-tab{
     padding-left: 10px;
     padding-right: 10px;
     border-top: 1px rgb(138, 138, 138) solid;
@@ -99,7 +99,7 @@ hr{
 }
 
 #exporting-gif-wrapper, #canvas-wrapper, #canvas-bg-wrapper, #terminal-termopts-wrapper,
-#commands-wrapper, #database-wrapper, #sharing-wrapper{
+#commands-wrapper, #database-wrapper, #sharing-wrapper, #appearance-wrapper{
     width: 100%;
     height: auto;
     display: flex;
@@ -107,12 +107,12 @@ hr{
 }
 
 #exporting-gif-title,#canvas-title, #canvas-bg-title, #terminal-termopts-title,
-#commands-title, #database-title, #sharing-title, #sharing-data-title{
+#commands-title, #database-title, #sharing-title, #sharing-data-title, #appearance-title{
     margin: 10px 0px;
 }
 
 #exporting-gif-opts, #canvas-opts, #canvas-bg-opts, #terminal-termopts-opts,
-#commands-opts, #database-opts, #sharing-opts, #sharing-data-opts{
+#commands-opts, #database-opts, #sharing-opts, #sharing-data-opts, #appearance-opts{
     display: grid;
     grid-template-columns: 1fr 3fr;
     grid-template-rows: 1fr 1fr;
@@ -134,7 +134,7 @@ hr{
     justify-content: center;
 }
 
-#udPath, #dbUri{
+#udPath, #dbUri, #right_terminal{
     text-align: left; 
     width: 300px;
     margin: 3px 0px;

@@ -12,7 +12,8 @@
     <div id='preferences-tab-list'>
         <div id='names-of-them'>
             <ul id='opts-container' data-tabs-prefs>
-                <li><a data-tabby-default href="#canvas-prefs-tab">Canvas</a></li>
+                <li><a data-tabby-default href="#appearance-prefs-tab">Appearance</a></li>
+                <li><a href="#canvas-prefs-tab">Canvas</a></li>
                 <li><a href="#commands-prefs-tab">Commands</a></li>
                 <li><a href="#exporting-prefs-tab">Exporting</a></li>
                 <li><a href="#terminal-prefs-tab">Terminal</a></li>
@@ -21,6 +22,18 @@
             </ul>
         </div>
         <div id='opts-part'>
+
+            <!-- Appearance -->
+            <div id='appearance-prefs-tab'>
+                <div id="appearance-wrapper">
+                    <h2 id="appearance-title">Appearance</h2>
+                    <div id="appearance-opts">
+                        <label>Right Side Terminal</label>
+                        <input id="right_terminal" type="checkbox" />
+                    </div>
+                </div>
+            </div>
+
             <!-- canvas -->
             <div id='canvas-prefs-tab'>
                 <div id="canvas-wrapper">
