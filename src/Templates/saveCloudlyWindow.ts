@@ -14,7 +14,6 @@ const cancelBtnElement = document.getElementById('cancelBtn')
 const saveTextElement = <HTMLInputElement>document.getElementById('saveText')
 
 saveBtnElement.addEventListener('click', () => {
-    //TODO: better checking
     if (saveTextElement.value !== undefined) {
         if (saveNames.includes(saveTextElement.value))
             //prompt for override

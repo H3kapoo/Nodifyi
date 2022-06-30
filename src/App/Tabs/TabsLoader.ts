@@ -17,7 +17,6 @@ export default class TabsLoader implements IReloadable {
     private canvasTab: CanvasTab
 
     constructor() {
-        /* Quick change of UI pos, TO BE REMOVED: works*/
         ipcRenderer.on('UPDATE_UI', () => {
             this.splitInstance.destroy()
             this.splitInstance = Split(['#subview-1', '#subview-2'], {

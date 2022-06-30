@@ -3,19 +3,21 @@
     src: url("../App/Styles/JetBrainsMono-Regular.ttf");
 }
 
-*{
+* {
     font-family: "mainFont";
     padding: 0;
     margin: 0;
-    box-sizing:border-box;
+    box-sizing: border-box;
 }
-body{
-    background-color: rgb(240, 240, 240);
+
+body {
+    background-color: rgb(204, 204, 204);
     width: 100wh;
     height: 100vh;
     min-width: 500px;
 }
-#preferences-tab-list{
+
+#preferences-tab-list {
     width: 100%;
     height: 100%;
     display: flex;
@@ -24,7 +26,7 @@ body{
     min-width: 700px;
 }
 
-#opts-part{
+#opts-part {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -32,12 +34,19 @@ body{
     width: 100%;
     height: 100%;
 }
-#opts-container{
+
+#opts-container {
     display: flex;
     flex-direction: column;
 }
-#canvas-prefs-tab, #exporting-prefs-tab, #terminal-prefs-tab, #commands-prefs-tab,
-#database-prefs-tab, #sharing-prefs-tab, #appearance-prefs-tab{
+
+#canvas-prefs-tab,
+#exporting-prefs-tab,
+#terminal-prefs-tab,
+#commands-prefs-tab,
+#database-prefs-tab,
+#sharing-prefs-tab,
+#appearance-prefs-tab {
     padding-left: 10px;
     padding-right: 10px;
     border-top: 1px rgb(138, 138, 138) solid;
@@ -46,96 +55,132 @@ body{
     /* justify-content: flex-start;     */
     width: 100%;
     height: 100%;
+    background-color: rgb(204, 204, 204);
+
 }
 
-#canvasDims{
+#canvasDims {
     margin: 10px 0px;
     display: grid;
     grid-template-columns: 1fr 3fr;
     grid-template-rows: 1fr 1fr;
 }
-label{
+
+label {
     min-width: 200px;
     font-size: 0.9em;
 }
 
-input{
+input {
     text-align: center;
 }
 
 
-#final_submit{
+#final_submit {
     width: 30%;
     height: 40px;
     margin: auto;
 }
 
-#close_btn{
+#close_btn {
     width: 30%;
     height: 40px;
     margin: auto;
 }
 
-#buttons{
+#buttons {
     padding-bottom: 10px;
     width: 100%;
     display: flex;
     /* align-items: center; */
     justify-content: space-around;
+    background-color: rgb(204, 204, 204);
+
 }
 
-#names-of-them{
+#names-of-them {
     overflow: auto;
     width: 100%;
     max-width: 200px;
 }
-a{
-   width: 100%;
-   min-width: 200px;
-   max-width: 200px;
+
+a {
+    width: 100%;
+    min-width: 200px;
+    max-width: 200px;
 }
-hr{
+
+hr {
     margin-top: 10px;
 }
 
-#exporting-gif-wrapper, #canvas-wrapper, #canvas-bg-wrapper, #terminal-termopts-wrapper,
-#commands-wrapper, #database-wrapper, #sharing-wrapper, #appearance-wrapper{
+#exporting-gif-wrapper,
+#canvas-wrapper,
+#canvas-bg-wrapper,
+#terminal-termopts-wrapper,
+#commands-wrapper,
+#database-wrapper,
+#sharing-wrapper,
+#appearance-wrapper {
     width: 100%;
     height: auto;
     display: flex;
     flex-direction: column;
 }
 
-#exporting-gif-title,#canvas-title, #canvas-bg-title, #terminal-termopts-title,
-#commands-title, #database-title, #sharing-title, #sharing-data-title, #appearance-title{
+#exporting-gif-title,
+#canvas-title,
+#canvas-bg-title,
+#terminal-termopts-title,
+#commands-title,
+#database-title,
+#sharing-title,
+#sharing-data-title,
+#appearance-title {
     margin: 10px 0px;
 }
 
-#exporting-gif-opts, #canvas-opts, #canvas-bg-opts, #terminal-termopts-opts,
-#commands-opts, #database-opts, #sharing-opts, #sharing-data-opts, #appearance-opts{
+#exporting-gif-opts,
+#canvas-opts,
+#canvas-bg-opts,
+#terminal-termopts-opts,
+#commands-opts,
+#database-opts,
+#sharing-opts,
+#sharing-data-opts,
+#appearance-opts {
     display: grid;
     grid-template-columns: 1fr 3fr;
     grid-template-rows: 1fr 1fr;
 }
 
-#delay, #skip_frames,
-#width, #height,
-#hsep, #vsep,
-#pretext, #senderEmail,
-#senderPass, #senderFrom,
-#senderSubject{
+#delay,
+#skip_frames,
+#width,
+#height,
+#hsep,
+#vsep,
+#pretext,
+#senderEmail,
+#senderPass,
+#senderFrom,
+#senderSubject {
     width: 200px;
     margin: 3px 0px;
 }
 
-#senderPassCover, #projFile, #imgFile{
+#senderPassCover,
+#projFile,
+#imgFile {
     margin: auto 0;
     align-items: center;
     justify-content: center;
 }
 
-#udPath, #dbUri, #right_terminal{
-    text-align: left; 
+#udPath,
+#dbUri,
+#right_terminal {
+    text-align: left;
     width: 300px;
     margin: 3px 0px;
 }

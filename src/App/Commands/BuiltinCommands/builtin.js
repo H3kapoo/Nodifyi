@@ -1,24 +1,3 @@
-/*
-
-POSSIBLE TEST CASES FOR POSSIBLE BASIC BUILT IN COMMANDS:
-- create nodes
-    make.node -pos x,y|x2,y2|.. -radius 30 -color ff00ffff
-    make.node -pos x,y|x2,y2|.. -apos x,y|x2,y2|.. -radius 30 -aradius 30 -color ff00ffff -acolor ff00ffff -ease easeIn -duration 2000
-
-- update nodes
-    update.node -id x,y,z,.. -radius 3 -others..
-    update.node -id x,y,z,.. -aradius 3 -aothers.. -duration 2000 -ease easeIn
-
-- delete nodes
-    update.delete -id x,y,z,..
-    //no anim
-
-- create conns
-    make.conn -id x,y|x2,y2 -text t1,t2
-- update conns
-- delete conns
-
-*/
 module.exports = {
     "clear":
     {
@@ -83,6 +62,35 @@ module.exports = {
                 api.doOutput(`Created node at position ${pos}!`)
             }
         }
+    },
+    "cn-help":
+    {
+        "schema": {
+            "name": 'cn-help',
+            "mandatory": [],
+        },
+        async logic(parsedData, api) {
+            api.doOutput("===============================  Help 'cn' =============================================")
+            api.doOutput("> Description: Used to simply create a node or series of nodes with different options")
+            api.doOutput("> Options: ")
+            api.doOutput("--- 'pos<Number2vs>'                 => vector of node positions")
+            api.doOutput("--- 'rad<AbsNumber>'                 => radius of the node(s)")
+            api.doOutput("--- 'color<String>'                  => color of the node(s)")
+            api.doOutput("--- 'text<String>'                   => text inside the node(s)")
+            api.doOutput("--- 'startConn<Boolean>'             => should node be start of automata")
+            api.doOutput("--- 'startConnAngle<Number>'         => angle of automata start connection")
+            api.doOutput("--- 'startConnLength<Number>'        => length of automata start connection")
+            api.doOutput("--- 'selfConnect<Boolean>'           => connect node to itself")
+            api.doOutput("--- 'selfArrow<Boolean>'             => add directional arrow to self connection")
+            api.doOutput("--- 'selfText<Text>'                 => add text to self connection")
+            api.doOutput("--- 'selfAngle<Number>'              => set angle self connection")
+            api.doOutput("--- 'selfElevation<AbsNumber>'       => set elevation of self connection")
+            api.doOutput("--- 'selfApertureAngle<Number>'      => set angle between self connection points")
+            api.doOutput("--- 'selfTextElevation<Number>'      => set elevation of self connection text")
+            api.doOutput("--- 'selfFixedTextRotation<Boolean>' => rotate self connection text by self angle")
+            api.doOutput("===============================  End Help 'cn' ==========================================")
+        }
+
     },
     "un":
     {
@@ -168,7 +176,6 @@ module.exports = {
                     textElevation: parsedData.textElevation,
                 })
             api.doOutput('Created connections!')
-            // cn pos 400,500|800,600 && cc id 1,2 directed true
         }
     },
     "uc":
@@ -247,90 +254,17 @@ module.exports = {
             }
         }
     },
-    1: {
-        "schema": {
-            "name": 'delnode',
-            "mandatory": [],
-            "id": "String",
-            "ceva": "NotRequired"
-        },
-        async logic(parsedData, api) {
-            const poss = [
-                [100, 300],
-                [250, 300],
-                [400, 300],
-                [550, 300],
-                [700, 300],
-            ]
-            let ids = []
-            for (const pos of poss) {
-                const id =
-                    api.createNodeSync('Circle', {
-                        position: pos,
-                        color: '#00000000'
-                    })
-                ids.push(id)
-            }
-
-            for (let i = 0; i < ids.length - 1; i++) {
-                await api.createConnection(ids[i], ids[i + 1], {
-                    elevation: 0,
-                    animation: {
-                        elevation: ids[i] % 2 ? 50 : -50,
-                        duration: 400
-                    }
-                })
-            }
-
-            async function createConn(n1, n2) {
-                await api.createConnection(n1, n2, {
-                    elevation: 0,
-                    animation: {
-                        elevation: n1 % 2 ? 50 : -50,
-                        duration: 200
-                    }
-                })
-            }
-        }
-    },
-    4: {
-        "schema": {
-            "name": 'test',
-            "mandatory": [],
-            "ids": "AbsNumber2"
-        },
-        async logic(parsedData, api) {
-            const n1 = await api.createNode({
-                position: [300, 300],
-                color: '#ff111100',
-                animation: {
-                    color: "#ff0000ff",
-                    duration: 500
-                }
-            })
-            const n2 = await api.createNode('Circle', {
-                position: [600, 600]
-            })
-
-            await api.createConnection(n1, n2, {
-                color: '#ffffff00',
-                animation: {
-                    color: '#ffeebbff',
-                    duration: 1000
-                }
-            })
-        }
-    },
     2: {
         "schema": {
             "name": 'mknode',
             "mandatory": ["pos"],
             "pos": "AbsNumber2",
             "radius": "AbsNumber",
-            "skip": "AbsNumber"
+            "skip": "AbsNumber",
+            "node_count": "AbsNumber"
         },
         async logic(parsedData, api) {
-            const pts = radialPoints(parsedData.pos, parsedData.radius || 300, 10)
+            const pts = radialPoints(parsedData.pos, parsedData.radius || 300, parsedData.node_count || 10)
             const nodeIds = []
             for (const pt of pts) {
                 const id = await api.createNode('Circle', {
@@ -368,35 +302,6 @@ module.exports = {
                 }
                 return points
             }
-        }
-    },
-    3: {
-        "schema": {
-            "name": 'createNode',
-            "mandatory": ["id"],
-            "id": "Number",
-        },
-        async logic(parsedData, api) {
-            await api.createNode(parsedData.id, {})
-        }
-    },
-    4: {
-        "schema": {
-            "name": 'cns',
-            "mandatory": ["pos"],
-            "pos": "AbsNumber2vs",
-        },
-        async logic(parsedData, api) {
-            for (const pos of parsedData.pos) {
-                const id = api.createNodeSync({
-                    position: pos,
-                    animation: {
-                        position: [500, 600],
-                        duration: 500
-                    }
-                })
-            }
-
         }
     }
 }

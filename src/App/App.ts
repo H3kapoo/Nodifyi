@@ -80,7 +80,6 @@ export default class App {
         /* Subscribe for when something gets parsed */
         this.parser.subscribeOnParsed(this.executor)
 
-        //TODO: BIG BIG TODO, MOVE THOSE IN THEIR OWN CLASSES, NO NEED FOR THEM HERE IN THE OPEN
         /* Subscribe modules that are affected by conf reload */
         Configuration.get().subscribeReloadable(this.commandStore)
         Configuration.get().subscribeReloadable(this.tabsLoader)
@@ -94,7 +93,6 @@ export default class App {
         /* Preferences might affect every reloadable, so update them all */
         ipcRenderer.on('PREFS_UPDATE', (evt: any, val: any) => {
             Configuration.get().updateCurrentConf(val)
-            // This shall be differentiated
             this.parser.updateCommands(this.commandStore.getCommands())
             this.executor.updateCommands(this.commandStore.getCommands())
             this.renderer.render(false)
@@ -112,16 +110,6 @@ export default class App {
             GraphNodeBase.toggleHeadsUpIndexing()
             this.renderer.render(false)
         })
-
-        // /* Quick change of UI pos, TO BE REMOVED: works*/
-        // ipcRenderer.on('UPDATE_UI', () => {
-        //     this.splitInstance.destroy()
-        //     this.splitInstance = Split(['#subview-1', '#subview-2'], {
-        //         sizes: [50, 50],
-        //         direction: 'horizontal'
-        //     })
-        //     document.getElementById('application-container').style.flexDirection = 'row'
-        // })
 
         /* Start-app render trigger */
         this.renderer.render(false)

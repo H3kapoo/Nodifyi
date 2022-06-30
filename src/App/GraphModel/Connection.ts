@@ -81,7 +81,6 @@ export default class Connection {
         const pnt: Vec2d =
             utils.getBezierPointsText(bezierPoints.start, bezierPoints.control, bezierPoints.end, textElevation)
 
-        // cn pos 400,700 && cn pos 600,700 && cc id 2,1 text ceva
         // shall text follow nodes angle or not;  fixed = yes
         if (!this.options.fixedTextRotation) {
             ctx.strokeText(this.options.text, pnt[0], pnt[1])

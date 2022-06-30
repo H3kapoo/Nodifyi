@@ -106,7 +106,6 @@ export default class Renderer implements IReloadable {
             this.resolver()
     }
 
-    //TODO: Implement this system later
     public interruptRender() {
         /* Will terminate the currently running animation bit */
         // needs rerendering = false
@@ -154,7 +153,6 @@ export default class Renderer implements IReloadable {
         this.drawContext.drawImage(this.backgroundDataImage, 0, 0)
     }
 
-    //TODO: Move those two in render utils
     private renderText(position: Vec2d, text: string): void {
         this.drawContext.font = '0.60em Courier New'
         this.drawContext.strokeStyle = "#00000011"

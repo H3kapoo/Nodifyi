@@ -140,7 +140,6 @@ export default class SaveLoadFacade {
 
     private setProjectClean() {
         const windowTitle = getCurrentWindow().getTitle()
-        //TODO: change to replace just last char if *
         getCurrentWindow().setTitle(windowTitle.replace('*', ''))
     }
 

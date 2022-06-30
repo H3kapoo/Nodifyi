@@ -75,6 +75,5 @@ export default abstract class GraphNodeBase {
         return this.options
     }
 
-    /** TESTS ONLY , maybe deprecated, who needs tests:)) */
     public static testOnlyResetIdGiver() { GraphNodeBase.idGiver = 0 }
 }

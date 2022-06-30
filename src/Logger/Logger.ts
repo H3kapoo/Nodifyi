@@ -34,8 +34,6 @@ export class Logger {
         else
             console.log(`%c[${this.defaultLevel}][${this.context}] ${msg}`, this.getLoggerLevelColor(this.defaultLevel))
 
-
-        /* This is a temporary solution, to be removed in later versions */
         /* Only open error dialog on FATAL */
         if (level && level === LoggerLevel.FATAL) {
             ipcRenderer.send("FATAL_ERROR", { msg: msg })

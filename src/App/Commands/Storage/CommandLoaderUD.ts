@@ -18,7 +18,7 @@ export default class CommandLoaderUD {
         const cmdPaths: string[] = this.getCommandPaths(directoryPath)
 
         // if it fails here fetching stuff from the folder, it shall continue normally
-        // but there ill be no user defined commands available, user shall be notified
+        // but there will be no user defined commands available, user shall be notified
         if (!cmdPaths) {
             this.logger.log(`User defined commands could not be loaded from directory.Continuing without them!`, LoggerLevel.WRN)
             this.showDialogMsg(`User defined commands could not be loaded from directory.Continuing without them!`)
@@ -28,7 +28,6 @@ export default class CommandLoaderUD {
         for (const cmdPath of cmdPaths) {
             const object = this.getObject(cmdPath)
 
-            // currently it will not load any cmds if at least one is failed
             if (!object)
                 return false
 
@@ -56,7 +55,6 @@ export default class CommandLoaderUD {
         try {
             const cmdPaths = fs.readdirSync(directoryPath).map(e => directoryPath + path.sep + e)
 
-            // added now
             for (const cmdPath of cmdPaths) {
                 const i = cmdPath.length
 

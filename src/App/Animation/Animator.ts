@@ -46,7 +46,7 @@ export default class Animator {
 
     private transition(): AnyObjectOptions {
         // getting here assumes that animationOptions only contains options
-        // that have a transitioner defined
+        // that we have a transitioner defined
         for (const [animOpt, animArg] of Object.entries(this.animationOptions)) {
             const startVal = this.initialOptions[animOpt]
             const endVal = this.animationOptions[animOpt]

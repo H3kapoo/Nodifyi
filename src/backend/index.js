@@ -153,7 +153,7 @@ menu.append(editMenu)
 menu.append(exportMenu)
 menu.append(shareMenu)
 menu.append(cloudMenu)
-menu.append(debugMenu)
+// menu.append(debugMenu)
 Menu.setApplicationMenu(menu)
 
 ipcMain.on('PREFS_UPDATE', (e, v) => mainWindow.webContents.send('PREFS_UPDATE', v))
@@ -193,7 +193,6 @@ function openFatalModal(message) {
         height: 300,
         modal: true,
         show: false,
-        // frame: false,
         parent: mainWindow,
         resizable: false,
         webPreferences: {
@@ -209,7 +208,6 @@ function openFatalModal(message) {
     fatalModalWindow.once("ready-to-show", () => {
         fatalModalWindow.show()
         fatalModalWindow.webContents.send('FATAL_ERROR_MESSAGE', message)
-        // fatalModalWindow.webContents.openDevTools()
     })
 }
 
@@ -259,7 +257,7 @@ function openPrefsModal() {
 function openSaveCloudlyModalAndSendData(val) {
     saveCloudlyWindow = new BrowserWindow({
         width: 500,
-        height: 500,
+        height: 400,
         modal: true,
         show: false,
         frame: false,

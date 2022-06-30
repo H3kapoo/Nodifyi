@@ -58,7 +58,6 @@ export default class APIHolder {
 
         while (queue.length) {
             const curr = queue.shift()
-            // console.log(curr);
 
             // this assumes the node already exists anyway
             const currNode: GraphNodeSet = this.graphModel.getAllDataForNode(curr)
@@ -103,7 +102,6 @@ export default class APIHolder {
             return
         }
 
-        // redundant for now
         options = Object.fromEntries(
             Object.entries({ ...options }).filter(([key, value]) => value !== undefined))
 
@@ -123,7 +121,6 @@ export default class APIHolder {
             return
         }
 
-        // redundant for now
         options = Object.fromEntries(
             Object.entries({ ...options }).filter(([key, value]) => value !== undefined))
 
@@ -150,7 +147,6 @@ export default class APIHolder {
             return null
         }
 
-        // redundant for now
         options = Object.fromEntries(
             Object.entries({ ...options }).filter(([key, value]) => value !== undefined))
 
@@ -173,7 +169,6 @@ export default class APIHolder {
             return null
         }
 
-        // redundant for now
         options = Object.fromEntries(
             Object.entries({ ...options }).filter(([key, value]) => value !== undefined))
 
@@ -246,7 +241,6 @@ export default class APIHolder {
             this.apiBlocked = true
             return
         }
-        // redundant for now
         options = Object.fromEntries(
             Object.entries({ ...options }).filter(([key, value]) => value !== undefined))
 
@@ -270,7 +264,6 @@ export default class APIHolder {
             return
         }
 
-        // redundant for now
         options = Object.fromEntries(
             Object.entries({ ...options }).filter(([key, value]) => value !== undefined))
 

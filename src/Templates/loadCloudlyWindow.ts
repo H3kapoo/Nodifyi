@@ -35,20 +35,20 @@ ipcRenderer.on('DISPATCH_CLOUD_LOAD', (evt: any, data: any) => {
 
         liElement.addEventListener('click', () => {
             if (selectedLi)
-                selectedLi.style.backgroundColor = 'rgb(240, 240, 240)'
+                selectedLi.style.backgroundColor = 'rgb(204, 204, 204)'
             selectedLi = liElement
-            liElement.style.backgroundColor = '#40ff00'
+            liElement.style.backgroundColor = '#7CFC00'
         })
 
         liElement.addEventListener('mouseenter', () => {
-            liElement.style.backgroundColor = '#40ff00'
+            liElement.style.backgroundColor = '#7CFC00'
             if (selectedLi != liElement)
                 liElement.style.backgroundColor = '#bfbfbf'
         })
         liElement.addEventListener('mouseleave', () => {
-            liElement.style.backgroundColor = 'rgb(240, 240, 240)'
+            liElement.style.backgroundColor = 'rgb(204, 204, 204)'
             if (selectedLi === liElement)
-                liElement.style.backgroundColor = '#40ff00'
+                liElement.style.backgroundColor = '#7CFC00'
 
         })
         nameBaseElement.appendChild(liElement)
